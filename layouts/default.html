@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ArchLinuxVn - <%= @item[:title] %></title>
+    <link rel="stylesheet" type="text/css" href="/style.css" media="screen">
+  </head>
+  <body>
+    <div id="main">
+      <%= yield %>
+      <% if @item[:tags] or @item[:author] %>
+      <p>
+        <% if @item[:tags] %>
+          tags: <%= tags %>
+        <% end %>
+        <% if @item[:author] %>
+          <% if @item[:tags] %>
+            <br />
+          <% end %>
+          <em>-- last updated by <strong><%= @item[:author] %></strong></em>
+        <% end %>
+      </p>
+      <% end %>
+    </div>
+    <div id="sidebar">
+      <h2>ArchLinuxVn</h2>
+      <ul>
+        <li><a href="/vn/about">giới thiệu</a></li>
+        <li><a href="/vn/news">tin tức</a></li>
+        <li><a href="/vn/members">thành viên</a></li>
+      </ul>
+      <h2>Blog</h2>
+      <ul>
+        <li><a href="/blog/">tất cả</a></li>
+        <li><a href="/blog/~huy/">~huy</a>, <a href="/blog/~icy/">~icy</a></li>
+      </ul>
+      <h2>Tài liệu</h2>
+      <ul>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/doc/newbie">cơ bản</a></li>
+        <li><a href="/doc/oldbie">trung bình</a></li>
+      </ul>
+      <h2>Liên kết</h2>
+      <ul>
+        <li><a href="/">trang chủ</a></li>
+        <li><a href="http://groups.google.com/group/archlinuxvn/">nhóm thư</a></li>
+        <li><a href="http://webchat.freenode.net/?randomnick=1&channels=archlinuxvn&prompt=1&uio=d4">irc#archlinuxvn</a></li>
+        <li><a href="http://github.com/archlinuxvn/">mã nguồn</a></li>
+      </ul>
+    </div>
+  </body>
+</html>
