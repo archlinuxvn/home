@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+########################################################################
+# WARNING: normal authors are not allowed to change this file.         #
+#          all changes will be simply ignored by server                #
+########################################################################
+
 # A few helpful tips about the Rules file:
 #
 # * The string given to #compile and #route are matching patterns for

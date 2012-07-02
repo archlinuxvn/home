@@ -1,4 +1,19 @@
+########################################################################
+# WARNING: normal authors are not allowed to change this file.         #
+#          all changes will be simply ignored by server                #
+########################################################################
+
 module GitHelper
+
+  #
+  # @purpose: Provide git information of an item
+  # @author: Anh K. Huynh
+  # @syntax:
+  #   git(:date, item)
+  #   git(:author, item)
+  #
+  # @example: see in layouts/default.html
+  #
   def git(op, item)
     path = item.respond_to?(:identifier) ? item.send(:identifier) : item
     unless File.file?(path)

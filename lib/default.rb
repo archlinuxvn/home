@@ -1,5 +1,7 @@
-# All files in the 'lib' directory will be loaded
-# before nanoc starts compiling.
+########################################################################
+# WARNING: normal authors are not allowed to change this file.         #
+#          all changes will be simply ignored by server                #
+########################################################################
 
 include Nanoc::Helpers::HTMLEscape
 include Nanoc::Helpers::LinkTo
