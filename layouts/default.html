@@ -8,19 +8,12 @@
   <body>
     <div id="main">
       <%= yield %>
-      <% if @item[:tags] or @item[:author] %>
+
       <p>
-        <% if @item[:tags] %>
-          tags: <%= tags %>
-        <% end %>
-        <% if @item[:author] %>
-          <% if @item[:tags] %>
-            <br />
-          <% end %>
-          <em>-- last updated by <strong><%= @item[:author] %></strong></em>
-        <% end %>
+        ----
+        <br />
+        <em>last updated by <%= git(:author, @item) %> @ <%= git(:date, @item) %></em>
       </p>
-      <% end %>
     </div>
     <div id="sidebar">
       <h2>ArchLinuxVn</h2>
