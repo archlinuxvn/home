@@ -19,27 +19,35 @@ các trang tĩnh từ mã nguồn được quản lý bằng `git`. Tất cả c
      là `.pub`).
    * Sau khi nhận được thông tin qua email riêng, bạn cần đảm bảo thông
      tin bạn có **không được chia sẻ cho bất kỳ bên thứ ba nào**.
+
 2. Cài đặt Ruby trên hệ thống của bạn, bằng lệnh `pacman -S ruby`.
    Sau khi cài đặt Ruby, bạn cần cài đặt các thành phần sau
-   * RubyGems (trình quản lý gói cho Ruby)
+   * Ruby Gems _(trình quản lý gói cho Ruby; trình này đã có sẵn khi bạn
+     cài Ruby 1.9 trên ArchLinux.)_
    * Cài đặt gems bằng lệnh: `gem install nanoc adsf kramdown`
+
 3. Tạo một nhân bải của mã nguồn trang chủ bằng lệnh
     `git clone git@viettug.org:archlinuxvn`
+
 4. Bạn sẽ làm việc với
       [markdown](http://daringfireball.net/projects/markdown/syntax)
    và [nanoc](http://nanoc.stoneship.org/docs/), vì thế dành chút thời gian
-   đọc qua tài liệu của hai phần này khi bạn có thể. Hoặc bạn có thể học
-   theo các bài viết đã có trên trang chủ.
+   đọc qua tài liệu của hai phần này.
+   Bạn có thể học theo các bài viết đã có.
+
 5. Sau khi soạn bài, bạn có thể sử dụng `nanoc` để tạo ra các trang tĩnh.
-6. Bạn dùng lệnh `nanoc view` để  tạo một máy phục vụ <http://localhost:3000>
-   và bạn có thể truy cập địa chỉ này bằng trình duyệt trên máy tính. Bạn
-   sẽ có một phiên bản của trang chủ ArchLinuxVn giống đến 99%!
-7. Sau khi kiểm tra và vừa ý, bạn có thể xác nhận thay đổi bằng lệnh
+   Bạn dùng lệnh `nanoc view` để tạo một máy phục vụ <http://localhost:3000>
+   có thể truy cập được bằng trình duyệt trên máy tính của bạn.
+
+6. Sau khi kiểm tra và vừa ý, bạn có thể xác nhận thay đổi bằng lệnh
    `git commit` và sau đó gửi thay đổi trên máy phục vụ bằng lệnh
-   `git push`. Nếu xảy ra xung đột, bạn dùng lệnh `git pull` trước khi
-   thử `git push` thêm lần nữa. Nếu vẫn có lỗi, hãy liên lạc với
-   bạn khác để được giúp đỡ.
-8. Sau khi bạn thực hiện thành công `git push`, máy phục vụ của VietTUG
+   `git push`.
+   * Nếu xảy ra xung đột, bạn dùng lệnh `git pull` trước khi thử `git push`
+   thêm lần nữa. Nếu vẫn có lỗi, hãy liên lạc với bạn khác để được giúp đỡ.
+   * **Lưu ý:** Thư mục _output_ là nơi chứa các trang được sinh ra. Do đó,
+   không bao giờ thêm thư mục này vào khi bạn dùng `git commit`.
+
+7. Sau khi bạn thực hiện thành công `git push`, máy phục vụ của VietTUG
    sẽ tự động biên dịch và cập nhật thay đổi ở trang chủ của ArchLinuxVn.
    Vì các thành viên đều có quyền truy cập như nhau đến mọi trang của nhóm,
    bạn được khuyến cáo hãy cẩn thận khi chỉnh sửa, thay đổi các bài viết
