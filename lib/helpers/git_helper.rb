@@ -30,6 +30,6 @@ module GitHelper
     end
     File.file?(file_name) \
       ? %x{#{command}}.strip \
-      : "Item not found '#{file_name}'"
+      : "Path not found '#{path}'"
   end
 end
