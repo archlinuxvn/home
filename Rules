@@ -17,26 +17,11 @@ compile '/stylesheet/' do
   # don’t filter or layout
 end
 
-compile '/*' do
-  filter :kramdown
-  layout 'default'
-end
-
-compile '/vn/*/' do
-  filter :kramdown
-  layout 'default'
-end
-
-compile '/doc/*/' do
-  filter :kramdown
-  layout 'default'
-end
-
 compile '*' do
   if item.binary?
     # don’t filter binary items
   else
-    filter :erb
+    filter :kramdown
     layout 'default'
   end
 end
