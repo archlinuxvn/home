@@ -6,24 +6,29 @@ title: Viết bài cho ArchLinuxVn
 
 ArchLinuxVn sử dụng [nanoc](http://nanoc.stoneship.org/docs/) để  tạo trang
 các trang tĩnh từ mã nguồn được quản lý bằng `git`. Tất cả các tác giả
-đều có quyền ghi vào mã nguồn chính.
+đều có quyền ghi vào mã nguồn chính trên nhánh `master` theo định dạng
+`markdown`.
 
 Để viết bài cho nhóm, bạn cần nhớ các điểm sau
 
 1. Tài khoản để sửa bài. Đây là tài khoản để truy cập vào mã nguồn (git)
    của trang chủ. Mã nguồn để trên máy phục vụ <http://viettug.org>.
    Bạn cần liên hệ với [Kỳ Anh](/blog/~icy) để có được tài khoản này.
+
    * Trước khi xin một tài khoản, bạn cần chuẩn bị một cặp `SSH key`; nếu
      chưa có, sử dụng lệnh `ssh-keygen -t dsa`. Nếu có rồi, hãy gửi cho
      Kỳ Anh bản công cộng của cặp khóa đó (nội dung của tập tin có đuôi
      là `.pub`).
+
    * Sau khi nhận được thông tin qua email riêng, bạn cần đảm bảo thông
      tin bạn có **không được chia sẻ cho bất kỳ bên thứ ba nào**.
 
 2. Cài đặt Ruby trên hệ thống của bạn, bằng lệnh `pacman -S ruby`.
    Sau khi cài đặt Ruby, bạn cần cài đặt các thành phần sau
+
    * Ruby Gems _(trình quản lý gói cho Ruby; trình này đã có sẵn khi bạn
      cài Ruby 1.9 trên ArchLinux.)_
+
    * Cài đặt gems bằng lệnh: `gem install nanoc adsf kramdown`
 
 3. Tạo một nhân bải của mã nguồn trang chủ bằng lệnh
@@ -53,3 +58,11 @@ các trang tĩnh từ mã nguồn được quản lý bằng `git`. Tất cả c
    bạn được khuyến cáo hãy cẩn thận khi chỉnh sửa, thay đổi các bài viết
    đã có. Tốt nhất, nếu có điều gì phân vân, hãy hội ý với các bạn khác
    trước khi quyết định!
+
+8. Nếu bạn cần thay đổi, bổ sung một số quy tắc biên dịch hoặc thư viện,
+   bạn cần quyền ghi vào nhánh `core` (các thay đổi của những tập tin như
+   `Rules`, `libs/*` trên nhánh `master` sẽ bị bỏ qua trong quá trình
+   biên dịch). Cách đơn giản nhất là liên hệ với người quản lý nhánh
+   `core` để xác nhận các thay đổi của bạn. **Lưu ý** rằng việc này là cần
+   thiết để đảm bảo an toàn cho máy phục vụ.
+
