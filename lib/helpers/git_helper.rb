@@ -5,9 +5,8 @@
 
 module GitHelper
 
-  #
   # @purpose: Provide git information of an item
-  # @author: Anh K. Huynh
+  # @author:  Anh K. Huynh
   # @syntax:
   #   git(:date, item)
   #   git(:author, item)
