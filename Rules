@@ -18,9 +18,9 @@
 #   item, use the pattern “/about/*/”; “/about/*” will also select the parent,
 #   because “*” matches zero or more characters.
 
-compile '/stylesheet/' do
-  # don’t filter or layout
-end
+compile '/stylesheet/' do; end
+#compile '/about/'      do; end
+#compile '/vn/about/'   do; end
 
 compile '*' do
   if item.binary?
@@ -33,6 +33,14 @@ end
 
 route '/stylesheet/' do
   '/style.css'
+end
+
+route '/about/' do
+  '/'
+end
+
+route '/vn/about/' do
+  '/'
 end
 
 route '*' do
