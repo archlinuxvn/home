@@ -27,7 +27,7 @@ module GitHelper
     command = case op
       when :date   then "git log -1 --pretty=\"format:%cd\" \"#{file_name}\""
       when :author then "git log -1 --pretty=\"format:%an\" \"#{file_name}\""
-      else         then  nil
+      else nil
     end
     command and File.file?(file_name) \
       ? %x{#{command}}.strip \
