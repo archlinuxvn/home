@@ -8,12 +8,12 @@
   <body>
     <div id="main">
       <%= yield %>
-
       <p>
         ----
         <br />
         <em>last updated by <%= git(:author, @item) %> @ <%= git(:date, @item) %></em>
       </p>
+      <%= @item[:allow_comment] ? disqus_show : "" %>
     </div>
     <div id="sidebar">
       <h2><a href="/vn/about">ArchLinuxVn</a></h2>
