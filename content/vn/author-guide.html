@@ -4,12 +4,15 @@ title: Viết bài cho ArchLinuxVn
 
 # Viết bài cho ArchLinuxVn
 
-ArchLinuxVn sử dụng [nanoc](http://nanoc.stoneship.org/docs/) để  tạo trang
+ArchLinuxVn sử dụng [nanoc] [] để tạo trang
 các trang tĩnh từ mã nguồn được quản lý bằng `git`. Tất cả các tác giả
 đều có quyền ghi vào mã nguồn chính trên nhánh `master` theo định dạng
 `markdown`.
 
-Để viết bài cho nhóm, bạn cần nhớ các điểm sau
+Tác giả viết bài cần nắm các bước kỹ thuật, cách sử dụng `git` và cách
+viết bài bằng cú pháp `markdown`. Nhóm các công việc như sau đây.
+
+### Nhóm A: Chỉ thực hiện một lần
 
 1. Tài khoản để sửa bài. Đây là tài khoản để truy cập vào mã nguồn (git)
    của trang chủ. Mã nguồn để trên máy phục vụ <http://viettug.org>.
@@ -34,11 +37,15 @@ các trang tĩnh từ mã nguồn được quản lý bằng `git`. Tất cả c
 3. Tạo một nhân bải của mã nguồn trang chủ bằng lệnh
     `git clone git@viettug.org:archlinuxvn`
 
-4. Bạn sẽ làm việc với
-      [markdown](http://daringfireball.net/projects/markdown/syntax)
-   và [nanoc](http://nanoc.stoneship.org/docs/), vì thế dành chút thời gian
-   đọc qua tài liệu của hai phần này.
-   Bạn có thể học theo các bài viết đã có.
+### Nhóm B: Thực hiện một hoặc nhiều lần
+
+4. Bạn sẽ làm việc với [markdown] [] và [nanoc] [] và [git] [].
+   Hãy dành chút thời gian đọc qua tài liệu của các phần này.
+   Bạn có thể học theo các bài viết đã có; đây là cách nhanh nhất.
+
+5. Đối với `git`, bạn có thể tham khảo tài liệu tiếng Việt ở [gitref] [].
+
+### Nhóm C: Thực hiện nhiều lần (mỗi khi viết bài)
 
 5. Sau khi soạn bài, bạn có thể sử dụng `nanoc` để tạo ra các trang tĩnh.
    Bạn dùng lệnh `nanoc view` để tạo một máy phục vụ <http://localhost:3000>
@@ -54,6 +61,10 @@ các trang tĩnh từ mã nguồn được quản lý bằng `git`. Tất cả c
    * **Lưu ý:** Thư mục _output_ là nơi chứa các trang được sinh ra. Do đó,
    không bao giờ thêm thư mục này vào khi bạn dùng `git commit`.
 
+   Bạn có thể dùng `git commit` với số lần tùy ý. Tuy nhiên, nên hạn chế
+   lệnh `git push` vì lệnh này sẽ có ảnh hưởng trực tiếp tới máy phục vụ
+   cùng với trang chủ của nhóm.
+
 7. Sau khi bạn thực hiện thành công `git push`, máy phục vụ của VietTUG
    sẽ tự động biên dịch và cập nhật thay đổi ở trang chủ của ArchLinuxVn.
    Vì các thành viên đều có quyền truy cập như nhau đến mọi trang của nhóm,
@@ -68,3 +79,8 @@ các trang tĩnh từ mã nguồn được quản lý bằng `git`. Tất cả c
    `core` để xác nhận các thay đổi của bạn. **Lưu ý** rằng việc này là cần
    thiết để đảm bảo an toàn cho máy phục vụ.
 
+
+[markdown]: http://daringfireball.net/projects/markdown/syntax
+[nanoc]: http://nanoc.stoneship.org/docs/
+[git]: http://git-scm.com/
+[gitref]: http://gitref.dragula.org
