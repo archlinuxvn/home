@@ -13,7 +13,7 @@ các trang tĩnh từ mã nguồn được quản lý bằng `git`. Tất cả c
 Tác giả viết bài cần nắm các bước kỹ thuật, cách sử dụng `git` và cách
 viết bài bằng cú pháp `markdown`. Nhóm các công việc như sau đây.
 
-### Nhóm A: Chỉ thực hiện một lần
+## Nhóm A: Chỉ thực hiện một lần
 
 1. Tài khoản để sửa bài. Đây là tài khoản để truy cập vào mã nguồn (git)
    của trang chủ. Mã nguồn để trên máy phục vụ <http://viettug.org>.
@@ -38,7 +38,7 @@ viết bài bằng cú pháp `markdown`. Nhóm các công việc như sau đây.
 3. Tạo một nhân bải của mã nguồn trang chủ bằng lệnh
     `git clone git@viettug.org:archlinuxvn`
 
-### Nhóm B: Thực hiện một hoặc nhiều lần
+## Nhóm B: Thực hiện một hoặc nhiều lần
 
 4. Bạn sẽ làm việc với [markdown] [] và [nanoc] [] và [git] [].
    Hãy dành chút thời gian đọc qua tài liệu của các phần này.
@@ -46,7 +46,7 @@ viết bài bằng cú pháp `markdown`. Nhóm các công việc như sau đây.
 
 5. Đối với `git`, bạn có thể tham khảo tài liệu tiếng Việt ở [gitref] [].
 
-### Nhóm C: Thực hiện nhiều lần (mỗi khi viết bài)
+## Nhóm C: Thực hiện nhiều lần (mỗi khi viết bài)
 
 5. Sau khi soạn bài, bạn có thể sử dụng `nanoc` để tạo ra các trang tĩnh.
    Bạn dùng lệnh `nanoc view` để tạo một máy phục vụ <http://localhost:3000>
@@ -66,6 +66,13 @@ viết bài bằng cú pháp `markdown`. Nhóm các công việc như sau đây.
    lệnh `git push` vì lệnh này sẽ có ảnh hưởng trực tiếp tới máy phục vụ
    cùng với trang chủ của nhóm.
 
+## Nhóm D: Thông tin khác. Mẹo
+
+9. Để cho phép người dùng gửi bình luận cho bài viết của bạn, sau khi
+   đặt tựa đề, bạn đặt `allow_comment: yes` trong phần `metadata` của
+   bài viết. Một ví dụ có trong mã nguồn của bài `vn/author-guide.html`.
+   Hệ thống bình luận do Disqus cung cấp.
+
 7. Sau khi bạn thực hiện thành công `git push`, máy phục vụ của VietTUG
    sẽ tự động biên dịch và cập nhật thay đổi ở trang chủ của ArchLinuxVn.
    Vì các thành viên đều có quyền truy cập như nhau đến mọi trang của nhóm,
@@ -74,9 +81,9 @@ viết bài bằng cú pháp `markdown`. Nhóm các công việc như sau đây.
    trước khi quyết định!
 
 8. Nếu bạn cần thay đổi, bổ sung một số quy tắc biên dịch hoặc thư viện,
-   bạn cần quyền ghi vào nhánh `core` (các thay đổi của những tập tin như
+   bạn cần quyền ghi vào nhánh `core` _(các thay đổi của những tập tin như
    `Rules`, `libs/*` trên nhánh `master` sẽ bị bỏ qua trong quá trình
-   biên dịch). Cách đơn giản nhất là liên hệ với người quản lý nhánh
+   biên dịch)_. Cách đơn giản nhất là liên hệ với người quản lý nhánh
    `core` để xác nhận các thay đổi của bạn. **Lưu ý** rằng việc này là cần
    thiết để đảm bảo an toàn cho máy phục vụ.
 
