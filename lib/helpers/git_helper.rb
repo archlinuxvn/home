@@ -32,9 +32,9 @@ module GitHelper
       when :last_update then "git log -1 --pretty=\"format:last updated by %an @ %cd\" \"#{file_name}\""
       when :stat        then
                               <<-EOF
-                                git log --pretty=\"format:%an\" \"#{file_name}\" | sort | wc -l ;
+                                git log --pretty="format:%an" "#{file_name}" | sort    | wc -l ;
                                 echo ' commit(s) ';
-                                git log --pretty=\"format:%an\" \"#{file_name}\" | sort -u | wc -l  ;
+                                git log --pretty="format:%an" "#{file_name}" | sort -u | wc -l ;
                                 echo ' author(s)';
                               EOF
       else nil
