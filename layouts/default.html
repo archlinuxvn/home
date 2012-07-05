@@ -11,7 +11,9 @@
       <p>
         ----
         <br />
-        <em>last updated by <%= git(:author, @item) %> @ <%= git(:date, @item) %></em>
+        <em><%= git(:stat, @item) %>;</em>
+        <br />
+        <em><%= git(:last_update, @item) %></em>
       </p>
       <%= @item[:allow_comment] ? disqus_show : "" %>
     </div>

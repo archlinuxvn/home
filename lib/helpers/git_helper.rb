@@ -24,13 +24,24 @@ module GitHelper
       end
     end
 
+    file_name = File.realpath(file_name) if File.symlink?(file_name)
+
     command = case op
-      when :date   then "git log -1 --pretty=\"format:%cd\" \"#{file_name}\""
-      when :author then "git log -1 --pretty=\"format:%an\" \"#{file_name}\""
+      when :date        then "git log -1 --pretty=\"format:%cd\" \"#{file_name}\""
+      when :author      then "git log -1 --pretty=\"format:%an\" \"#{file_name}\""
+      when :last_update then "git log -1 --pretty=\"format:last updated by %an @ %cd\" \"#{file_name}\""
+      when :stat        then
+                              <<-EOF
+                                git log --pretty=\"format:%an\" \"#{file_name}\" | sort | wc -l ;
+                                echo ' commit(s) ';
+                                git log --pretty=\"format:%an\" \"#{file_name}\" | sort -u | wc -l  ;
+                                echo ' author(s)';
+                              EOF
       else nil
     end
+
     command and File.file?(file_name) \
       ? %x{#{command}}.strip \
-      : "Path not found '#{path}'"
+      : "Couldn't fetch information for item '#{path}'"
   end
 end
