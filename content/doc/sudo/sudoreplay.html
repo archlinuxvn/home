@@ -1,5 +1,5 @@
 ---
-title: sudo - replaying - Diễn lại quá trình làm việc với sudo
+title: sudo - replay - Diễn lại quá trình làm việc với sudo
 allow_comment: yes
 ---
 
@@ -10,9 +10,9 @@ trò của người thi hành)_, toàn bộ quá trình xuất, nhập dữ li�
 hình của lệnh có thể được lưu lại. Điều này sẽ có ích cho mục đích giáo dục,
 theo dõi, lưu trữ.
 
-Ý tưởng cũng như khi dùng lệnh `script`, nhưng `sudo replaying` còn xịn
+Ý tưởng cũng như khi dùng lệnh `script`, nhưng `sudo replay` còn xịn
 hơn chỗ, nó có thể `tua` lại từng chi tiết nhờ vào việc ghi cả thời gian
-và các ký tự đặc biệt. Ví dụ, `sudo replaying` có thể ghi lại việc người
+và các ký tự đặc biệt. Ví dụ, `sudo replay` có thể ghi lại việc người
 dùng gõ sai một lệnh và sau đó dùng phím mũi tên lùi để sửa lại những chỗ
 sai trên lệnh trước khi nhấn `Enter` để thi hành lệnh đó.
 
@@ -46,7 +46,7 @@ kết quả nhập xuất của lệnh sẽ được lưu vào `/var/log/sudo-io
 dung của thư mục này, có thể dùng cách liệt kê
 
 <pre>
-sudoreplaying -l user foobar
+sudoreplay -l user foobar
 </pre>
 
 Dưới đây là ví dụ về kết quả của lệnh trên
@@ -70,7 +70,7 @@ là chỉ số của phiên làm việc. Khi đã có chỉ số này rồi, b�
 lại toàn bộ những gì mà người dùng `foobar` đã thực hiện trên phiên đó:
 
 <pre>
-sudoreplaying 000003
+sudoreplay 000003
 </pre>
 
 Bạn sẽ thấy diễn ra trước mắt tất cả những gì mà người dùng `foobar` thấy
@@ -80,8 +80,8 @@ có thể dùng phím chỉnh tốc độ `<` _(giảm tốc)_, `>` _(tăng tố
 có thể dùng tùy chọn `-s <tỉ lệ>`. Ví dụ,
 
 <pre>
-sudoreplaying -s 0.5 000003  # tua rất chậm
-sudoreplaying -s 100 000003  # tua rất nhanh
+sudoreplay -s 0.5 000003  # tua rất chậm
+sudoreplay -s 100 000003  # tua rất nhanh
 </pre>
 
 _(Dùng số lớn hơn 1 để tua nhanh, nhỏ hơn 1 để tua chậm)_
