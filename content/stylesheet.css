@@ -103,3 +103,10 @@ a:hover {
 code {
   color: green;
 }
+
+pre {
+  color: white;
+  background-color: black;
+  padding: 1em;
+  font-family: monospace;
+}
