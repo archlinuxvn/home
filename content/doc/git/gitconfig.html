@@ -1,0 +1,88 @@
+---
+title: Cấu hình cho git
+allow_commment: yes
+---
+
+# Cấu hình cho git
+
+Bài này cung cấp ví dụ cho `~/.gitconfig`.
+
+## Tại sao
+
+Trong `subversion` (hay `svn`), thông tin về người dùng được lưu ở phía
+máy phục vụ (`svn server`), do đó, bạn không quan tâm nhiều. Trong khi đó,
+`git` lưu thông tin về tác giả, email,... của người ghi vào kho ngay trên
+chính máy của bạn. Hai thông tin quan trọng là tên và email của bạn. Nếu
+bạn không điều chỉnh cho phù hợp thì nhật ký của kho `git` sẽ rất rối và
+sau này nhìn lại bạn sẽ chẳng biết chính-bạn-là-ai trong phần nhật ký.
+
+Nếu như bạn đang dùng `git`, việc xem lại nhật ký là quan trọng; vì thé
+đừng chậm trễ trong việc điều chỉnh cấu hình `~/.gitconfig`.
+
+## Nội dung tập tin
+
+Bạn chép các dòng sau đây vào tập tin `~/.gitconfig` và sau đó chỉnh lại
+cho phù hợp, nhất là tên và email trong mục `[user]`. Thay đổi sẽ có tác
+dụng cho tất cả kho `git` trên máy của bạn, trừ những kho được thiết
+lập riêng bằng cấu hình trong tập tin `/path/to/git/repository/.git/config`.
+
+Nội dung các tập tin cấu hình có thể chỉnh bằng tay, hoặc bằng lệnh `git config --global`
+hoặc `git config`. Để biết thêm chi tiết, thử với `git config --help`.
+
+Có một lưu ý nhỏ là định nghĩa `st = status -uno` bên dưới đây chỉ thông báo
+thay đổi của các tập tin *đã có* trong `git repository`, còn các tập tin
+mới chưa được thêm vào sẽ được bỏ qua.
+
+<pre>
+# Purpose: Sample configuration for git client
+# Author : Anh K. Huynh
+# License: Fair license
+# Date   : Somedays (MLTR)
+
+[user]
+
+name = icy
+email = kyanh@viettug.org
+
+[color]
+
+branch = auto
+diff = auto
+status = auto
+
+[alias]
+
+pu = push
+pl = pull
+ci = commit
+di = diff --color-words
+st = status -uno
+stt = status
+co = checkout
+br = branch
+lg = log -p
+logf = log --follow
+lol = log --graph --decorate --pretty=oneline --abbrev-commit
+lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+ls = ls-files
+mg = merge
+
+[color "branch"]
+
+current = white
+local = magenta
+remote = cyan
+
+[color "diff"]
+
+meta = yellow bold
+frag = magenta bold
+old = red bold
+new = green bold
+
+[color "status"]
+
+added = yellow
+changed = green
+untracked = cyan
+</pre>
