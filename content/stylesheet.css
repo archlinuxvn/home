@@ -110,3 +110,10 @@ pre {
   padding: 1em;
   font-family: monospace;
 }
+
+pre.license {
+  color: gray;
+  background-color: transparent;
+  font-size: 10px;
+  font-family: normal;
+}
