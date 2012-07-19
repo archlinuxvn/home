@@ -61,8 +61,15 @@ module GitHelper
 
     current_author = nil
     ret << %x{#{command}}.split(/\n+/).map do |s|
+<<<<<<< HEAD
       hash, author, subject = CGI.escapeHTML(s.strip).split(":")
       if hash.match(/^[0-9a-z]+$/)
+=======
+      splitted = CGI.escapeHTML(s.strip).split(":")
+      hash = splitted.first
+      if hash.match(/^[0-9a-z]+$/)
+        author, subject = splitted[1], splitted[2, splitted.size].join(":")
+>>>>>>> 74b96dea9fddb6ac562f329c9dbf2ced1e845b31
         d_author = (author == current_author ? "" : "-- <strong>#{author}</strong>")
         current_author = author
         "<li><a href=\"#{github}#{hash}\">#{hash}</a> #{subject} #{d_author}</li>"
