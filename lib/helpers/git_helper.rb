@@ -3,6 +3,8 @@
 #          all changes will be simply ignored by server                #
 ########################################################################
 
+require 'cgi'
+
 module GitHelper
 
   # @purpose: Provide git information of an item
@@ -43,5 +45,34 @@ module GitHelper
     command and File.file?(file_name) \
       ? %x{#{command}}.strip \
       : "Couldn't fetch information for item '#{path}'"
+  end
+
+  # @purpose: Print last 50 changes in git log
+  # @author : Anh K. Huynh
+  # @date   : 2012 July 19th
+  # @syntax :
+  #   recent_changs(number_of_changes)
+  #
+  def recent_changes(num = 30)
+    github = "https://github.com/archlinuxvn/home/commit/"
+    command = "git log --pretty=\"format:%h:%an:%s\" -#{num}"
+
+    ret = ["<ol>"]
+
+    current_author = nil
+    ret << %x{#{command}}.split(/\n+/).map do |s|
+      hash, author, subject = CGI.escapeHTML(s.strip).split(":")
+      if hash.match(/^[0-9a-z]+$/)
+        d_author = (author == current_author ? "" : "-- <strong>#{author}</strong>")
+        current_author = author
+        "<li><a href=\"#{github}#{hash}\">#{hash}</a> #{subject} #{d_author}</li>"
+      else
+        current_author = nil
+        s
+      end
+    end
+
+    ret << ["</ol>"]
+    ret.join("\n")
   end
 end
