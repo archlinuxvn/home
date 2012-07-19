@@ -72,7 +72,7 @@ module GitHelper
       end
     end
 
-    ret << ["</ul>"]
+    ret << ["</ol>"]
     ret.join("\n")
   end
 end
