@@ -21,8 +21,8 @@ module GitHelper
       file_name = File.join("./content/", path.slice(0,path.size - 1))
       if File.file?("#{file_name}.html")
         file_name = "#{file_name}.html"
-      elsif File.file?("#{file_name}/index.html")
-        file_name = "#{file_name}/index.html"
+      elsif File.file?("#{file_name}.rb")
+        file_name = "#{file_name}.rb"
       end
     end
 
