@@ -4,7 +4,7 @@ title: Thay đổi gần đây
 
 <h1>Thay đổi gần đây</h1>
 
-</p>
+<p>
   Dưới đây là những thay đổi gần đây của trang chủ.
   Các liên kết dẫn tới kho ở Github. Vì kho ở Github
   không được cập nhật thường xuyên, các liên kết
