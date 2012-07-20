@@ -21,7 +21,7 @@ module GitHelper
       file_name = path
     else
       file_name = File.join("./content/", path.slice(0,path.size - 1))
-      %w{.html .erb /index.html /index.erb}.each do |ext|
+      %w{.html .rb /index.html /index.rb}.each do |ext|
         if File.file?("#{file_name}#{ext}")
           file_name = "#{file_name}#{ext}"
           break
