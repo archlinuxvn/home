@@ -14,12 +14,14 @@ là thiếu các biến môi trường: Nhấp phải chọn `Input Method` trê
 chọn `X input method`, chuyển bộ gõ không có kết quả.
 
 <pre>
-env | grep ibus          # không có kết quả
-ibus-daemon -x --replace # không hiệu quả
-export XIM_PROGRAM=ibus  # không có hiệu quả
+env | grep ibus
+ibus-daemon -x --replace
+export XIM_PROGRAM=ibus
 </pre>
 
-## Solved
+Thật không may cả ba lệnh trên đều không ra có kết quả với mình.
+
+## Cách giải quyết
 
 * Cài đặt ibus-qt bằng lệnh : `sudo pacman -S ibus-qt`
 * Trên terminal gõ: `qtconfig` chọn tab `Interfaces`,
@@ -32,7 +34,7 @@ export XMODIFIERS=@im=ibus
 export QT_IM_MODULE=ibus
 </pre>
 Hầu hết các ứng dụng `Qt` sẽ chạy với `Ibus` khi export đủ ba biến môi
-trường trên; *tuyệt đối không thêm dòng*: `1ibus-daemon -x -d` vào .bashrc sẽ gây crash `ibus`!
+trường trên; **tuyệt đối không thêm dòng**: `1ibus-daemon -x -d` vào .bashrc sẽ gây crash `ibus`!
 
 ## Với Opera hoặc các app không nhận Ibus
 
@@ -44,9 +46,7 @@ có một số tip như sau:
 XIM=ibus    # ( với mình không hiệu quả )
 </pre>
 
-*Cách giải quyết như sau:*
-
-Chạy opera trên terminal với lệnh:
+**Cách giải quyết như sau:** Chạy opera trên terminal với lệnh:
 
 <pre>
 XMODIFIERS=@im=ibus opera
@@ -57,6 +57,8 @@ cách chung là
 <pre>
 XMODIFIERS=@im=ibus QT_Apps_command
 </pre>
+
+Ở đây `QT_apps_command` là lệnh để bắt đầu ứng dụng.
 
 ## Cập nhật
 
