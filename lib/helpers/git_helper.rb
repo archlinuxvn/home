@@ -70,7 +70,7 @@ module GitHelper
         "<li><a href=\"#{github}#{hash}\">#{hash}</a> #{subject} #{d_author}</li>"
       else
         current_author = nil
-        s
+        "<li>#{s}</li>"
       end
     end
 
