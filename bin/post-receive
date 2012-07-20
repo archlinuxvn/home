@@ -3,7 +3,7 @@
 # Purpose: Build static pages for ArchLinuxVn. This script will be used
 #          as a post-receive hook on the git server. To avoid security
 #          issue, modification of this script will not take effect. The
-#          worker script needs to be editted manually.
+#          worker script needs to be edited manually.
 # Author:  Anh K. Huynh
 # Date   : 2012 July 02 (intial version)
 #          2012 July 20 (locking support)
