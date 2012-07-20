@@ -117,3 +117,9 @@ pre.license {
   font-size: 10px;
   font-family: normal;
 }
+
+blockquote {
+  margin-left: 0.5em;
+  padding-left: 1em;
+  border-left: 1px solid gray;
+}

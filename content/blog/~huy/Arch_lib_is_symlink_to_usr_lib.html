@@ -5,88 +5,87 @@ allow_comment: yes
 
 # Move /lib to /usr/lib
 
-Vừa nhận được mail từ mailing list announcement, mình tiến hành upgrade Arch ngay xem thử thay đổi này sẽ diễn ra như thế nào và tất nhiên là gặp rắc rối.
+Vừa nhận được mail từ mailing list announcement, mình tiến hành upgrade
+Arch ngay xem thử thay đổi này sẽ diễn ra như thế nào và tất nhiên là gặp rắc rối.
 
- 
+## `/lib` thành symlink của `/usr/lib`
 
-* /lib thành symlink của /usr/lib:
+Ý tưởng dồn thư viện về một `directory` / `partition` không phải là một
+ý tưởng tồi nhưng có vẻ nó làm khó nhiều Arch users. Để tiến hành:
 
--Ý tưởng dồn thư viện về một directory/partition không phải là một ý tưởng tồi nhưng có vẻ nó làm khó nhiều Arch users.
+<pre>
+sudo pacman -Syu --ignored glibc
+sudo pacman -Su
+</pre>
 
--Để tiến hành :
+Việc bỏ qua `glibc` trong quá trình upgrade nhằm tránh glibc nhận `/lib` làm
+thư mục cài đặt và hơn nữa, bản `glibc` có nhiều thay đổi, trong đó có thư
+mục lib nhưng nó hỏi đặc biệt mà lệnh `ln -s` không tạo ra được !
 
-`sudo pacman -Syu --ignored glibc`
+Bỏ qua `glibc` cũng là để thực hiện quá trình `move` các file
+và directory về `/usr/lib`.
 
-`sudo pacman -Su`
+<pre>
+Có một ghi chú tối quan trọng là lần nâng cấp này, bạn không được chọn
+--force khi dùng pacman vì có thể  hệ thống sẽ hỏng hoàn toàn!
+</pre>
 
- 
+Bạn đã được cảnh báo :)
 
-Việc bỏ qua glibc trong quá trình upgrade nhằm tránh glibc nhận /lib làm thư mục cài đặt và hơn nữa, bản glibc có nhiều thay đổi, trong đó có thư mục lib nhưng nó hỏi đặc biệt mà lệnh ln -s không tạo ra được !
+## Các vấn đề phát sinh trong quá trình chuyển đổi
 
-Bỏ qua glibc cũng là để thực hiện quá trình move các file và directory về /usr/lib.
+1. Move các directory không thực hiện được:
+   Quá trình này không hoàn thành và rõ ràng là `/lib` với tư cách là thư mục
+   chủ vẫn tồn tại. các thư mục dạng `/lib/modules/*` vẫn còn.
+2. Tạo `symlink` nhưng vẫn bị thông báo /lib tồn tại và các lib tồn tại trên file system
 
-`Có một ghi chú tối quan trọng là không được --force vì nó sẽ break system của bạn !`
+*falconindy* (Arch developer) nói rằng:
 
+> 1. If you find yourself in a position to recreate the symlink yourself, the link target is `usr/lib` and not `/usr/lib`. This is an important difference that's only evident in a chroot situation.
+> 1. The linker is an interpreter, just like `/bin/bash`. If it exists on the system but the `/lib` symlink is missing/fubar, you can run ELF binaries directly via the linker, e.g. `/usr/lib/ld-2.16.so /bin/ln -s` ...."
 
-* Các vấn đề phát sinh trong quá trình chuyển đổi:
+Điều này có thể giải thích cho việc `/usr/lib/"lib"` "đường dẫn tuyệt đối" lại có thể gọi được lệnh và tại sao khi chúng ta tạo `symlink` thì
 
- * a-Move các directory không thực hiện được ?
-
-+Quá trình này không hoàn thành và rõ ràng là /lib với tư cách là thư mục chủ vẫn tồn tại. các thư mục dạng /lib/modules/* vẫn còn.
-
- * b tạo symlink nhưng vẫn bị thông báo /lib tồn tại và các lib tồn tại trên file system
-
- 
-
--falconindy-Arch developer nói rằng:"
-
-`1) If you find yourself in a position to recreate the symlink yourself, the link target is usr/lib and not /usr/lib. This is an important difference that's only evident in a chroot situation.`
-
-`2) The linker is an interpreter, just like /bin/bash. If it exists on the system but the /lib symlink is missing/fubar, you can run ELF binaries directly via the linker, e.g. /usr/lib/ld-2.16.so /bin/ln -s ...."`
-
-Điều này có thể giải thích cho việc /usr/lib/"lib" "đường dẫn tuyệt đối" lại có thể gọi được lệnh và tại sao khi chúng ta tạo symlink thì
-
+<pre>
 lrwxrwxrwx   1 root root     7 Jul  7 18:04 /lib -> usr/lib
+</pre>
 
 Không thể tồn tại dạng :
 
+<pre>
 lrwxrwxrwx   1 root root     7 Jul  7 18:04 lib -> usr/lib
+</pre>
 
- 
+**Important Warning**: Nếu bạn xóa hết các thư viện được báo lỗi trong `/usr/lib` thì bạn vĩnh viễn mất các lệnh được dùng và phải dùng rescue disk và [chroot] [] cứu lấy `system` của bạn (và mình đã làm thế )
 
-**Important Warning** : Nếu bạn xóa hết các thư viện được báo lỗi trong /usr/lib thì bạn vĩnh viễn mất các lệnh được dùng và phải dùng rescue disk và [chroot](https://wiki.archlinux.org/index.php/Chroot) cứu lấy system của bạn ( và mình đã làm thế )
+Có vô số cách để kiểm tra một thành phần nào đấy đang chiếm giữ `/lib` gây ra lỗi `/lib` vẫn còn trên `filesystem`, sau đây là hai cách:
 
- 
+* Kiểm tra còn `glibc-lib` nào chiếm giữ `/lib`:
+<pre>
+grep '^lib/' /var/lib/pacman/local/*/files \
+  | grep -v glibc \
+  | awk -F : '{print $1}'\
+  | sort -u
+</pre>
+* So với lệnh trên thì lệnh này cho thấy nhiều hơn:
+<pre>
+find /var/lib/pacman/local -name files \
+  | xargs grep "^lib/$"
+</pre>
 
-Có vô số cách để kiểm tra một thành phần nào đấy đang chiếm giữ /lib gây ra lỗi /lib vẫn còn trên filesystem, sau đây là hai cách:
+Tùy vào `output` mà có cách xử lí khác nhau. _Solution for me;)_
 
-+Kiểm tra còn glibc-lib nào chiếm giữ /lib: 
+* Trường hợp nếu ouput là : `/var/lib/pacman/local/glibc-2.16.0-1/files:/lib`
+và `/lib/modules/*` directory là `cannot determine ownership` hoặc `no package owns` thì đơn giản là xóa hết thư mục `/lib/modules` là xong !
+* Trường hợp output còn thêm các gói khác ngoài `glibc` thì bạn cần gỡ bỏ chúng trước khi tiến hành upgrade `glibc`.
 
-`grep '^lib/' /var/lib/pacman/local/*/files | grep -v glibc`
 
-+ So với lệnh trên thì lệnh này cho thấy nhiều hơn:
+## Đôi diều về [Chroot] []
 
-`find /var/lib/pacman/local -name files | xargs grep "^lib/$"`
+`Chroot` được kiểu là bạn dùng với tư cách root của một system khác (1 `system` chưa thấy có 2 `root`).
 
- 
+`Chroot` được dùng để sửa sai với vợ, và tất nhiên là có quyền `root` để  `chroot`. Nhưng `chroot` bị gói gọn lại trong thư mục mà nó nắm quyền. Điều này có nghĩa là đó là nhà thờ xưng tội, hoặc xưng tội và được tha thứ hoặc làm mọi thứ trở nên tồi tệ hơn. Có điều bạn có thể làm nhiều lần :)
 
-Tùy vào output mà có cách xử lí khác nhau.
+Môi trường `chroot` về cơ bản là giống môi trường của bạn, nhưng có điều là nó không thuộc user nào hết, ở đó có thể sudo hay không sudo cũng được chấp nhận nhưng nó ghi lại `history` tùy vào cái đó vào biến `HISTORY` của `bash` :) Ai mà không có quá khứ phải không :). Không có quyền `break system` chứa `chroot directory` :)) Nhà thờ là nơi ngươi xưng tội và không có quyền phá nhà thờ :D
 
-* Solution for me
-
--Trường hợp nếu ouput là :
-
-`/var/lib/pacman/local/glibc-2.16.0-1/files:/lib`
-
-và /lib/modules/* directory là `cannot determine ownership` hoặc `no package owns` thì đơn giản là xóa hết thư mục /lib/modules là xong !
-
--Trường hợp output còn thêm các gói khác ngoài glibc thì bạn cần gỡ bỏ chúng trước khi tiến hành upgrade glibc.
- 
-
-* Đôi diều về [Chroot](https://wiki.archlinux.org/index.php/Chroot):
-
-Chroot được kiểu là bạn dùng với tư cách root của một system khác ( 1 system chưa thấy có 2 root).
-
-Chroot được dùng để sửa sai với vợ, và tất nhiên là có quyền root để chroot. Nhưng chroot bị gói gọn lại trong thư mục mà nó nắm quyền. Điều này có nghĩa là đó là nhà thờ xưng tội, hoặc xưng tội và được tha thứ hoặc làm mọi thứ trở nên tồi tệ hơn. Có điều bạn có thể làm nhiều lần :)
-
-Môi trường chroot về cơ bản là giống môi trường của bạn, nhưng có điều là nó không thuộc user nào hết, ở đó có thể sudo hay không sudo cũng được chấp nhận nhưng nó ghi lại history tùy vào cái đó vào biến HISTORY của bash :). Ai mà không có quá khứ phải không :). Không có quyền break system chứa chroot directory :)) Nhà thờ là nơi ngươi xưng tội và không có quyền phá nhà thờ :D
+[chroot]: https://wiki.archlinux.org/index.php/Chroot
