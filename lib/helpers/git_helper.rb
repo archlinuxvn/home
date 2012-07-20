@@ -17,12 +17,15 @@ module GitHelper
   #
   def git(op, item)
     path = item.respond_to?(:identifier) ? item.send(:identifier) : item
-    unless File.file?(path)
+    if File.file?(path)
+      file_name = path
+    else
       file_name = File.join("./content/", path.slice(0,path.size - 1))
-      if File.file?("#{file_name}.html")
-        file_name = "#{file_name}.html"
-      elsif File.file?("#{file_name}.rb")
-        file_name = "#{file_name}.rb"
+      %w{.html .erb /index.html /index.erb}.each do |ext|
+        if File.file?("#{file_name}#{ext}")
+          file_name = "#{file_name}#{ext}"
+          break
+        end
       end
     end
 
