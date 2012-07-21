@@ -24,6 +24,7 @@ end
 
 compile '/changes/' do
   filter :erb
+  filter :kramdown
   layout 'default'
 end
 
