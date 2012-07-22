@@ -25,6 +25,7 @@ err() {
 
 die() {
   err "$*"
+  _lock_end
   exit 1
 }
 
