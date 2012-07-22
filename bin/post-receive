@@ -33,6 +33,10 @@ _setup() {
   [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
   source $HOME/bin/ssh-agent.sh >/dev/null 2>&1 || die "Can't load ssh configuration"
   # FIXME: Test ssh connection
+  ssh -o ConnectTimeout=3 kyanh@ssh.tuxfamily.org uptime >/dev/null
+  if [[ $? ge - 1 ]]; then
+    die "Can't make connect to remote server ssh.tuxfamily.org"
+  fi
   cd $_D_VAR || die "Can't switch to directory $_D_VAR"
 }
 
@@ -88,6 +92,7 @@ _sync() {
   fi
 }
 
+# NOTE: Never use (die) in this method
 _lock_start() {
   if [[ ! -f "$_F_LOCK" ]]; then
     touch "$_F_LOCK" || die "Can't create lock file"
@@ -111,7 +116,8 @@ _lock_start() {
     msg " (However, if you see this message again and again,"
     msg " there may be a problem on the server 'viettug.org'."
     msg " Please contact the sysadmin to resolve it. THANK YOU.)"
-    die "======================================================"
+    msg "======================================================"
+    exit 0
   fi
 }
 
