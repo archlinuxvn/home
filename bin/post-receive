@@ -32,9 +32,9 @@ die() {
 _setup() {
   [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
   source $HOME/bin/ssh-agent.sh >/dev/null 2>&1 || die "Can't load ssh configuration"
-  # FIXME: Test ssh connection
+  msg "Testing ssh connection"
   ssh -o ConnectTimeout=3 kyanh@ssh.tuxfamily.org uptime >/dev/null
-  if [[ $? ge - 1 ]]; then
+  if [[ $? -ge 1 ]]; then
     die "Can't make connect to remote server ssh.tuxfamily.org"
   fi
   cd $_D_VAR || die "Can't switch to directory $_D_VAR"
