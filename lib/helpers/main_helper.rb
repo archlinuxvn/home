@@ -132,6 +132,8 @@ EOF
         if %w{author-guide bot irc news}.include?(page)
           ret << "<li>home - %s</li>" % [link_to(p[:title], p.identifier)]
         end
+      elsif gs = p.identifier.match(%r{^/doc/.+/})
+        ret << "<li>doc - %s</li>" % [link_to(p[:title], p.identifier)]
       end
     end
     ret << ["</ol>"]
