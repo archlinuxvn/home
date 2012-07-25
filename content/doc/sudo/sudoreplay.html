@@ -97,6 +97,13 @@ Khi thưc hiện lưu `log`, một số chương trình sẽ không làm việc 
 vì các kênh dẫn tin _(`file descriptor`)_ bị chặn hoặc khóa bởi `sudo`.
 Nhớ điều này để giúp bạn chọn cài đặt tốt ưu nhất.
 
+Nếu bạn chỉ bật cờ `LOG_INPUT` mà không bật `LOG_OUTPUT` cho lệnh nào đó,
+thì bạn sẽ không diễn lại được. Nói cách khách, `sudoreplay` dựa trên kết
+quả xuất của các lệnh. Do đó, `LOG_OUTPUT` là bắt buộc và thường là đủ.
+
+Các thông tin quan trọng như chìa khóa, mật mã,... sẽ được lưu lại khi
+bạn dùng `LOG_INPUT`. Do đó, cần cân nhắc khi dùng cờ này.
+
 Cuối cùng, nên cẩn thận khi chỉnh sửa nội dung tập tin `/etc/sudoers`,
 bởi vì một chút sai sót có thể khiến bạn phải lái xe lên trung tâm dữ
 liệu tắt máy tính và điều chỉnh lại tập tin đó theo một cách không thể
