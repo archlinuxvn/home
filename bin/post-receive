@@ -11,7 +11,7 @@
 
 unset GIT_DIR
 export HOME=/home/git
-export LANG=en-US.UTF-8
+export LANG=en_US.UTF-8
 
 _D_VAR="$HOME/var/archlinuxvn/"
 _F_LOCK="$HOME/var/archlinuxvn.lock"
