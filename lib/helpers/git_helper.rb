@@ -7,6 +7,9 @@ require 'cgi'
 
 module GitHelper
 
+  # @purpose: Find the file name associated to an item
+  # @author : Anh K. Huynh
+  # @return : File path (real path) or nil
   def item_to_file(item)
     path = item.respond_to?(:identifier) ? item.send(:identifier) : item
     if File.file?(path)
@@ -27,9 +30,9 @@ module GitHelper
   # @syntax:
   #   git(:date, item)
   #   git(:author, item)
-  #
+  #   git(:stat, item)
+  #   git(:last_update, item)
   # @example: see in layouts/default.html
-  #
   def git(op, item)
     file_name = item_to_file(item)
 
@@ -52,12 +55,10 @@ module GitHelper
       : "Couldn't fetch information for item '#{path}'"
   end
 
-  # @purpose: Print last 50 changes in git log
+  # @purpose: Print last <num> changes in git log
   # @author : Anh K. Huynh
   # @date   : 2012 July 19th
-  # @syntax :
-  #   recent_changs(number_of_changes)
-  #
+  # @syntax : recent_changs(number_of_changes)
   def recent_changes(num = 30)
     github = "https://github.com/archlinuxvn/home/commit/"
     command = "git log --pretty=\"format:%h:%an:%s\" -#{num}"
@@ -83,17 +84,27 @@ module GitHelper
     ret.join("\n")
   end
 
+  # @purpose: Print last Mnum> posts
+  # @author : Anh K. Huynh
+  # @date   : 2012 July 25th
+  # @syntax : recent_posts(<num>)
+  # @notes  : This method is tricky. It reports only some selected posts.
+  #           The posts are sorted by modified time returned by the system.
+  #           This isn't like (Blogging) where you have to specify the
+  #           (created_at) explicitly.
   def recent_posts(num = 30)
-    ret = ["<ol>"]
     all_items = @items.find_all.sort_by do |i|
       if file_name = item_to_file(i)
         File.mtime(file_name)
       else
         Time.new(0)
       end
-    end.reverse
+    end.reverse.slice(0,num)
 
-    all_items.slice(0,num).each do |p|
+    return "" if all_items.empty?
+
+    ret = ["<ol>"]
+    all_items.each do |p|
       if gs = p.identifier.match(%r{^/blog/([^/]+)/.+})
         ret << "<li>%s - %s</li>" % [gs[1], link_to(p[:title], p.identifier)]
       elsif gs = p.identifier.match(%r{^/faq/.+})
@@ -106,6 +117,7 @@ module GitHelper
       end
     end
     ret << ["</ol>"]
+
     ret.join("\n")
   end
 end
