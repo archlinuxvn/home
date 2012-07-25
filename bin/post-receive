@@ -11,6 +11,7 @@
 
 unset GIT_DIR
 export HOME=/home/git
+export LANG=en-US.UTF-8
 
 _D_VAR="$HOME/var/archlinuxvn/"
 _F_LOCK="$HOME/var/archlinuxvn.lock"
@@ -30,7 +31,13 @@ die() {
 }
 
 _setup() {
-  [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+  if [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
+    source "$HOME/.rvm/scripts/rvm"
+    rvm use ruby-1.9.2-head
+  else
+    die "rvm not found. We need ruby-1.9.2-head"
+  fi
+
   source $HOME/bin/ssh-agent.sh >/dev/null 2>&1 || die "Can't load ssh configuration"
   msg "Testing ssh connection"
   ssh -o ConnectTimeout=3 kyanh@ssh.tuxfamily.org uptime >/dev/null
