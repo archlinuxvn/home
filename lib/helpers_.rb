@@ -3,4 +3,4 @@
 #          all changes will be simply ignored by server                #
 ########################################################################
 
-include GitHelper
+include MainHelper

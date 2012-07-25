@@ -5,7 +5,25 @@
 
 require 'cgi'
 
-module GitHelper
+module MainHelper
+
+  # @purpose: print the Disqus comment form
+  # @id     : the short name of your disqus identity
+  # @return : string
+  def disqus_show(id = "archlinuxvn")
+    <<EOF
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+          (function() {
+              var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+              dsq.src = 'http://#{id}.disqus.com/embed.js';
+              (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+          })();
+      </script>
+      <noscript>Javascript is required to view comment(s).</a></noscript>
+      <a href="http://disqus.com" class="dsq-brlink">comments powered by Disqus</a>
+EOF
+  end
 
   # @purpose: Find the file name associated to an item
   # @author : Anh K. Huynh
