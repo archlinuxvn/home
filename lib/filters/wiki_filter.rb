@@ -4,8 +4,7 @@
 ########################################################################
 
 # @purpose: A post-processed filter to provide wiki-style when writing
-#           article. This filter should be executed after any other
-#           filter.
+#           article. This filter should be executed after any other filter.
 # @author : Anh K. Huynh
 #
 # @desc   : Replaces [[id<title>]] by a link. The <title> is optional.
@@ -13,6 +12,9 @@
 #               /vn/author-guide/   : absolute
 #               git/gitconfig       : it's /doc/git/gitconfig/
 #           The colon (:) can be used instead of a slash (/)
+#           If thte <title> is missing, the last part of the `id` will be
+#           used as title: it will be transformed to the camelized form
+#           by splitting the original `id` by the underscore (_).
 #
 # @return : HTML output
 #
@@ -26,7 +28,7 @@ class WikiFilter < Nanoc::Filter
       path.gsub!(":", "/")
       path = "#{path.chomp('/')}/"
       path = "/doc/#{path}" unless path[0] == "/"
-      title = path.split("/").last if title.nil?
+      title = path.split("/").last.split("_").map(&:capitalize).join(" ") if title.nil?
       title.strip!
       "<a href=\"%s\">%s</a>" % [path, title]
     end
