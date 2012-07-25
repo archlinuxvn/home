@@ -14,7 +14,7 @@
 
 ## LICENSE
 
-  This page is published under the license CC BY-NC-ND 3.0
+  This work is published under the license CC BY-NC-ND 3.0
   (http://creativecommons.org/licenses/by-nc-nd/3.0/):
 
   * **Attribution** — You must attribute the work in the manner
