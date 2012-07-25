@@ -69,18 +69,41 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
    lệnh `git push` vì lệnh này sẽ có ảnh hưởng trực tiếp tới máy phục vụ
    cùng với trang chủ của nhóm.
 
-## Nhóm D: Thông tin khác. Mẹo
+## Nhóm E: Các quy tắc cần nhớ
 
-9. Để cho phép người dùng gửi bình luận cho bài viết của bạn, sau khi
+1. Đặt tên tập tin chỉ gồm chữ thường, dấu gạch chân và con số. Không dùng
+   khoảng trắng, ký tự đặc biệt, tiếng Việt có dấu khi đặt tên tập tin.
+
+2. Để cho phép người dùng gửi bình luận cho bài viết của bạn, sau khi
    đặt tựa đề, bạn đặt `allow_comment: yes` trong phần `metadata` của
    bài viết. Một ví dụ có trong mã nguồn của bài `vn/author-guide.html`.
    Hệ thống bình luận do Disqus cung cấp.
 
+3. Để tạo liên kết tới các bài viết khác, có thể dùng theo định dạng của
+   Kramdown, hoặc dùng dạng wiki mà mô tả có trong thư viện
+    `/lib/filters/wiki_filter.rb`.
+   Bạn có thể đọc hướng dẫn và theo dõi ví dụ có trong mã nguồn này.
+
+4. Nên chọn tên tập tin ngắn gọn, dễ nhớ. Không nên đổi tên tập tin vì
+   hệ thống bình luận Disqus sẽ không biết để chuyển các bình luận (nếu
+   có) từ bài với tập tin cũ qua bài với tập tin mới.
+
+5. Không được thay đổi các tập tin `*.rb` và tập tin `layout/*`. Những
+   tập tin này chỉ được thay đổi bởi người quản lý cấp cao nhất. Xem
+   thêm nhóm D.
+
+6. Trong phần `metadata` của mỗi bài viết, bạn có thể đặt các thông tin
+   tùy ý để tiện tìm kiếm sau này. Ví dụ `tags: [abc, xyz]`, hoặc
+   `created_at: 2012 July 25th`,... để tiện tìm kiếm. Một vài thông tin
+   sẽ được dùng trong tương lai để hỗ trợ `blog` và `tìm kiếm`.
+
+## Nhóm D: Thông tin khác. Mẹo
+
 7. Sau khi bạn thực hiện thành công `git push`, máy phục vụ của VietTUG
    sẽ tự động biên dịch và cập nhật thay đổi ở trang chủ của ArchLinuxVn.
    Vì các thành viên đều có quyền truy cập như nhau đến mọi trang của nhóm,
-   bạn được khuyến cáo hãy cẩn thận khi chỉnh sửa, thay đổi các bài viết
-   đã có. Tốt nhất, nếu có điều gì phân vân, hãy hội ý với các bạn khác
+   bạn được khuyến cáo hãy **cẩn thận khi chỉnh sửa, thay đổi các bài viết
+   đã có**. Tốt nhất, nếu có điều gì phân vân, hãy hội ý với các bạn khác
    trước khi quyết định!
 
 8. Nếu bạn cần thay đổi, bổ sung một số quy tắc biên dịch hoặc thư viện,
