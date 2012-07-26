@@ -88,6 +88,15 @@ a:hover {
   line-height: 20px;
 }
 
+#sidebar h2 a:link,
+#sidebar h2 a:visited {
+  color: blue;
+}
+
+#sidebar h2 a:hover {
+  color: #f90;
+}
+
 #sidebar ul {
   list-style-type: none;
 
