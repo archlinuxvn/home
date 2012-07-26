@@ -20,7 +20,7 @@
 #   Absolute path
 #     [[/vn/author-guide]]
 #     [[/doc/git/gitconfig]]
-#     [[blog:~huy:Ibus_and_Qt Configure Ibus for Qt applications]]
+#     [[/blog:~huy:Ibus_and_Qt Configure Ibus for Qt applications]]
 #
 #   Relative path ([[foobar]] is equivalent to [[/doc/foobar]])
 #     [[git/gitconfig]]
