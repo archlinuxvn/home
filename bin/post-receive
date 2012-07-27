@@ -59,7 +59,8 @@ _update() {
   find . -type f -iname "*.rb" -exec rm -f {} +
 
   msg "Removing some files that should not be cached"
-  rm -fv output/changes/index.html output/tags/index.html
+  rm  -f output/changes/index.html
+  rm -rf output/tags/*
 
   msg "Fetching Ruby files from the branch :core"
   git archive --format=tar core --remote=~/repositories/archlinuxvn.git \
@@ -67,10 +68,10 @@ _update() {
 }
 
 _update_myself() {
-  local _myself="$HOME/bin/post-receive"
+  local _myself="$HOME/hooks/archlinuxvn/post-receive"
   msg "Updating the build script"
   git archive --format=tar core --remote=~/repositories/archlinuxvn.git \
-    | tar --wildcards -x0f - 'bin/post-receive' \
+    | tar --wildcards -xOf - 'bin/post-receive' \
     > $_myself.tmp
 
   diff $_myself $_myself.tmp >/dev/null 2>&1
