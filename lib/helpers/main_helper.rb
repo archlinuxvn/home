@@ -155,7 +155,7 @@ EOF
         ret << "<li>faq - %s</li>" % [link_to(p[:title], p.identifier)]
       elsif gs = p.identifier.match(%r{^/vn/([^/]+)/})
         page = gs[1]
-        if %w{author-guide bot irc news}.include?(page)
+        if %w{author-guide members bot irc news}.include?(page)
           ret << "<li>home - %s</li>" % [link_to(p[:title], p.identifier)]
         end
       elsif gs = p.identifier.match(%r{^/doc/.+/})
