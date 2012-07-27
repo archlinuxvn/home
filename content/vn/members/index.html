@@ -22,11 +22,19 @@ vui lòng liên hệ để chúng tôi cập nhật.
 * icy's PC: installed in 2010-10-18, kernel `3.4.4-2`
 * icy's office box: installed in 2012-10-17, kernel `3.3.8-1`
 
-_Tips:_ To check whether you ArchLinux was installed, invoke the following
+_Tips:_ To check whether your ArchLinux was installed, invoke the following
 command
 
 <pre>
-grep filesystem /var/log/pacman.log | head -1
+grep filesystem /var/log/pacman.log \
+  | head -1
+</pre>
+
+To check major upgrades of your ArchLinux system, try the command
+
+<pre>
+grep -E 'upgraded (linux|kernel)' /var/log/pacman.log \
+  | grep -vE '(firmware|header)'
 </pre>
 
 [stk]: http://projektantos.wordpress.com/
