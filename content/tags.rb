@@ -1,7 +1,11 @@
 ---
-title: Thay đổi gần đây
+title: Thẻ (tag) đánh dấu bài viết
 ---
 
-# Những bài viết mới nhất
+# Thẻ (tag) đánh dấu bài viết
 
-<%= all_tags %>
+<ul>
+<% all_tags.each do |tag, count| %>
+  <li><%= link_for_tag(tag, "/tags/") %> (<%= count %> bài)</li>
+<% end %>
+</ul>

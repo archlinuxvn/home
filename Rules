@@ -20,7 +20,7 @@
 
 preprocess do
   def generate_tag_pages
-    all_tags.each do |tag|
+    all_tags.each do |tag, count|
       @items << Nanoc::Item.new(
         "<%= render '_tag', {:tag => '#{tag}'} %>",
         { :title => "Tag #{tag}", :virtual => true },

@@ -106,10 +106,25 @@ EOF
     ret.join("\n")
   end
 
+  # @purpose: Provide a hash of all tags and tags' counter
+  # @return : Hash {:tag => :counter} (Sorted by :counter)
+  # @author : Anh K. Huynh
+  # @note   : Selected tags are matched the pattern /^[a-z0-9]+$/
   def all_tags
-    @items.find_all.map {|p| p[:tags]}.flatten.compact.select do |tag|
-       tag.match(%r{^[a-z0-9]+$}i)
-    end.map(&:downcase).uniq
+    tags = {}
+    @items.find_all.each do |p|
+      if p[:tags] and p[:tags].is_a?(Array)
+        p[:tags].map(&:to_s).map(&:downcase).uniq.select do |tag|
+          tag.match(/^[a-z0-9]+$/)
+        end.each do |tag|
+          tags[tag] = 0 unless tags[tag]
+          tags[tag] += 1
+        end
+      end
+    end
+    tags.sort do |tix, tax|
+      tax[1] <=> tix[1]
+    end
   end
 
   # @purpose: Print last Mnum> posts
