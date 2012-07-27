@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# Purpose: Build static pages for ArchLinuxVn. This script will be used
+#          as a post-receive hook on the git server. To avoid security
+#          issue, modification of this script will not take effect. The
+#          worker script needs to be edited manually.
+# Author:  Anh K. Huynh
+# Date   : 2012 July 02 (intial version)
+#          2012 July 20 (locking support)
+# License: Fair license
+
+unset GIT_DIR
+export HOME=/home/git
+export LANG=en_US.UTF-8
+
+_D_VAR="$HOME/var/archlinuxvn/"
+_F_LOCK="$HOME/var/archlinuxvn.lock"
+
+msg() {
+  echo ":: $*"
+}
+
+err() {
+  echo >&2 ":: $*"
+}
+
+die() {
+  err "$*"
+  _lock_end
+  exit 1
+}
+
+_setup() {
+  if [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
+    source "$HOME/.rvm/scripts/rvm"
+    rvm use ruby-1.9.2-head
+  else
+    die "rvm not found. We need ruby-1.9.2-head"
+  fi
+
+  source $HOME/bin/ssh-agent.sh >/dev/null 2>&1 || die "Can't load ssh configuration"
+  msg "Testing ssh connection"
+  ssh -o ConnectTimeout=3 kyanh@ssh.tuxfamily.org uptime >/dev/null
+  if [[ $? -ge 1 ]]; then
+    die "Can't make connect to remote server ssh.tuxfamily.org"
+  fi
+  cd $_D_VAR || die "Can't switch to directory $_D_VAR"
+}
+
+_update() {
+  msg "Updating the local source tree"
+  git reset --hard
+  git fetch --all
+  git checkout master || die "Can't switch to the branch :master"
+  git pull || die "Can't update local source tree. Please ask your sysadmin for details"
+  msg "Fetching Ruby files from the branch :core"
+  rm -r lib/* layouts/* # Yep, we have to remove all of them!!!
+  find . -type f -iname "*.rb" -exec rm -f {} +
+  msg "Removing some files that should not be cached"
+  rm -fv output/changes/index.html
+  git archive --format=tar core --remote=~/repositories/archlinuxvn.git \
+    | tar --wildcards -xf - 'Rules' '*.rb' 'layouts/*' 'config.yaml'
+}
+
+_build() {
+  msg "Cleaning up the old files"
+  nanoc prune --yes
+  msg "Rebuilding the static pages"
+  nanoc \
+    || {
+         msg "Something wrong happened when building the pages."
+         die "Please contact the system administrator for support."
+       }
+}
+
+_fix_perm() {
+  msg "Updating files permission"
+  find $_D_VAR/output/ -mindepth 1 -type d -exec chmod 755 {} +
+  find $_D_VAR/output/ -mindepth 1 -type f -exec chmod 644 {} +
+}
+
+_sync() {
+  msg "Updating home page archlinuxvn.tuxfamily.org"
+  rsync -rae "ssh -o ConnectTimeout=3" --delete \
+    --exclude="irclogs*" \
+    $_D_VAR/output/ \
+    kyanh@ssh.tuxfamily.org:~/archlinuxvn/archlinuxvn.tuxfamily.org-web/htdocs/
+  if [[ $? -ge 1 ]]; then
+    msg "=============================================="
+    msg "Error happened when updating pages on tuxfamily."
+    msg "This is often due to bad ssh settings on viettug.org."
+    msg "This is *not* an error at your side. Please contact"
+    msg "sysadmin to resolve this problem -- viettug.org."
+    msg "=============================================="
+    return 1
+  else
+    msg "All pages have been updated."
+    msg "Thank you for your contribution. You make ArchLinuxVn live!"
+  fi
+}
+
+# NOTE: Never use (die) in this method
+_lock_start() {
+  if [[ ! -f "$_F_LOCK" ]]; then
+    touch "$_F_LOCK" || die "Can't create lock file"
+    return 0
+  fi
+
+  t_lok="$(date -r $_F_LOCK +%s)"
+  t_now="$(date +%s)"
+
+  distance=$((t_now - t_lok))
+  if [[ $distance -ge 300 ]]; then
+    msg "Lock file is too old. Is this file obsolete?"
+    touch "$_F_LOCK"
+    return 0
+  else
+    msg "======================================================"
+    msg "Lock file does exist. Another build process is running."
+    msg "Your changes won't appear in the home page until next build."
+    msg "Please wait in 10 minutes, or force new build by modifying"
+    msg "the file .force.build. You can put anything in that file."
+    msg " (However, if you see this message again and again,"
+    msg " there may be a problem on the server 'viettug.org'."
+    msg " Please contact the sysadmin to resolve it. THANK YOU.)"
+    msg "======================================================"
+    exit 0
+  fi
+}
+
+_lock_end() {
+  rm -f "$_F_LOCK"
+}
+
+_main() {
+  _setup
+  _update || die "Something wrong happened during updating process"
+  _build
+  _fix_perm
+  _sync
+}
+
+_lock_start
+_main
+_lock_end

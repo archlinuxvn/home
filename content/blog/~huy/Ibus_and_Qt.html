@@ -1,0 +1,73 @@
+---
+title: Qt app and Ibus
+allow_comment: yes
+---
+
+# Qt App and Ibus
+
+Các ứng dụng viết bằng thư viện `Qt` (ví dụ như `Skype`, `Opera`, ...) có
+đặc điểm là không tự động nhận ra bộ gõ `Ibus`.
+Muốn khắc phục thì phải thông qua `X input`.
+
+* Sau khi check các `env` sau khi khởi động hệ thống thì kết luận
+là thiếu các biến môi trường: Nhấp phải chọn `Input Method` trên `terminal`
+chọn `X input method`, chuyển bộ gõ không có kết quả.
+
+<pre>
+env | grep ibus
+ibus-daemon -x --replace
+export XIM_PROGRAM=ibus
+</pre>
+
+Thật không may cả ba lệnh trên đều không có kết quả với mình.
+
+## Cách giải quyết
+
+* Cài đặt ibus-qt bằng lệnh : `sudo pacman -S ibus-qt`
+* Trên terminal gõ: `qtconfig` chọn tab `Interfaces`,
+  chọn `default input method` là `ibus` thay cho `xim`.
+* Sau khi tiến hành kiểm tra như trên xong, mình tiến hành `export`
+  biến môi trường khi `user login` vào bằng cách thêm ba dòng sau vào `.bashrc`
+<pre>
+export GTK_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus
+export QT_IM_MODULE=ibus
+</pre>
+Hầu hết các ứng dụng `Qt` sẽ chạy với `Ibus` khi export đủ ba biến môi
+trường trên; **tuyệt đối không thêm dòng**: `1ibus-daemon -x -d` vào .bashrc sẽ gây crash `ibus`!
+
+## Với Opera hoặc các app không nhận Ibus
+
+Mặc dù đã thêm ba dòng trên vào `.bashrc` tuy nhiên có một số vấn đề trên
+`Opera` làm nhiều người dùng `*nix` khó chịu là không nhận `ibus`;
+có một số tip như sau:
+
+<pre>
+XIM=ibus    # ( với mình không hiệu quả )
+</pre>
+
+**Cách giải quyết như sau:** Chạy opera trên terminal với lệnh:
+
+<pre>
+XMODIFIERS=@im=ibus opera
+</pre>
+
+cách chung là
+
+<pre>
+XMODIFIERS=@im=ibus QT_Apps_command
+</pre>
+
+Ở đây `QT_apps_command` là lệnh để bắt đầu ứng dụng.
+
+## Cập nhật
+
+Có thể chỉnh sửa `/etc/profile` như sau để giải quyết vấn đề
+(thật ra file `/etc/profile` nó được `set` đầu tiên trước `.bashrc` và wide trong system)
+
+<pre>
+export XMODIFIERS="@im=ibus"
+export GTK_IM_MODULE="ibus"
+export QT4_IM_MODULE="ibus"
+export QT_IM_MODULE="ibus"
+</pre>

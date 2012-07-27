@@ -2,30 +2,47 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ArchLinuxVn - <%= @item[:title] %></title>
+    <title><%= @item[:title]%> - ArchLinuxVn - ArchLinux for Vietnamese</title>
     <link rel="stylesheet" type="text/css" href="/style.css" media="screen">
   </head>
   <body>
     <div id="main">
       <%= yield %>
-
       <p>
         ----
         <br />
-        <em>last updated by <%= git(:author, @item) %> @ <%= git(:date, @item) %></em>
+        <em><%= git(:stat, @item) %>;</em>
+        <br />
+        <em><%= git(:last_update, @item) %></em>
       </p>
+<pre class="license">
+This page is published under the license <a href="http://creativecommons.org/licenses/by-nc-nd/3.0/">CC BY-NC-ND 3.0</a>.
+  (1) Attribution — You must attribute the work in the manner
+        specified by the author or licensor <em>(but not in any way
+        that suggests that they endorse you or your use of the work)</em>;
+  (2) Noncommercial — You may not use this work for commercial purposes;
+  (3) No Derivative Works — You may not alter, transform, or build upon this work.
+</pre>
+      <%= @item[:allow_comment] ? disqus_show : "" %>
     </div>
     <div id="sidebar">
-      <h2><a href="/vn/about">ArchLinuxVn</a></h2>
+      <h2><a href="/">ArchLinuxVn</a></h2>
       <ul>
         <li><a href="/vn/news">tin tức</a></li>
         <li><a href="/vn/members">thành viên</a></li>
+        <li><a href="/changes">thay đổi gần đây</a></li>
       </ul>
       <h2><a href="/blog/">Blog</a></h2>
       <ul>
-        <li><a href="/blog/~huy/">~huy</a>, <a href="/blog/~icy/">~icy</a></li>
+        <li>
+            <a href="/blog/~redlotus/">~redlotus</a>
+        </li>
+        <li>
+            <a href="/blog/~huy/">~huy</a>,
+            <a href="/blog/~icy/">~icy</a>
+        </li>
       </ul>
-      <h2>Tài liệu</h2>
+      <h2><a href="/doc/">Tài liệu</a></h2>
       <ul>
         <li><a href="/faq">FAQ</a></li>
         <li><a href="/doc/newbie">cơ bản</a></li>
@@ -33,9 +50,8 @@
       </ul>
       <h2>Liên kết</h2>
       <ul>
-        <li><a href="/">trang chủ</a></li>
         <li><a href="http://groups.google.com/group/archlinuxvn/">nhóm thư</a></li>
-        <li><a href="http://webchat.freenode.net/?randomnick=1&channels=archlinuxvn&prompt=1&uio=d4">irc</a> (<a href="/vn/bot">bot</a>, <a href="/irclogs/">log</a>)</li>
+        <li><a href="/vn/irc">irc</a> (<a href="/vn/bot">bot</a>, <a href="/irclogs/">log</a>)</li>
         <li><a href="http://github.com/archlinuxvn/">mã nguồn</a></li>
       </ul>
     </div>

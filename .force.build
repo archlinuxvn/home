@@ -1,0 +1,12 @@
+========================================================================
+
+This is a random file. You can put anything here, though you should keep
+the original version of its first block as an explanation.
+
+The purpose of this file is to avoid locking state caused by the build
+script `post-receive`. Modifying this file will give the author another
+chance to build their changes if any previous build is locked.
+
+========================================================================
+
+PUTS YOUR STUFF HERE

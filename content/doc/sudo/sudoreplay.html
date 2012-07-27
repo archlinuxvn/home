@@ -1,0 +1,112 @@
+---
+title: sudo - replay - Diễn lại quá trình làm việc với sudo
+allow_comment: yes
+---
+
+# Diễn lại quá trình làm việc với lệnh sudo
+
+Khi lệnh trên hệ thống được thi hành thông qua `sudo` _(để thay đổi vai
+trò của người thi hành)_, toàn bộ quá trình xuất, nhập dữ liệu trên màn
+hình của lệnh có thể được lưu lại. Điều này sẽ có ích cho mục đích giáo dục,
+theo dõi, lưu trữ.
+
+Ý tưởng cũng như khi dùng lệnh `script`, nhưng `sudo replay` còn xịn
+hơn chỗ, nó có thể `tua` lại từng chi tiết nhờ vào việc ghi cả thời gian
+và các ký tự đặc biệt. Ví dụ, `sudo replay` có thể ghi lại việc người
+dùng gõ sai một lệnh và sau đó dùng phím mũi tên lùi để sửa lại những chỗ
+sai trên lệnh trước khi nhấn `Enter` để thi hành lệnh đó.
+
+## Cài đặt
+
+Bạn cần có phiên bản `sudo` ít nhất là `1.7.2p8`. Nếu chưa có, bạn có thể
+tải và biên dịch `sudo` mới từ [trang chủ sudo] [sudohome].
+
+Cấu hình `/etc/sudoers` bạn cần có dòng
+
+```
+Defaults    log_input,log_output,...
+```
+
+để thiết lập cho mọi người dùng _(ở trên dấu ba chấm (_..._) ở cuối cùng để
+chỉ các tùy chọn khác. Nếu không có thì bỏ di kể từ dấu phẩy nhé)_.
+Hoặc để thiết lập cho từng trường hợp cụ thể, bạn dùng hai thẻ `LOG_INPUT`
+hoặc `LOG_OUTPUT` (tương tự cách dùng thẻ `NOPASSWD`)
+
+<pre>
+foobar ALL=(ALL) LOG_INPUT: LOG_OUTPUT: /usr/bin/true
+</pre>
+
+Ngoài hai thẻ trên, bạn còn có `NOLOG_INPUT` và `NOLOG_OUTPUT` để bỏ
+các thiết lập mặc định trong `Defaults`.
+
+## Sử dụng
+
+Với ví dụ trên, khi người dùng `foobar` dùng lệnh `sudo` để thi hành lệnh,
+kết quả nhập xuất của lệnh sẽ được lưu vào `/var/log/sudo-io/`. Để xem nội
+dung của thư mục này, có thể dùng cách liệt kê
+
+<pre>
+sudoreplay -l user foobar
+</pre>
+
+Dưới đây là ví dụ về kết quả của lệnh trên
+
+<pre>
+Jul 11 04:53:22 2012 : foobar : TTY=/dev/pts/1
+    ; CWD=/home/foobar ; USER=root
+    ; TSID=000002
+    ; COMMAND=/bin/su -
+
+Jul 11 04:53:52 2012 : foobar : TTY=/dev/pts/3
+    ; CWD=/home/foobar ; USER=root
+    ; TSID=000003
+    ; COMMAND=/usr/local/bin/puppet agent -t
+</pre>
+
+Kết quả rất rõ ràng: `foobar` đã dùng hai cửa sổ khác nhau, ở một cửa sổ
+người dùng này thi hành lệnh `sudo su -`, còn ở cửa sổ kia lệnh
+`puppet agent -t`. Bạn để ý tới chỗ có nhóm chữ `TSID=`: theo sau nhóm này
+là chỉ số của phiên làm việc. Khi đã có chỉ số này rồi, bạn có thể xem
+lại toàn bộ những gì mà người dùng `foobar` đã thực hiện trên phiên đó:
+
+<pre>
+sudoreplay 000003
+</pre>
+
+Bạn sẽ thấy diễn ra trước mắt tất cả những gì mà người dùng `foobar` thấy
+khi thưc hiện lệnh `sudo puppet agent -t`. Do có biến số thời gian, nên
+nhanh hay chậm ra sao thì bạn cũng thấy lại đúng vậy. Để `tua` nhanh,
+có thể dùng phím chỉnh tốc độ `<` _(giảm tốc)_, `>` _(tăng tốc)_, hoặc
+có thể dùng tùy chọn `-s <tỉ lệ>`. Ví dụ,
+
+<pre>
+sudoreplay -s 0.5 000003  # tua rất chậm
+sudoreplay -s 100 000003  # tua rất nhanh
+</pre>
+
+_(Dùng số lớn hơn 1 để tua nhanh, nhỏ hơn 1 để tua chậm)_
+
+## Lời khuyên. Mẹo
+
+Trong thư mục `/var/log/sudo-io`, các phiên làm việc được lưu lại ở dạng
+nén `gzip`. Tuy nhiên, kích thước thư mục này phình to rất nhanh :)
+Vì thế, lời khuyên là không nên dùng thiết lập mặc định để ghi lại `log`,
+mà chỉ nên dùng các thẻ để lưu lại khi cần thiết.
+
+Khi thưc hiện lưu `log`, một số chương trình sẽ không làm việc được, bởi
+vì các kênh dẫn tin _(`file descriptor`)_ bị chặn hoặc khóa bởi `sudo`.
+Nhớ điều này để giúp bạn chọn cài đặt tốt ưu nhất.
+
+Nếu bạn chỉ bật cờ `LOG_INPUT` mà không bật `LOG_OUTPUT` cho lệnh nào đó,
+thì bạn sẽ không diễn lại được. Nói cách khách, `sudoreplay` dựa trên kết
+quả xuất của các lệnh. Do đó, `LOG_OUTPUT` là bắt buộc và thường là đủ.
+
+Các thông tin quan trọng như chìa khóa, mật mã,... sẽ được lưu lại khi
+bạn dùng `LOG_INPUT`. Do đó, cần cân nhắc khi dùng cờ này.
+
+Cuối cùng, nên cẩn thận khi chỉnh sửa nội dung tập tin `/etc/sudoers`,
+bởi vì một chút sai sót có thể khiến bạn phải lái xe lên trung tâm dữ
+liệu tắt máy tính và điều chỉnh lại tập tin đó theo một cách không thể
+nào ngớ ngẩn hơn :D
+
+[sudohome]: http://www.gratisoft.us/sudo/stable.html

@@ -88,6 +88,15 @@ a:hover {
   line-height: 20px;
 }
 
+#sidebar h2 a:link,
+#sidebar h2 a:visited {
+  color: blue;
+}
+
+#sidebar h2 a:hover {
+  color: #f90;
+}
+
 #sidebar ul {
   list-style-type: none;
 
@@ -102,4 +111,24 @@ a:hover {
 
 code {
   color: green;
+}
+
+pre {
+  color: white;
+  background-color: black;
+  padding: 1em;
+  font-family: monospace;
+}
+
+pre.license {
+  color: gray;
+  background-color: transparent;
+  font-size: 10px;
+  font-family: normal;
+}
+
+blockquote {
+  margin-left: 0.5em;
+  padding-left: 1em;
+  border-left: 1px solid gray;
 }
