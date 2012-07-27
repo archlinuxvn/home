@@ -70,33 +70,34 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
    lệnh `git push` vì lệnh này sẽ có ảnh hưởng trực tiếp tới máy phục vụ
    cùng với trang chủ của nhóm.
 
-## Nhóm E: Các quy tắc cần nhớ
+## Nhóm D: Thông tin khác. Mẹo
 
-1. Đặt tên tập tin chỉ gồm chữ thường, dấu gạch chân và con số. Không dùng
-   khoảng trắng, ký tự đặc biệt, tiếng Việt có dấu khi đặt tên tập tin.
+7. Sau khi bạn thực hiện thành công `git push`, máy phục vụ của VietTUG
+   sẽ tự động biên dịch và cập nhật thay đổi ở trang chủ của ArchLinuxVn.
+   Vì các thành viên đều có quyền truy cập như nhau đến mọi trang của nhóm,
+   bạn được khuyến cáo hãy **cẩn thận khi chỉnh sửa, thay đổi các bài viết
+   đã có**. Tốt nhất, nếu có điều gì phân vân, hãy hội ý với các bạn khác
+   trước khi quyết định!
 
-2. Để cho phép người dùng gửi bình luận cho bài viết của bạn, sau khi
-   đặt tựa đề, bạn đặt `allow_comment: yes` trong phần `metadata` của
-   bài viết. Một ví dụ có trong mã nguồn của bài `vn/author-guide.html`.
-   Hệ thống bình luận do Disqus cung cấp.
+8. Nếu bạn cần thay đổi, bổ sung một số quy tắc biên dịch hoặc thư viện,
+   bạn cần quyền ghi vào nhánh `core` _(các thay đổi của những tập tin như
+   `Rules`, `libs/*` trên nhánh `master` sẽ bị bỏ qua trong quá trình
+   biên dịch)_. Cách đơn giản nhất là liên hệ với người quản lý nhánh
+   `core` để xác nhận các thay đổi của bạn. **Lưu ý** rằng việc này là cần
+   thiết để đảm bảo an toàn cho máy phục vụ.
 
-3. Để tạo liên kết tới các bài viết khác, có thể dùng theo định dạng của
-   Kramdown, hoặc dùng dạng wiki mà mô tả có trong thư viện
-    `/lib/filters/wiki_filter.rb`.
-   Bạn có thể đọc hướng dẫn và theo dõi ví dụ có trong mã nguồn này.
-
-4. Nên chọn tên tập tin ngắn gọn, dễ nhớ. Không nên đổi tên tập tin vì
-   hệ thống bình luận Disqus sẽ không biết để chuyển các bình luận (nếu
-   có) từ bài với tập tin cũ qua bài với tập tin mới.
+## Nhóm E: Quy tắc cần nhớ
 
 5. Không được thay đổi các tập tin `*.rb` và tập tin `layout/*`. Những
    tập tin này chỉ được thay đổi bởi người quản lý cấp cao nhất. Xem
    thêm nhóm D.
 
-6. Trong phần `metadata` của mỗi bài viết, bạn có thể đặt các thông tin
-   tùy ý để tiện tìm kiếm sau này. Ví dụ `tags: [abc, xyz]`, hoặc
-   `created_at: 2012 July 25th`,... để tiện tìm kiếm. Một vài thông tin
-   sẽ được dùng trong tương lai để hỗ trợ `blog` và `tìm kiếm`.
+1. Đặt tên tập tin chỉ gồm chữ thường, dấu gạch chân và con số. Không dùng
+   khoảng trắng, ký tự đặc biệt, tiếng Việt có dấu khi đặt tên tập tin.
+
+4. Nên chọn tên tập tin ngắn gọn, dễ nhớ. Không nên đổi tên tập tin vì
+   hệ thống bình luận Disqus sẽ không biết để chuyển các bình luận (nếu
+   có) từ bài với tập tin cũ qua bài với tập tin mới.
 
 7. Hạn chế sử dụng tiếng Anh. Nên tìm cách dịch những từ đơn giản, phổ
    biến qua tiếng Việt. Nếu bạn không chắc với cách dịch, có thể ghi
@@ -125,21 +126,43 @@ This is a long description. The above line is a blank link.'
 
    Lưu ý rằng đây là những quy ước phổ biến khi làm việc với `git`.
 
-## Nhóm D: Thông tin khác. Mẹo
+## Nhóm F: Lưu ý có ích khác
 
-7. Sau khi bạn thực hiện thành công `git push`, máy phục vụ của VietTUG
-   sẽ tự động biên dịch và cập nhật thay đổi ở trang chủ của ArchLinuxVn.
-   Vì các thành viên đều có quyền truy cập như nhau đến mọi trang của nhóm,
-   bạn được khuyến cáo hãy **cẩn thận khi chỉnh sửa, thay đổi các bài viết
-   đã có**. Tốt nhất, nếu có điều gì phân vân, hãy hội ý với các bạn khác
-   trước khi quyết định!
+1. Để cho phép người dùng gửi bình luận cho bài viết của bạn, sau khi
+   đặt tựa đề, bạn đặt `allow_comment: yes` trong phần `metadata` của
+   bài viết. Một ví dụ có trong mã nguồn của bài `vn/author-guide.html`.
+   Hệ thống bình luận do Disqus cung cấp.
 
-8. Nếu bạn cần thay đổi, bổ sung một số quy tắc biên dịch hoặc thư viện,
-   bạn cần quyền ghi vào nhánh `core` _(các thay đổi của những tập tin như
-   `Rules`, `libs/*` trên nhánh `master` sẽ bị bỏ qua trong quá trình
-   biên dịch)_. Cách đơn giản nhất là liên hệ với người quản lý nhánh
-   `core` để xác nhận các thay đổi của bạn. **Lưu ý** rằng việc này là cần
-   thiết để đảm bảo an toàn cho máy phục vụ.
+1. Để tạo liên kết tới các bài viết khác, có thể dùng theo định dạng của
+   Kramdown, hoặc dùng dạng wiki mà mô tả có trong thư viện
+    `/lib/filters/wiki_filter.rb`.
+   Bạn có thể đọc hướng dẫn và theo dõi ví dụ có trong mã nguồn này.
+
+2. Trong phần `metadata` của mỗi bài viết, bạn có thể đặt các thông tin
+   tùy ý để tiện tìm kiếm sau này. Ví dụ `tags: [abc, xyz]`, hoặc
+   `created_at: 2012 July 25th`,... để tiện tìm kiếm. Một vài thông tin
+   sẽ được dùng trong tương lai để hỗ trợ `blog` và `tìm kiếm`.
+
+4. Cuối mỗi bài viết thường có thông tin về tác giả, ngày cập nhật cuối
+   cùng. Để bỏ qua thông tin này, chỉ việc đặt `virtual: true` trong phần
+   `metadata` của bài viết. _(Thực tết thì thiết lập này để dùng để phân
+   biệt những trang tĩnh có nội dung đặt trên tập tin cụ thể, với các
+   trang động được sinh ra nhờ các lọc đặc biệt, ví dụ, nhưng các trang
+   `/tags/*`.)_
+
+3. Để đánh dấu thẻ (`tag`) cho bài viết, trong phần `metadata` bạn có thể
+   chỉ ra danh sách các thẻ như ví dụ sau đây. Mỗi thẻ chỉ gồm các chữ cái
+   (hoa thường như nhau) và con số (các cách đặt thẻ sai quy ước này sẽ
+   bị bỏ qua). _(Nếu bạn biết `Ruby`, hãy lưu ý rằng không thể thay thế
+   việc dùng `[]` bởi `%w{}`. Ngoài ra, cách kiểm tra thẻ của `nanoc`
+   thông qua `Nanoc::Helpers::Tagging` rất yếu.)_
+
+<pre>
+---
+title: Tựa đề bài viết
+tags: ['git', 'programming']
+---
+</pre>
 
 [kramdown]: http://kramdown.rubyforge.org/quickref.html
 [nanoc]: http://nanoc.stoneship.org/docs/
