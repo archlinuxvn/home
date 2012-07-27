@@ -53,11 +53,15 @@ _update() {
   git fetch --all
   git checkout master || die "Can't switch to the branch :master"
   git pull || die "Can't update local source tree. Please ask your sysadmin for details"
-  msg "Fetching Ruby files from the branch :core"
+
+  msg "Removing erb files"
   rm -r lib/* layouts/* # Yep, we have to remove all of them!!!
   find . -type f -iname "*.rb" -exec rm -f {} +
+
   msg "Removing some files that should not be cached"
-  rm -fv output/changes/index.html
+  rm -fv output/changes/index.html output/tags/index.html
+
+  msg "Fetching Ruby files from the branch :core"
   git archive --format=tar core --remote=~/repositories/archlinuxvn.git \
     | tar --wildcards -xf - 'Rules' '*.rb' 'layouts/*' 'config.yaml'
 }
