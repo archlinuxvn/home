@@ -59,7 +59,8 @@ _update() {
   find . -type f -iname "*.rb" -exec rm -f {} +
 
   msg "Removing some files that should not be cached"
-  rm -fv output/changes/index.html output/tags/index.html
+  rm  -f output/changes/index.html
+  rm -rf output/tags/*
 
   msg "Fetching Ruby files from the branch :core"
   git archive --format=tar core --remote=~/repositories/archlinuxvn.git \
