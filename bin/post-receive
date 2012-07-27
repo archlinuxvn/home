@@ -66,6 +66,23 @@ _update() {
     | tar --wildcards -xf - 'Rules' '*.rb' 'layouts/*' 'config.yaml'
 }
 
+_update_myself() {
+  local _myself="$HOME/bin/post-receive"
+  msg "Updating the build script"
+  git archive --format=tar core --remote=~/repositories/archlinuxvn.git \
+    | tar --wildcards -x0f - 'bin/post-receive' \
+    > $_myself.tmp
+
+  diff $_myself $_myself.tmp >/dev/null 2>&1
+  if [[ $? -gt 0 ]]; then
+    mv $_myself.tmp $_myself
+    chmod 700 $_myself
+  else
+    msg "The build script is up-to-date"
+    rm -rf $_myself.tmp
+  fi
+}
+
 _build() {
   msg "Cleaning up the old files"
   nanoc prune --yes
@@ -137,6 +154,7 @@ _lock_end() {
 }
 
 _main() {
+  _update_myself
   _setup
   _update || die "Something wrong happened during updating process"
   _build
