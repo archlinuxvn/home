@@ -14,4 +14,3 @@ Vì kho này không được cập nhật thường xuyên, các liên kết m�
 không hợp lệ. Bạn có thể chờ đến ngày hôm sau thì mọi chuyện sẽ bình thường.
 
 <%= recent_changes %>
-

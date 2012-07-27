@@ -28,9 +28,13 @@ EOF
   # @purpose: Find the file name associated to an item
   # @author : Anh K. Huynh
   # @return : File path (real path) or nil
-  def item_to_file(item)
-    path = item.respond_to?(:identifier) ? item.send(:identifier) : item
-    if File.file?(path)
+  def item_to_file(item = nil)
+    return nil if item.nil? or item[:virtual]
+
+    path = item[:identifier]
+    if not path
+      file_name = nil
+    elsif File.file?(path)
       file_name = path
     else
       file_name = File.join("./content/", path.slice(0,path.size - 1))
@@ -51,7 +55,7 @@ EOF
   #   git(:stat, item)
   #   git(:last_update, item)
   # @example: see in layouts/default.html
-  def git(op, item)
+  def git(op = nil, item = nil)
     file_name = item_to_file(item)
 
     command = case op
@@ -68,7 +72,7 @@ EOF
       else nil
     end
 
-    command and File.file?(file_name) \
+    op and file_name and command and File.file?(file_name) \
       ? %x{#{command}}.strip.gsub("\n", "") \
       : "Couldn't fetch information for item '#{path}'"
   end
@@ -100,6 +104,12 @@ EOF
 
     ret << ["</ol>"]
     ret.join("\n")
+  end
+
+  def all_tags
+    @items.find_all.map {|p| p[:tags]}.flatten.compact.select do |tag|
+       tag.match(%r{^[a-z0-9]+$}i)
+    end.map(&:downcase).uniq
   end
 
   # @purpose: Print last Mnum> posts

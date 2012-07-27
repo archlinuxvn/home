@@ -18,11 +18,31 @@
 #   item, use the pattern “/about/*/”; “/about/*” will also select the parent,
 #   because “*” matches zero or more characters.
 
-compile '/stylesheet/' do; end
-#compile '/about/'      do; end
-#compile '/vn/about/'   do; end
+preprocess do
+  def generate_tag_pages
+    all_tags.each do |tag|
+      @items << Nanoc::Item.new(
+        "<%= render '_tag', {:tag => '#{tag}'} %>",
+        { :title => "Tag #{tag}", :virtual => true },
+        "/tags/#{tag}/" )
+    end
+  end
+
+  generate_tag_pages
+end
+
+compile '/stylesheet/' do
+  # don’t filter or layout
+end
 
 compile '/changes/' do
+  filter :erb
+  filter :kramdown
+  filter :wiki
+  layout 'default'
+end
+
+compile '/tags/*' do
   filter :erb
   filter :kramdown
   filter :wiki
@@ -39,24 +59,19 @@ compile '*' do
   end
 end
 
+compile '/tags/*/' do
+  filter :erb
+  layout '/default/'
+end
+
 route '/stylesheet/' do
   '/style.css'
 end
 
-route '/about/' do
-  '/'
-end
-
-route '/vn/about/' do
-  '/'
-end
-
 route '*' do
   if item.binary?
-    # Write item with identifier /foo/ to /foo.ext
     item.identifier.chop + '.' + item[:extension]
   else
-    # Write item with identifier /foo/ to /foo/index.html
     item.identifier + 'index.html'
   end
 end
