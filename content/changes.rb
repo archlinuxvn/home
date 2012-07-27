@@ -1,5 +1,6 @@
 ---
 title: Thay đổi gần đây
+virtual: true
 ---
 
 # Những bài viết mới nhất

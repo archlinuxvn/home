@@ -28,11 +28,12 @@ EOF
   # @purpose: Find the file name associated to an item
   # @author : Anh K. Huynh
   # @return : File path (real path) or nil
-  def item_to_file(item = nil)
+  # @note   : Available extensions: .rb (ERB), .html (other formarts)
+  def item_to_file(item)
     return nil if item.nil? or item[:virtual]
 
-    path = item[:identifier]
-    if not path
+    path = item.identifier
+    if path.nil?
       file_name = nil
     elsif File.file?(path)
       file_name = path
@@ -55,7 +56,7 @@ EOF
   #   git(:stat, item)
   #   git(:last_update, item)
   # @example: see in layouts/default.html
-  def git(op = nil, item = nil)
+  def git(op, item)
     file_name = item_to_file(item)
 
     command = case op
