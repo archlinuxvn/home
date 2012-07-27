@@ -71,7 +71,7 @@ _update_myself() {
   local _myself="$HOME/hooks/archlinuxvn/post-receive"
   msg "Updating the build script"
   git archive --format=tar core --remote=~/repositories/archlinuxvn.git \
-    | tar --wildcards -x0f - 'bin/post-receive' \
+    | tar --wildcards -xOf - 'bin/post-receive' \
     > $_myself.tmp
 
   diff $_myself $_myself.tmp >/dev/null 2>&1
