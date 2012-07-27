@@ -1,5 +1,6 @@
 ---
 title: Thẻ (tag) đánh dấu bài viết
+virtual: true
 ---
 
 # Thẻ (tag) đánh dấu bài viết
