@@ -67,7 +67,7 @@ _update() {
 }
 
 _update_myself() {
-  local _myself="$HOME/bin/post-receive"
+  local _myself="$HOME/hooks/archlinuxvn/post-receive"
   msg "Updating the build script"
   git archive --format=tar core --remote=~/repositories/archlinuxvn.git \
     | tar --wildcards -x0f - 'bin/post-receive' \
