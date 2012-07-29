@@ -7,8 +7,6 @@ tags: ['archlinuxvn']
 # Thành viên dùng ArchLinux
 
 Danh sách cách thành viên của ArchLinuxVn (liệt kê theo thứ tự ngẫu nhiên).
-Nếu bạn thấy ai còn thiếu ai trong danh sách này,
-vui lòng liên hệ để chúng tôi cập nhật.
 
 * **Sinh viên:** n0b0dy, [NgoHuy] [], quangteospk, VHNgoc, [redlotus] []
 * **Giáo viên. Giảng viên:** tanphu, favadi, lamhuuphuoc
@@ -17,22 +15,30 @@ vui lòng liên hệ để chúng tôi cập nhật.
 
 # Máy dùng ArchLinux
 
-* <http://viettug.org>: installed in 2012-04-25, kernel `3.4.4-2`
-* Goodtrans BO: installed in 2011-11-10, kernel `3.3.6-1`
-* icy's PC: installed in 2010-10-18, kernel `3.4.4-2`
-* icy's office box: installed in 2012-10-17, kernel `3.3.8-1`
-* redlotus's laptop: installed in ????-??-??, kernel `3.4.6-1`, amd64, wm/de `monsterwm`
-* NgoHuy's PC: installed in 2011-06-02, kernel `3.4.6-1`,DE: `Gnome3`
+Danh sác máy của các thành viên. Nhân mặc định là 64 bít, các nhân 32 bits
+được đánh dấu sao (*).
 
-_Tips:_ To check whether your ArchLinux was installed, invoke the following
-command
+| Tên máy     | Cài đặt  | Nhân       |VM/DE    |
+|:------------|:--------:|:----------:|:-------:|
+|[l00s3r][]   |2012-04-25|3.4.4-2     |none     |
+|Goodtrans    |2011-11-10|3.3.6-1     |none     |
+|icy PC       |2010-10-18|3.4.4-2 (*) |e17      |
+|icy office   |2012-10-17|3.3.8-1     |e17      |
+|redlotus     |????-??-??|3.4.6-1     |monsterwm|
+|NgoHuy       |2011-06-02|3.4.6-1     |Gnome3   |
+
+_(*): Nhân 32 bits (kiến trúc của máy tính có thể là 64 bits.)_
+
+# Mẹo
+
+Để kiểm tra bạn cài ArchLinux từ lúc nào, chạy lệnh
 
 <pre>
 grep filesystem /var/log/pacman.log \
   | head -1
 </pre>
 
-To check major upgrades of your ArchLinux system, try the command
+Để kiểm tra những lần nâng cấp lớn (có thay đổi `kernel`) trên máy, dùng lệnh
 
 <pre>
 grep -E 'upgraded (linux|kernel)' /var/log/pacman.log \
@@ -43,3 +49,4 @@ grep -E 'upgraded (linux|kernel)' /var/log/pacman.log \
 [KyAnh]: /blog/~icy/
 [NgoHuy]: /blog/~huy/
 [redlotus]: /blog/~redlotus/
+[l00s3r]: http://vietug.org/
