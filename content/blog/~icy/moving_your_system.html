@@ -1,15 +1,16 @@
 ---
 title: Chuyển hệ thống giữa các máy
 allow_comment: yes
-tags: ['upgrade']
+tags: ['upgrade', 'sysadmin']
 ---
 
 # Chuyển hệ thống giữa các máy
 
 Chú ý quan trọng:
+
 <pre>
-  Đây chỉ là bản thảo, đang viết dở dang.
-  Làm theo hướng dẫn của bài này có thể phá hỏng hệ thống của bạn.
+Đây chỉ là bản thảo.
+Làm theo hướng dẫn của bài này có thể phá hỏng hệ thống của bạn.
 </pre>
 
 Cài một bộ ArchLinux cho bất kỳ máy tính nào cũng là vấn đề dễ chịu. Bởi vì
@@ -25,14 +26,18 @@ cho công ty với màn hình đen thui...
 
 Và một ngày đẹp trời khác khi bạn vào công ty B, bạn lại có laptop mới,...
 
-## Bước chuẩn bị
+## Chuẩn bị
 
 Giả sử có hai máy X, Y, và bạn cần chuyển hệ thống Arch từ máy X qua Y.
-Bạn cần điều chỉnh để X, Y cùng nằm trong mạng LAN, sử dụng dây cáp để nối mạng
-(kết nối không dây quá chậm do khối lượng dữ liệu lớn).
+Bạn cần điều chỉnh để X, Y cùng nằm trong mạng `LAN`, sử dụng dây cáp để nối
+mạng _(kết nối không dây quá chậm do khối lượng dữ liệu lớn)_. Ngay cả
+khi dùng dây cáp, thì bạn cũng cần nhiều thời gian. Với đường truyền
+`10MB/s` quen thuộc, trung bình bạn mất gần 3 giờ để chuyển xong 100GB dữ liệu.
 
-Bạn chuẩn bị USB với bộ cài đặt của ArchLinux (phiên bản cũ càng tốt,
-vì cũ thường dễ xài): tìm lên trang chủ của ArchLinux tải về tập tin `.iso`,
+### USB cài đặt
+
+Bạn chuẩn bị USB với bộ cài đặt của ArchLinux _(phiên bản cũ càng tốt,
+vì cũ thường dễ xài)_: tìm lên trang chủ của ArchLinux tải về tập tin `.iso`,
 hoặc lấy từ các bản đã có trên máy của bạn, rồi dùng lệnh `dd` để chuyển
 dữ liệu ra USB như sau
 
@@ -42,33 +47,117 @@ dd if=/path/to/iso/file of=/dev/my-usb
 
 với `my-usb` có thể là `sdb`, `sdc`,... tùy trường hợp. Bạn phải chọn đúng
 vì lệnh `dd` dù thành công hay dang dở cũng khiến cho bạn mất sạch dữ liệu
-cũ trên đích của nó. Nếu gặp may gõ nhầm thành `of=/dev/sda` thì xin chúc
-mừng, bạn sẽ cón một màn than vãn không thể kịch hơn.
+cũ trên đĩa đích (`/dev/my-usb`). Nếu gặp may gõ nhầm `of=/dev/sda`
+thì xin chúc mừng: bạn sẽ cón một màn than vãn không thể kịch hơn.
+
+### Trên máy X
 
 Bật máy X, có thể vào chế độ đồ họa
 
 * Nhưng tắt tất cả các tiến trình có thể phát sinh các tập tin có thông
   tin đáng quý (trình duyệt thư, trình chát, chương trình chạy qua `crontab`,
-  các chương trình sao lưu dữ liệu, ...);
-  bạn cố thể không làm vậy, nhưng ở bước cuối cùng khi việc chuyển đổi gần
-  hoàn tất, bạn phải làm vậy để đảm bảo không có dữ liệu nào bị mất;
+  các chương trình sao lưu dữ liệu, ...); điều này để đảm bảo bạn không
+  bị mất dữ liệu được sinh ra trong quá trình chuyển hệ thống;
 
 * Bật `sshd` bằng lệnh `/etc/rc.d/sshd start` sau khi điều chỉnh tập tin
   `/etc/ssh/sshd_config` để dịch vụ `SSH` chấp nhận kiểu đăng nhập bằng
-  chìa khóa (thiết lập `PasswordAuthentication`) và cho phép tài khoản
-  `root` kết nối từ xa (`AllowUsers root`). Việc này chỉ làm tạm thời trong
+  chìa khóa (`PasswordAuthentication yes`) và cho phép tài khoản `root`
+  kết nối từ xa (`AllowUsers root`). Việc này chỉ làm tạm thời trong
   quá trình chuyển đổi, và khá an toàn khi bạn làm ở nhà. Sau khi hoàn
   tất chuyển đổi, bạn nhớ chỉnh lại thiết lập của dịch vụ `SSH`.
 
+* Cài gói `rsync` (nếu chưa có) để dùng trên máy X.
+
 * Việc này quan trọng: Vào trang [arm] [], chọn ngày tháng cho phù hợp
   với bộ cài có trong USB, và tải về gói `rsync` nằm trong `extra`. Sau này
-  bạn sẽ hiểu `rsync` để làm gì.
+  bạn sẽ hiểu `rsync` để làm gì. Chính xác hơn, bạn phải xác định nhân
+  và thư viện `glibc` đang có trong USB để gói `rsync` tải về  có thể làm
+  việc với chúng. *Cần nhấn mạnh* rằng gói `rsync` này là để dùng trên
+  máy Y, không phải gói `rsync` vừa nói ở bước ở trên.
 
-Với máy Y, khởi động từ USB
+### Trên máy Y
+
+Với máy Y, khởi động từ USB, gõ `/arch/setup` để bắt đầu cài đặt:
 
 * Bạn tiến hành cài đặt thông thường, nhưng chỉ vài bước đầu. Ví dụ, chọn
   `mirror`, chọn giờ cài đặt (nhớ chọn cho đúng, chả mất gì nhưng đỡ rắc rối),
   ... cho tới bước phân vùng ổ cứng. Đây là bước quan trọng nhất. Bạn cần
-  xác định đúng các phân vùng dành cho `/`, `/home/`, ...
+  xác định đúng các phân vùng dành cho `/`, `/home/`, ... Mẹo quan trọng
+  là nếu trên máy gốc X có `n` phân vùng thì ở máy Y bạn cũng tạo ra bằng
+  hoặc nhiều hơn `n` phân vùng tương ứng. Mẹo này giúp bạn chuyển đổi
+  dữ liệu dễ dàng hơn khi dùng `rsync`. Rõ ràng cách đơn giản nhất là
+  nếu trên máy X có phân vùng riêng dành cho `/boot/`, thì trên máy Y
+  cũng nên có phân vùng riêng như vậy;
+
+* Sau khi bạn chọn phân vùng và định dạng chúng, bộ cài đặt sẽ thực hiện
+  `mount` những phân vùng này vào thư mục `/mnt`. Bây giờ là lúc bạn thoát
+  trình cài đặt, vào màn hình đen của `console` bắt đầu việc chuyển đổi;
+
+## Chuyển dữ liệu
+
+Để ngắn gọn, dưới đây sẽ dùng `(X)` để chỉ công việc trên máy X, và `(Y)`
+để chỉ công việc trên máy Y.
+
+* `(X)`: Trong tài khoản `root`, tạo ra thư mục `/X/`, bên trong thư mục
+  này có các thư mục con tương ứng với các phân vùng của máy. Ví dụ,
+  `/X/root` dành cho `/`, `/X/home/` dành cho `/home/`, `/X/boot` dành
+  cho `/boot/` và tương tự như thế. Sau đó, bạn thực hiện `mount` các phân
+  vùng hiện có vào các thư mục này _(Điều này hoàn toàn có thể thực hiện
+  được trong Linux.) Ví dụ, nếu trên máy X phân vùng `/dev/sda1` là `/boot/`,
+  `/dev/sda2` là `/`, thì bạn `mount` phân vùng thứ nhất vào `/X/boot/`,
+  phân vùng thứ hai vào `/X/root`;
+
+* `(Y)`: Tương ứng với các thư mục `/X/` trên máy `/Y/`, bạn cũng tạo ra
+  các thư mục `/Y/` trên máy Y, rồi thực hiện kết nối các phân vùng của máy
+  Y vào các thư mục này. Ví dụ, trên máy Y sẽ có kết nối `/dev/sdb2` vào
+  `/Y/boot/`, kết nối `/dev/sdb4` vào `/Y/home/`;
+
+* `(Y)`: Kiểm tra kết nối tới máy X bằng lệnh `ssh root@ip_of_X`. Ở đây,
+  `ip_of_X` là địa chỉ của máy X mà bạn có thể xem bằng lệnh `(X) ifconfig`.
+  Nếu kết nối thành công (bằng chìa khóa nào đó), thì bạn hãy thoát ra
+  để tiếp tục;
+
+* `(Y)`: Tải về gói `rsync` trên máy X bằng lệnh
+    `scp root@ip_of_X:/path/to/rsync /root/`
+  và cài gói này vào máy Y bằng lệnh `pacman -U /root/rsync-*`. Lưu ý
+  rằng lệnh này sẽ không cài vào đĩa cứng của máy, mà chỉ lưu tạm vào
+  đĩa ảo trên bộ nhớ. Khi cài đặt xong, bạn chạy thử lệnh `rsync` xem
+  có lỗi nào không. Nếu có báo lỗi, chẳng hạn nhầm thư viện `glibc` thì
+  bạn phải chịu khó tải về gói `rsync` khác phù hợp hơn.
+
+* `(Y)`: Bắt đầu chuyển đổi dữ liệu bằng `rsync` như sau đây. Với thư mục
+  `/X/boot`, bạn gõ vào lệnh
+<pre>
+rsync -rapv --progress root@ip_of_X:/X/root/ /Y/root/
+</pre>
+
+* _(Lưu ý là trong lệnh trên, cuối mỗi thư mục đều có dấu `/`.)_
+  `(Y)`: Bây giờ, khi lệnh ở trên đang chạy, bạn gõ vào `Alt F2` để chuyển qua
+  màn hình `console` khác và thực hiện `rsync` cho thư mục `/X/root/`,
+  rồi lại vào `Alt F3` để thực hiện cho `/X/home/`,...  Tốc độ đường
+  truyền cố định nên nếu bạn gõ càng nhiều lệnh `rsync` cùng lúc thì
+  tốc độ của mỗi lệnh sẽ tự nhiên chậm đi _(nên đừng tưởng bở nhé!)_
+
+* `(Y)`: Bạn ước lượng thời gian hoàn tất _(đã nói ở trên)_, rồi đi chỗ nào chơi,
+  uống cà phê hay ngủ một giấc. Nhớ dặn dò người thân của bạn đừng tắt
+  điện, tắt mạng hay rút cáp của hai máy X, Y vì nhiều khi chúng chạy
+  lâu quá, các màn hình console của máy tự tắt mới nhìn qua cứ nghĩ
+  là máy không hoạt động :)
+
+* `(Y)`: Kết thúc việc chuyển đổi dữ liệu này, trên tất cả các `console` có
+  lệnh `rsync` bạn sẽ thấy các thông báo lỗi (nếu có). Hãy cố gắng
+  khắc phục lỗi này trước khi tiếp tục. Nếu không còn dữ liệu nào phải
+  chuyển, bạn có thể (và nên) tắt máy X đi.
+
+## Chuyển cấu hình
+
+Dữ liệu đã chuyển xong. Bây giờ cần phải cấu hình lại để hệ thống cũ
+hoạt động được trên máy X. Nếu bạn đã từng cài Arch rồi, việc này sẽ
+khá dễ. Nhưng do sự khác nhau về các phân vùng, thông tin phần cứng,
+các lưu ý và hướng dẫn sau đây sẽ có ích
+
+<pre>
+TODO
+</pre>
 
 [arm]: http://arm.konnichi.com/
