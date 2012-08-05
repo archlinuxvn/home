@@ -6,11 +6,25 @@ tags: ['upgrade', 'sysadmin']
 
 # Chuyển hệ thống giữa các máy
 
-Chú ý quan trọng:
+*Chú ý quan trọng:*{: style="color: blue"}
 
 <pre>
-Đây chỉ là bản thảo.
-Làm theo hướng dẫn của bài này có thể phá hỏng hệ thống của bạn.
+Làm theo hướng dẫn của bài này
+ ... có thể phá hỏng hệ thống của bạn.
+
+Đừng làm theo hướng dẫn này theo cách máy móc.
+Hãy chỉ làm khi bạn hiểu điều bạn sẽ làm. Hãy liên
+hệ với các bạn có kinh nghiệm trước khi thực hiện.
+
+Các đường dẫn tới ổ cứng như /dev/sda1, /dev/sda2,
+là tùy vào hệ thống đang dùng. Tác giả chỉ đưa ra
+như ví dụ. Gõ nhầm các đường dẫn có thể làm mất thông
+tin cá nhân trên hệ thống của bạn.
+
+Nếu cảm thấy không chắc chắn, hãy ghi lại từng
+bước mà bạn định làm hoặc đang làm. Nếu chẳng may
+có trục trặc, bạn có thể dễ dàng mô tả lại vấn đề
+với người có khả năng giúp đỡ bạn.
 </pre>
 
 Cài một bộ ArchLinux cho bất kỳ máy tính nào cũng là vấn đề dễ chịu. Bởi vì
@@ -149,15 +163,133 @@ rsync -rapv --progress root@ip_of_X:/X/root/ /Y/root/
   khắc phục lỗi này trước khi tiếp tục. Nếu không còn dữ liệu nào phải
   chuyển, bạn có thể (và nên) tắt máy X đi.
 
+* Nếu máy X không có phân vùng `boot` riêng, còn máy mới lại có, thì rõ
+  ràng bây giờ chẳng có gì trong `/Y/boot/`. Bạn chuyển mọi thứ trong
+  `/Y/root/boot/` qua đó là xong, bằng các lệnh sau
+<pre>
+rsync -rapv --delete /Y/root/boot/ /Y/boot/
+rm -rfv /Y/boot/*
+</pre>
+
+_(Lệnh sau cùng đảm bảo rằng `/Y/root/boot` sạch sẽ, vì nó sẽ không được
+dùng nữa.)_
+
 ## Chuyển cấu hình
 
 Dữ liệu đã chuyển xong. Bây giờ cần phải cấu hình lại để hệ thống cũ
 hoạt động được trên máy X. Nếu bạn đã từng cài Arch rồi, việc này sẽ
 khá dễ. Nhưng do sự khác nhau về các phân vùng, thông tin phần cứng,
-các lưu ý và hướng dẫn sau đây sẽ có ích
+các lưu ý và hướng dẫn sau đây sẽ có ích.
+
+Giả sử rằng cho đến lúc này bạn vẫn còn chưa khởi động lại máy Y,
+tức là bạn vừa xong bước chuyển dữ liệu ở trên. Với máy X thì bạn có
+thể tắt nó được rồi.
+
+### mtab
+
+Trong các bản Arch mới, tập tin `/Y/root/etc/mtab` không tồn tại, mà đó
+chỉ là một liên kết tới `/proc/self/mounts`. Do đó, bạn cần xóa đi tập tin
+`/Y/root/etc/mtab` rồi tạo liên kết bằng lệnh
+  `ln -s /proc/self/mounts /Y/root/etc/mtab`
+(bạn không cần quan tâm là `/proc/self/mounts` có hay chưa; khi khởi động
+hệ thống sẽ tự động tạo ra).
+
+Nhớ rằng gợi ý trên chỉ áp dụng đối với hệ thống mới. Hãy kiểm tra trên
+máy `X` để biết chi tiết, bằng lệnh `ls -la /etc/mtab`.
+
+### fstab
+
+Đây có thể là tập tin có nhiều thay đổi nhất, đặc biệt khi bạn thay đổi
+cấu trúc và số lượng phân vùng. Hãy cẩn thận và chỉnh lại cho phù hợp với
+máy `Y` chứ không phải máy `X`. Gợi ý
+
+* Nếu dùng `/boot` trên phân vùng riêng, bạn nên kết nối nó sau phân vùng
+  `/`, bởi vì `/boot` là một phần con của `/`;
+
+* Để an toàn, bạn chỉ cần cấu hình cho các phân vùng quan trọng nhất, ví dụ
+  `/root/`, `/boot/` (nếu có), `/var` (nếu có), tạm thời bỏ qua phân vùng
+  `/home/`. Dưới đây là mẫu thực tế của một máy dùng phân vùng `/boot/` riêng.
 
 <pre>
-TODO
+devpts    /dev/pts devpts defaults                     0 0
+none      /dev/shm tmpfs  defaults,noexec,nodev,nosuid 0 0
+/dev/sda2 /        ext3   defaults                     0 1
+/dev/sda1 /boot    ext3   defaults                     0 1
+/dev/sda4 /home    ext4   defaults                     1 1
 </pre>
+
+  _(Trong tập tin `/Y/root/etc/fstab` các dòng chỉ chứa khoảng trắng hoặc bắt
+  đầu bằng dấu thăng `#` là dòng chú thích, không có nghĩa gì với hệ thống.)_
+
+### Mô-đun và driver
+
+* Tắt tất cả các mô-đun và driver không cần thiết, hoặc các mô-đun mà bạn
+  không chắc sẽ hoạt động trên máy mới. Các tập tin liên quan là
+    `/Y/root/rc.conf` (dòng `MODULES`)
+  và `/Y/root/modules.conf`.
+
+* Một số mô-đun được nạp thông qua các kịch bản lúc khởi động, ví dụng
+  các mô-đun cho `oss`, `sensors`,... thì bạn tắt đi các dịch vụ bằng cách
+  tìm tới dòng `DAEMONS` trong `/Y/root/rc.conf` để điều chỉnh.
+
+* Nếu máy cũ xài âm thanh `oss` còn máy mới `Y` xài `alsa` thì bạn sẽ phải
+  tắt đi tất cả các dịch vụ liên quan tới `oss`, và sau này, khi khởi động
+  máy vào được `Y`, bạn phải **cài lại nhân Linux** (cài lại nhân cũ lấy từ
+  [arm] []) thì mới có thể gỡ bỏ hoàn toàn `oss` khỏi hệ thống.
+
+* Tìm và cài lại các `driver` cho cạc đồ họa. Nếu không, hãy dùng `driver`
+  mặc định của `X`. Để chắc ăn, thì bạn tắt đi các trình quản lý đăng
+  nhập đồ họa như `kdm`, `gdm`, `slim` trong `/etc/rc.conf`.
+
+### Trình khởi động
+
+Phần này đơn giản, bạn chỉ việc chọn lại cho đúng đĩa chứa `/boot/`
+khi thay đổi `setroot` trong tập tin `/Y/boot/*`, ví dụ là `hd(0,0)`
+khi dùng trong `grub{1,2}` để chỉ  phân vùng đầu tiên của ổ đĩa `sda`.
+Trong khi chỉnh `kernel`, thì lưu ý
+
+* Chỉ ra `root=/dev/???` là phân vùng của thư mục `/` của bạn, tức là
+  phân vùng đang được kết nối vào `/Y/root`;
+
+* Nếu `/boot/` nằm ở phân vùng riêng, bạn bỏ đi `/boot/` khi chỉ ra đường
+  dẫn tới `kernel` và `initrd`. Ví dụ, `kernel /vmlinuz-linux root=/dev/sda2 ro`;
+
+* Nếu `/boot/` nằm chung phân vùng với `/root/`, thì bạn cần thêm vào `/boot/`
+  trong đường dẫn, ví dụ `initrd /boot/initramfs-linux.img`;
+
+* Bây giờ, đoạn quan trọng nhất: `chroot` và cài đặt trình khởi động.
+  Trước tiên, thực hiện kết nối `binding` cho `proc` và `dev` như sau
+  đây, để sau khi `chroot` vào các thông tin về ổ cứng, tiến trình còn
+  có hiệu lực:
+<pre>
+mkdir /Y/root/dev/  /Y/root/proc
+mount -o bind /dev  /Y/root/dev
+mount -o bind /proc /Y/root/proc
+</pre>
+
+* Tiếp theo, nếu `/boot/` dùng phân vùng riêng, thì bạn kết nối tiếp
+<pre>
+mount -o bind /Y/boot/ /Y/root/boot/
+</pre>
+
+* Tiến hành `chroot` vào hệ thống bằng lệnh `chroot /Y/root`. Sau đó,
+  nếu dùng `grub-{1,2}`, bạn thi  hành lệnh `grub-install /dev/sda` để
+  cài đặt trình khởi động vào đĩa cứng thứ nhất của bạn.
+
+## Xong chưa nhỉ
+
+Trên máy Y, gõ lệnh `reboot`. Nếu máy khởi động và gặp trục trặc ở ngay
+các bước đầu tiên của `grub`, thì hãy loay hoay chỉnh từ dấu nhắc của `grub`
+sao cho đúng các thông tin phân vùng chứa `/boot` và chứa `kernel`.
+
+## Bàn giao máy X
+
+Sau khi chuyển hệ thống qua máy Y, bạn có thể bàn giao máy X cho người khác.
+Hãy dùng các chương trình xóa ổ cứng mạnh mẽ và nhanh (ví dụ các phần mềm trên
+Windows) để xóa sạch mọi dấu vết dữ liệu của bạn trên máy X. Nếu không có
+bước này thì bạn có thể mất các thông tin nhạy cảm (của ca sĩ X, Y nào đó
+chẳng hạn), mất chìa khóa, thậm chí mất cả tiền lẫn tình!
+
+Bạn vừa được cảnh báo.
 
 [arm]: http://arm.konnichi.com/
