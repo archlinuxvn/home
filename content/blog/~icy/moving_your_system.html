@@ -229,7 +229,7 @@ none      /dev/shm tmpfs  defaults,noexec,nodev,nosuid 0 0
 * Tắt tất cả các mô-đun và driver không cần thiết, hoặc các mô-đun mà bạn
   không chắc sẽ hoạt động trên máy mới. Các tập tin liên quan là
     `/Y/root/rc.conf` (dòng `MODULES`)
-  và `/Y/root/modules.conf`.
+  và `/Y/root/modprobe.d/*`.
 
 * Một số mô-đun được nạp thông qua các kịch bản lúc khởi động, ví dụng
   các mô-đun cho `oss`, `sensors`,... thì bạn tắt đi các dịch vụ bằng cách
