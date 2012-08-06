@@ -9,9 +9,9 @@
 
 ## BUILD
 
-  To build the page and see its output, you need `Ruby-1.9` and some
+  To build the site and see its output, you need `Ruby-1.9` and some
   Ruby gems: `nanoc`, `asdf`, `fssm`, `kramdown`. Use the command `nanoc`
-  to build the page, and the commadn `nanoc view` to start a temporary
+  to build the page, and the command `nanoc view` to start a temporary
   web server at the address <http://localhost:3000>. Accessing to this
   address will give you an offline copy of ArchLinuxVn's homepage.
 
