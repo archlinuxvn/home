@@ -1,7 +1,7 @@
 ---
 title: Chuyển hệ thống giữa các máy
 allow_comment: yes
-tags: ['upgrade', 'sysadmin']
+tags: ['upgrade', 'sysadmin', 'migration']
 ---
 
 # Chuyển hệ thống giữa các máy
@@ -51,10 +51,11 @@ mạng _(kết nối không dây quá chậm do khối lượng dữ liệu lớ
 khi dùng dây cáp, thì bạn cũng cần nhiều thời gian. Với đường truyền
 `10MB/s` quen thuộc, trung bình bạn mất gần 3 giờ để chuyển xong 100GB dữ liệu.
 
-### USB cài đặt
+### USB mồi
 
 Bạn chuẩn bị USB với bộ cài đặt của ArchLinux _(phiên bản cũ càng tốt,
-vì cũ thường dễ xài)_: tìm lên trang chủ của ArchLinux tải về tập tin `.iso`,
+vì cũ thường dễ xài; nhưng cũng đừng xài đồ cũ quá)_:
+tìm lên trang chủ của ArchLinux tải về tập tin `.iso`,
 hoặc lấy từ các bản đã có trên máy của bạn, rồi dùng lệnh `dd` để chuyển
 dữ liệu ra USB như sau
 
@@ -67,13 +68,17 @@ vì lệnh `dd` dù thành công hay dang dở cũng khiến cho bạn mất s�
 cũ trên đĩa đích (`/dev/my-usb`). Nếu gặp may gõ nhầm `of=/dev/sda`
 thì xin chúc mừng: bạn sẽ cón một màn than vãn không thể kịch hơn.
 
+Để dùng USB này thì bạn cần chỉnh BIOS của máy Y để  máy có thể khởi động
+từ USB. Một số máy chỉ nhận ra  USB khởi động từ một số cổng nên bạn cần
+thử vài lần trước khi tìm cách khác.
+
 ### Trên máy X
 
 Bật máy X, có thể vào chế độ đồ họa
 
 * Nhưng tắt tất cả các tiến trình có thể phát sinh các tập tin có thông
-  tin đáng quý (trình duyệt thư, trình chát, chương trình chạy qua `crontab`,
-  các chương trình sao lưu dữ liệu, ...); điều này để đảm bảo bạn không
+  tin đáng quý _(trình duyệt thư, trình chát, chương trình chạy qua `crontab`,
+  trình sao lưu dữ liệu, ...)_; điều này để đảm bảo bạn không
   bị mất dữ liệu được sinh ra trong quá trình chuyển hệ thống;
 
 * Bật `sshd` bằng lệnh `/etc/rc.d/sshd start` sau khi điều chỉnh tập tin
@@ -83,7 +88,7 @@ Bật máy X, có thể vào chế độ đồ họa
   quá trình chuyển đổi, và khá an toàn khi bạn làm ở nhà. Sau khi hoàn
   tất chuyển đổi, bạn nhớ chỉnh lại thiết lập của dịch vụ `SSH`.
 
-* Cài gói `rsync` (nếu chưa có) để dùng trên máy X.
+* Cài gói `rsync` (nếu chưa có) để dùng trên máy X. Gói này có thể cài bằng `pacman`.
 
 * Việc này quan trọng: Vào trang [arm] [], chọn ngày tháng cho phù hợp
   với bộ cài có trong USB, và tải về gói `rsync` nằm trong `extra`. Sau này
@@ -102,9 +107,9 @@ Với máy Y, khởi động từ USB, gõ `/arch/setup` để bắt đầu cài
   xác định đúng các phân vùng dành cho `/`, `/home/`, ... Mẹo quan trọng
   là nếu trên máy gốc X có `n` phân vùng thì ở máy Y bạn cũng tạo ra bằng
   hoặc nhiều hơn `n` phân vùng tương ứng. Mẹo này giúp bạn chuyển đổi
-  dữ liệu dễ dàng hơn khi dùng `rsync`. Rõ ràng cách đơn giản nhất là
-  nếu trên máy X có phân vùng riêng dành cho `/boot/`, thì trên máy Y
-  cũng nên có phân vùng riêng như vậy;
+  dữ liệu dễ dàng hơn khi dùng `rsync`. Cách đơn giản nhất là tương ứng 1-1:
+  ví dụ, nếu trên máy X có phân vùng riêng cho `/boot/`, thì trên máy Y
+  cũng có phân vùng riêng như vậy;
 
 * Sau khi bạn chọn phân vùng và định dạng chúng, bộ cài đặt sẽ thực hiện
   `mount` những phân vùng này vào thư mục `/mnt`. Bây giờ là lúc bạn thoát
@@ -116,13 +121,14 @@ Với máy Y, khởi động từ USB, gõ `/arch/setup` để bắt đầu cài
 để chỉ công việc trên máy Y.
 
 * `(X)`: Trong tài khoản `root`, tạo ra thư mục `/X/`, bên trong thư mục
-  này có các thư mục con tương ứng với các phân vùng của máy. Ví dụ,
+  này có các thư mục con tương ứng với các phân vùng của máy X. Ví dụ,
   `/X/root` dành cho `/`, `/X/home/` dành cho `/home/`, `/X/boot` dành
   cho `/boot/` và tương tự như thế. Sau đó, bạn thực hiện `mount` các phân
   vùng hiện có vào các thư mục này _(Điều này hoàn toàn có thể thực hiện
   được trong Linux.) Ví dụ, nếu trên máy X phân vùng `/dev/sda1` là `/boot/`,
   `/dev/sda2` là `/`, thì bạn `mount` phân vùng thứ nhất vào `/X/boot/`,
-  phân vùng thứ hai vào `/X/root`;
+  phân vùng thứ hai vào `/X/root`. Mục đích của việc kết nối riêng vào
+  `/X/` này là để hạn chế các nhầm lẫn không đáng có;
 
 * `(Y)`: Tương ứng với các thư mục `/X/` trên máy `/Y/`, bạn cũng tạo ra
   các thư mục `/Y/` trên máy Y, rồi thực hiện kết nối các phân vùng của máy
@@ -140,7 +146,7 @@ Với máy Y, khởi động từ USB, gõ `/arch/setup` để bắt đầu cài
   rằng lệnh này sẽ không cài vào đĩa cứng của máy, mà chỉ lưu tạm vào
   đĩa ảo trên bộ nhớ. Khi cài đặt xong, bạn chạy thử lệnh `rsync` xem
   có lỗi nào không. Nếu có báo lỗi, chẳng hạn nhầm thư viện `glibc` thì
-  bạn phải chịu khó tải về gói `rsync` khác phù hợp hơn.
+  bạn phải chịu khó tải về gói `rsync` khác phù hợp hơn từ [arm] [].
 
 * `(Y)`: Bắt đầu chuyển đổi dữ liệu bằng `rsync` như sau đây. Với thư mục
   `/X/boot`, bạn gõ vào lệnh
@@ -150,19 +156,19 @@ rsync -rapv --progress root@ip_of_X:/X/root/ /Y/root/
 
 * _(Lưu ý là trong lệnh trên, cuối mỗi thư mục đều có dấu `/`.)_
   `(Y)`: Bây giờ, khi lệnh ở trên đang chạy, bạn gõ vào `Alt F2` để chuyển qua
-  màn hình `console` khác và thực hiện `rsync` cho thư mục `/X/root/`,
+  màn hình `console` khác và thực hiện `rsync` cho thư mục `/X/boot/`,
   rồi lại vào `Alt F3` để thực hiện cho `/X/home/`,...  Tốc độ đường
   truyền cố định nên nếu bạn gõ càng nhiều lệnh `rsync` cùng lúc thì
   tốc độ của mỗi lệnh sẽ tự nhiên chậm đi _(nên đừng tưởng bở nhé!)_
 
-* `(Y)`: Bạn ước lượng thời gian hoàn tất _(đã nói ở trên)_, rồi đi chỗ nào chơi,
+* `(Y)`: Bạn ước lượng thời gian hoàn tất _(đã nói ở trên)_, rồi đi chơi,
   uống cà phê hay ngủ một giấc. Nhớ dặn dò người thân của bạn đừng tắt
   điện, tắt mạng hay rút cáp của hai máy X, Y vì nhiều khi chúng chạy
   lâu quá, các màn hình console của máy tự tắt mới nhìn qua cứ nghĩ
   là máy không hoạt động :)
 
-* `(Y)`: Kết thúc việc chuyển đổi dữ liệu này, trên tất cả các `console` có
-  lệnh `rsync` bạn sẽ thấy các thông báo lỗi (nếu có). Hãy cố gắng
+* `(Y)`: Kết thúc việc chuyển đổi dữ liệu này, trên tất cả các `console`
+  có lệnh `rsync` bạn sẽ thấy các thông báo lỗi _(nếu có)_. Hãy cố gắng
   khắc phục lỗi này trước khi tiếp tục. Nếu không còn dữ liệu nào phải
   chuyển, bạn có thể (và nên) tắt máy X đi.
 
@@ -174,8 +180,14 @@ rsync -rapv --delete /Y/root/boot/ /Y/boot/
 rm -rfv /Y/boot/*
 </pre>
 
-_(Lệnh sau cùng đảm bảo rằng `/Y/root/boot` sạch sẽ, vì nó sẽ không được
-dùng nữa.)_
+  _(Lệnh sau cùng đảm bảo rằng `/Y/root/boot` sạch sẽ, vì nó sẽ không được
+  dùng nữa.)_
+
+* Kiểm tra sự trùng lặp dữ liệu và loại bỏ: Ví dụ, nếu có `/Y/boot/` thì
+  thư mục `/Y/root/boot` cần trống rỗng. Nếu có `/Y/home/` với các tập
+  tin cần thiết trong đó, thì `/Y/root/home/` cần phải trống rỗng --
+  điều này đạt được bằng cách xóa `rm -rf /Y/root/home/*` (xóa thế này
+  là an toàn vì thực tế dữ liệu của bạn vẫn còn trên máy X.)
 
 ## Chuyển cấu hình
 
@@ -190,9 +202,9 @@ thể tắt nó được rồi.
 
 ### mtab
 
-Trong các bản Arch mới, tập tin `/Y/root/etc/mtab` không tồn tại, mà đó
-chỉ là một liên kết tới `/proc/self/mounts`. Do đó, bạn cần xóa đi tập tin
-`/Y/root/etc/mtab` rồi tạo liên kết bằng lệnh
+Trong các bản Arch mới, tập tin `/Y/root/etc/mtab` chỉ là một liên kết
+tới `/proc/self/mounts`. Do đó, bạn cần xóa đi tập tin bằng lệnh
+`rm -f /Y/root/etc/mtab` rồi tạo liên kết bằng lệnh
   `ln -s /proc/self/mounts /Y/root/etc/mtab`
 (bạn không cần quan tâm là `/proc/self/mounts` có hay chưa; khi khởi động
 hệ thống sẽ tự động tạo ra).
@@ -200,11 +212,15 @@ hệ thống sẽ tự động tạo ra).
 Nhớ rằng gợi ý trên chỉ áp dụng đối với hệ thống mới. Hãy kiểm tra trên
 máy `X` để biết chi tiết, bằng lệnh `ls -la /etc/mtab`.
 
+_Chuyện kể_: vì không để ý bước này mà tác giả bài viết đã mất gần 5
+lần khởi động lại máy Y để kiểm tra, cấu hình, mà vẫn không làm sao cho
+thư mục `/home/` tự động kết nối lúc khởi động.
+
 ### fstab
 
-Đây có thể là tập tin có nhiều thay đổi nhất, đặc biệt khi bạn thay đổi
+Đây có thể là tập tin có nhiều điều chỉnh nhất, đặc biệt khi bạn thay đổi
 cấu trúc và số lượng phân vùng. Hãy cẩn thận và chỉnh lại cho phù hợp với
-máy `Y` chứ không phải máy `X`. Gợi ý
+máy `Y` chứ không phải máy `X`. Gợi ý:
 
 * Nếu dùng `/boot` trên phân vùng riêng, bạn nên kết nối nó sau phân vùng
   `/`, bởi vì `/boot` là một phần con của `/`;
@@ -224,7 +240,10 @@ none      /dev/shm tmpfs  defaults,noexec,nodev,nosuid 0 0
   _(Trong tập tin `/Y/root/etc/fstab` các dòng chỉ chứa khoảng trắng hoặc bắt
   đầu bằng dấu thăng `#` là dòng chú thích, không có nghĩa gì với hệ thống.)_
 
-### Mô-đun và driver
+### Mô-đun
+
+Mô-đun (hay `driver`) cần được nạp để máy nhận ra các thiết bị trên máy.
+Việc nạp sai mô-đun có thể làm máy không hoạt động hoặc phá hỏng máy!
 
 * Tắt tất cả các mô-đun và driver không cần thiết, hoặc các mô-đun mà bạn
   không chắc sẽ hoạt động trên máy mới. Các tập tin liên quan là
