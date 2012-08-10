@@ -1,0 +1,70 @@
+---
+title: rescue disk
+---
+
+# Ổ cứu hộ Arch
+
+Lần đầu tiên mình gặp phải đề bài khó của một chị gái Linux `:" Boot Arch từ HDD để cài ?"`. 
+
+Và tất nhiên theo phản xạ là lên ngay [Wiki Arch](https://wiki.archlinux.org) để đọc, ban đầu lằng nhằng và có một số trang chỉ dùng [kernel](/faq/what_is_linux/) và `initrd.img` để `boot` nhưng thất bại. Mọi chuyện quay về điểm xuất phát: [Wiki](https://wiki.archlinux.org)
+
+## Các bước thực hiện :
+
+Mình sẽ viết lại cho gọn sau khi đã boot và cài thành công
+
++ Môi trường: [Distro Linux](http://en.wikipedia.org/wiki/Linux_distribution) khác.( ở đây mình dùng `Ubuntu` )
+
++ Một bản `distro Archlinux` ( ở đây mình dùng bàn 201108)
+
++ Phân vùng một vùng khoảng 1G dành cho việc `extract file iso`:
+<pre>
+ sudo fdisk /dev/sda 
+</pre>
+
++ Tạo `filesystem` :
+<pre>
+ sudo mkfs.ext3 /dev/sda[x] (x là số của phân vùng vừa tạo )
+</pre>
+ 
+
++ Vào thư mục chứa file `archlinux.iso` vừa downloads về:
+<pre>
+ sudo fdisk archlinux.iso
+</pre>
+Sau đó nhấn u, sau đó nhấn p. Lí do là nhấn u để chuyển sang sector và nhấn p để xem bảng phân vùng của Archiso này. Nhớ rõ số `start`, sẽ còn dùng ở mục sau.
+
++ Extract file iso nay vào phân vùng vừa tạo bằng lệnh dd:
+<pre>
+sudo dd if=archlinux[tab] of=/dev/sda[x] bs=512 skip=start
+</pre>
+chờ khi xong, ta kiểm tra lại phân vùng đó bằng lệnh:
+<pre>
+sudo fsck -f /dev/sda[x]
+</pre>
+nếu có báo lỗi bad magic..đừng lo hãy dùng lệnh
+<pre>
+sudo mke2fs /dev/sda[x]
+</pre>
+
+sau đó chạy lại:
+<pre>
+sudo dd if=archlinux.iso of=/dev/sda[x] bs=512 skip=start
+
+mkdir sda
+
+sudo mount /dev/sda[x] sda
+</pre>
+Bạn xem kĩ thư mục `arch/boot/i686/vmlinuz` và `archiso.img` vì nó là hai file sẽ dùng để boot
+
+rồi sau đó `reboot`:
+
+Màn hình menu nhấn c để vào dòng lệnh `grub`
+<pre>
+grub > root (hd0,x)
+
+grub > linux /arch/boot/i686/vmlinuz archisodevice=/dev/sda[x] 
+
+grub > initrd /arch/boot/i686/archiso.img
+
+grub > boot
+</pre>
