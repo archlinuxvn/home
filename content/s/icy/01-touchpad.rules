@@ -1,0 +1,2 @@
+ACTION=="add", SUBSYSTEM=="input", KERNEL=="mouse[1-9]", ENV{DISPLAY}=":0.0", ENV{XAUTHORITY}="/home/pi/.Xauthority", ENV{ID_CLASS}="mouse", RUN+="/usr/bin/synclient TouchpadOff=1"
+ACTION=="remove", SUBSYSTEM=="input", KERNEL=="mouse[1-9]", ENV{DISPLAY}=":0.0", ENV{XAUTHORITY}="/home/pi/.Xauthority", ENV{ID_CLASS}="mouse", RUN+="/usr/bin/synclient TouchpadOff=0"
