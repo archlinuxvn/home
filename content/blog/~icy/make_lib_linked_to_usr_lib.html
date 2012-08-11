@@ -1,0 +1,184 @@
+---
+title: make /lib symbolically linked to /usr/lib/
+allow_comment: yes
+tags: ['archlinux', 'upgrade', 'fhs', 'busybox', 'sysadmin']
+---
+
+# Biến /lib/ thành liên kết tới /usr/lib/
+
+Ngày 14/7/2012, ArchLinux thông báo việc nhập hai thư mục `/lib/` và
+`/usr/lib` thành một, bằng cách đặt `/lib/` là liên kết tượng trưng tới
+`/usr/lib`. Thông báo này có ở [ArchLinux News] [lib-announcement].
+
+Thông báo dễ gây sốc cho người dùng Arch, vì việc nhập hai thư mục đi
+ngược lại với phiên bản hiện tại của [FHS], chưa kể tất việc nâng cấp
+hệ thống với `pacman -Suv` không đúng cách sẽ khiến cả hệ thống bị treo.
+
+Thực tế, nhiều người phải dở khóc dở cười, bắt buộc cài lại hệ thống của
+họ chỉ vì lỡ làm theo các hướng dẫn không đầy đủ và không chắc chắn từ
+[hướng dẫn trên trang wiki của ArchLinux] [arch-help]. Bạn Huy ở ArchLinuxVn
+cũng có [bài viết ở blog] [ngohuy] như là cố gắng giúp đỡ các người dùng
+dùng Việt Nam chú ý cách giải quyết lỗi phát sinh do việc nhập `/lib/'
+và `/usr/lib/` gây ra khi nâng cấp hệ thống.
+
+Các hướng dẫn này chủ yếu đưa ra các cách `giải quyết hậu quả`
+-- điều chỉ có thể chấp nhận cho người dùng máy cá nhân.
+Đối với một máy dịch vụ, cần có một cách giải quyết `chắn chắn hơn`.
+
+Chú ý rằng, ArchTeam không giải thích tại sao họ đi ngược lại [FHS] trong thông
+báo chính thức trên trang chủ và trong [hướng dẫn (chính thức?)] [arch-help].
+Nếu thật sự quan tâm, bạn có thể đọc qua [thông báo trên nhóm thư của Arch] [arch-devel].
+Nhưng cũng chả có ích gì nhiều.
+
+Ta cần tìm nguyên nhân cơ bản gây ra các `hậu quả`.
+
+## Chìa khóa của mê cung
+
+Thư mục `/lib/` chứa các thư viện liên kết động cần cho tất cả các thư viện
+và chương trình có dùng liên kết động trên hệ thống. Thiếu thư mục `/lib/`,
+hệ thống không khởi động được, và hầu hết các chương trình trên hệ thống
+sẽ bị `chết`. Bởi vì, lấy ví dụ chương trình `pacman`:
+<pre>
+$ ldd /usr/bin/pacman |grep ' /lib'
+    libc.so.6 => /lib/libc.so.6 (0xb7507000)
+    librt.so.1 => /lib/librt.so.1 (0xb71dd000)
+    libpthread.so.0 => /lib/libpthread.so.0 (0xb7148000)
+    libdl.so.2 => /lib/libdl.so.2 (0xb70bb000)
+</pre>
+
+Một khi xóa đi `/lib/` thì còn gì để mà chạy nữa! **Đây chính là điểm mấu chốt:**
+để có thể gộp `/lib/` và `/usr/lib/` là một, phải có một thời điểm trung gian
+khi mà thư mục `/lib/` bị xóa đi, hoặc đổi tên, trước khi tạo ra liên kết
+`/lib/` tới `/usr/lib/`. Tại thời điểm trung gian đó, nhiều chương trình
+cơ bản của hệ thống không hoạt động được, khiến bạn không thể đi tới bước
+cuối cùng!
+
+Nếu nhớ rằng có thể dùng `ldconfig` để điều chỉnh cách tìm kiếm các thư viện,
+ta có thể dùng mẹo sau:
+
+<pre>
+cp -r /lib/ /00lib/
+echo /00lib/ > /etc/ld.so.conf.d/00lib.conf
+ldconfig
+rm -rf /lib/
+</pre>
+
+Thật đơn giản! Chỉ bằng việc dùng `ldconfig` để đảm rằng các thư viện bên
+trong `/00lib/` sẽ được tìm kiếm đầu tiên là xong, ta có thể yên tâm xóa
+đi `/lib/`. Thật không may, cách này chỉ dẫn tới một hậu quả y hệt các hướng
+dẫn ăn may khác. Bởi vì, theo `man 8 ldconfig`, chỉ có hai thư mục
+`/lib/` và `/usr/lib` là đáng tin cậy. Rốt cuộc là sau lệnh `ldconfig` như
+trên, hệ thống vẫn nạp một số thư viện từ `/lib/` ngay cả khi thư viện đó
+có trong `/00lib/` (lưu ý rằng, cặp số `00` là có dụng ý hẳn hoi.) Bạn có thể
+thử điều này trên hệ thống của bạn (Chừng nào bạn không thực hiện lệnh
+cuối cùng `rm -rf /lib/` thì bạn sẽ an toàn.)
+
+Còn cách nào khác? Còn, còn rất nhiều. Chỉ cần bạn nhớ điều then chốt là
+bạn phải làm sao để bước qua được giai đoạn trung gian ở trên.
+
+Một trong các cách đơn giản là dùng `busybox`. Gói này khi cài vào chỉ
+có mỗi một tập tin `/bin/busybox`, và tập tin này chả cần (quái) gì các
+thư viện bên trong `/lib/` hay `/usr/lib`. Bởi vì đó là một chương trình
+được biên dịch theo kiểu tĩnh (`statically linked`)
+
+<pre>
+$ pacman -Ql busybox
+busybox /bin/
+busybox /bin/busybox
+
+$ ldd /bin/busybox
+        not a dynamic executable
+
+$ file /bin/busybox
+/bin/busybox: ELF 32-bit LSB executable,
+  Intel 80386, version 1 (SYSV),
+  statically linked, for GNU/Linux 2.6.32,
+  BuildID[sha1]=0x1500e79b35b24e8781672524362ce71bbe5e1bfe, stripped
+</pre>
+
+Chính nhờ `busybox` mà bạn sẽ đi qua giai đoạn trung gian cực kỳ dễ dàng.
+Hãy thử xem nhé. Dưới đây là tất cả các bước bạn phải làm, không cần
+quan tâm thư viện nào thuộc gói này. Khả năng thành công là `99%`
+_(Tất nhiên, tác giả phải dành `1%` còn lại để  không bị la mắng là đã hướng dẫn
+... tầm bậy ;)_
+
+<pre>
+pacman -Syv                    # đảm bảo lấy gói mới nhất
+pacman -S busybox rsync        # quên là không được đâu nhé
+rsync -rapv /lib/ /usr/lib/    # chuyển hết thư viện vào /usr/lib/
+mv /lib/ /lib.backup/          # bước trung gian chết chóc
+busybox ln -s /usr/lib/ /lib   # ... bằng cú nhảy ngọt ngào
+ldconfig                       # cũng chả cần bước này đâu
+pacman -Suv                    # nâng cấp hệ thống thôi
+pacman -Sf glibc linux         # chả việc gì phải lăn tăn. Cứ --force
+rm -rf /lib.backup/            # tạm biệt chim én
+</pre>
+
+Không cần giải thích gì thêm. Bởi vì mọi chuyện đã quá rõ ràng :)
+
+## Lưu ý quan trọng
+
+Trên một số hệ thống, hai gói `glibc` hoặc `linux` được bỏ qua khi nâng cấp.
+Do đó, lệnh `pacman -Suv` có thể khiến hai gói không được cập nhật đồng thời,
+và hệ quả là nhiều `mô-đun` không được nạp đúng (nếu `glibc` nâng cấp
+trước, còn `linux` bị bỏ qua, thì bạn có thể không thấy `card` mạng của
+bạn nằm ở đâu vì `mô-đun` dành cho `eth0` không có để mà nạp vào lúc khởi động.)
+
+Do đó, ngay sau khi chạy `pacman -Suv`, bạn nhớ chạy lệnh sau để đảm bảo
+rằng cả hai gói `glibc` và `linux` đều được nâng cấp.
+<pre>
+pacman -Sf glibc linux
+</pre>
+
+_(Tất nhiên, nếu bạn cố tình bỏ qua hai gói trên, thì bạn chả bao giờ phải
+cần đọc bài này, bởi vì sẽ không có chuyện nhập hai thư mục; tuy nhiên,
+trong tương lai gần hay xa bạn sẽ phải đối mặt với vấn đề nâng cấp
+`glibc` và `linux` thôi.)_
+
+## Ý tưởng kỳ khôi khác
+
+Thay vì liên kết `/lib` tới `/usr/lib/`, nếu đội Arch chọn cách tạo liên
+kết `/usr/lib` tới `/lib/`, thì mọi chuyện sẽ đơn giản hơn rất nhiều.
+
+Ngay cả khi không chọn như vậy, bạn cũng có thể tiến hành nâng cấp hệ thống
+bằng cách tạo liên kết `/usr/lib` tới `/lib/`. Tác giả bài viết này chưa
+thực hiện theo cách này, nhưng về nguyên tắc, cách này hoàn toàn khả thi
+và thậm chí không cần tới `busybox`. Tại sao và làm thế này, xin dành cho
+bạn như một bài tập.
+
+Ngoài ra, bạn cũng có thể thử điều chỉnh mã nguồn của `ldconfig` để bỏ
+qua hai thư mục `đáng tin` là `/usr/lib/` và `/lib/`. Điều đáng kể là
+chỉnh sửa một tý vậy nhưng bạn phải biên dịch cả gói `glibc` đấy :D
+
+Bạn `stk` trên kênh [IRC] [] gợi ý rằng hãy dùng nhân bền `linux-lts` cho
+các máy dịch vụ thì sẽ khỏe re khi nâng cấp. Nếu đang dùng nhân thường,
+chỉ việc đổi qua nhân `lts` (bằng cách chọn lại nhân cũ từ [ARM] [].)
+Đây là gợi ý không tồi. Vấn đề tồi tệ là việc gộp `/lib/` và `/usr/lib`
+là do `glibc` gây ra chứ không phải là do gói `linux`. Nên ngay cả khi
+dùng nhân bền thì bạn vẫn có thể dính lỗi như thường.
+
+Việc đội Arch đưa ra thông báo về việc gộp hai thư mục, các hướng dẫn
+`ăn may`, mà không giải thích cặn kẽ nguyên nhân, bản chất của vấn đề
+cho người dùng, đã khiến cho đội Arch mất đi nhiều điểm trong mắt
+người hâm mộ. Trang wiki của Arch vì thế cũng không phải là nơi đẹp đẽ
+và đầy đủ nhất nhưng nhiều người từng biết.
+
+## Lời cuối. Cảm ơn.
+
+Tác giả chân thành cảm ơn các bạn `NgoHuy`, `stk`, `n0b0dy` và nhiều bạn
+khác đã trao đổi và gợi ý cho đề tài này.
+
+Tác giả viết bày này vì cần nâng cấp hệ thống cho máy dịch vụ [l00s3r] [],
+và quá chán nản vì sau khi đọc rất nhiều thảo luận trên diễn đàn, nhóm thư,
+và cả mã nguồn của `glibc` mà chẳng thấy có cách nào ngoài cách `ăn may`.
+
+Hãy gửi tặng tác giả một ly cà phê (`$1.5`) nếu bạn thấy bài này có ích.
+
+[l00s3r]: /members/
+[lib-announcement]: http://www.archlinux.org/news/the-lib-directory-becomes-a-symlink/
+[arch-devel]: http://mailman.archlinux.org/pipermail/arch-dev-public/2012-March/022625.html
+[ngohuy]: /blog/~huy/Arch_lib_is_symlink_to_user_lib/
+[FHS]: http://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+[arch-help]: https://wiki.archlinux.org/index.php?title=DeveloperWiki:usrlib
+[IRC]: /vn/irc/
+[ARM]: http://arm.konnichi.com/
