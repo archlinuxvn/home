@@ -18,7 +18,7 @@ Thực tế, nhiều người phải dở khóc dở cười, bắt buộc cài 
 họ chỉ vì lỡ làm theo các hướng dẫn không đầy đủ và không chắc chắn từ
 [hướng dẫn trên trang wiki của ArchLinux] [arch-help]. Bạn Huy ở ArchLinuxVn
 cũng có [bài viết ở blog] [ngohuy] như là cố gắng giúp đỡ các người dùng
-dùng Việt Nam chú ý cách giải quyết lỗi phát sinh do việc nhập `/lib/'
+dùng Việt Nam chú ý cách giải quyết lỗi phát sinh do việc nhập `/lib/`
 và `/usr/lib/` gây ra khi nâng cấp hệ thống.
 
 Các hướng dẫn này chủ yếu đưa ra các cách `giải quyết hậu quả`
@@ -69,9 +69,9 @@ trong `/00lib/` sẽ được tìm kiếm đầu tiên là xong, ta có thể y�
 dẫn ăn may khác. Bởi vì, theo `man 8 ldconfig`, chỉ có hai thư mục
 `/lib/` và `/usr/lib` là đáng tin cậy. Rốt cuộc là sau lệnh `ldconfig` như
 trên, hệ thống vẫn nạp một số thư viện từ `/lib/` ngay cả khi thư viện đó
-có trong `/00lib/` (lưu ý rằng, cặp số `00` là có dụng ý hẳn hoi.) Bạn có thể
-thử điều này trên hệ thống của bạn (Chừng nào bạn không thực hiện lệnh
-cuối cùng `rm -rf /lib/` thì bạn sẽ an toàn.)
+có trong `/00lib/` _(lưu ý rằng, cặp số `00` là có dụng ý hẳn hoi.)_ Bạn có thể
+thử điều này trên hệ thống của bạn _(Chừng nào bạn không thực hiện lệnh
+cuối cùng `rm -rf /lib/` thì bạn sẽ an toàn.)_
 
 Còn cách nào khác? Còn, còn rất nhiều. Chỉ cần bạn nhớ điều then chốt là
 bạn phải làm sao để bước qua được giai đoạn trung gian ở trên.
@@ -118,11 +118,12 @@ Không cần giải thích gì thêm. Bởi vì mọi chuyện đã quá rõ rà
 
 ## Lưu ý quan trọng
 
-Trên một số hệ thống, hai gói `glibc` hoặc `linux` được bỏ qua khi nâng cấp.
+Trên một số hệ thống, hai gói `glibc` hoặc `linux` được bỏ qua khi nâng cấp
+_(bằng thiết lập trong `/etc/pacman.conf`.)_
 Do đó, lệnh `pacman -Suv` có thể khiến hai gói không được cập nhật đồng thời,
-và hệ quả là nhiều `mô-đun` không được nạp đúng (nếu `glibc` nâng cấp
+và hệ quả là nhiều `mô-đun` không được nạp đúng _(nếu `glibc` nâng cấp
 trước, còn `linux` bị bỏ qua, thì bạn có thể không thấy `card` mạng của
-bạn nằm ở đâu vì `mô-đun` dành cho `eth0` không có để mà nạp vào lúc khởi động.)
+bạn nằm ở đâu vì `mô-đun` dành cho `eth0` không có để mà nạp vào lúc khởi động.)_
 
 Do đó, ngay sau khi chạy `pacman -Suv`, bạn nhớ chạy lệnh sau để đảm bảo
 rằng cả hai gói `glibc` và `linux` đều được nâng cấp.
