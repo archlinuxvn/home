@@ -108,6 +108,7 @@ pacman -S busybox rsync        # quên là không được đâu nhé
 rsync -rapv /lib/ /usr/lib/    # chuyển hết thư viện vào /usr/lib/
 mv /lib/ /lib.backup/          # bước trung gian chết chóc
 busybox ln -s /usr/lib/ /lib   # ... bằng cú nhảy ngọt ngào
+rm -rf /usr/lib/modules/       # cài lại gói linux sẽ có
 ldconfig                       # cũng chả cần bước này đâu
 pacman -Suv                    # nâng cấp hệ thống thôi
 pacman -Sf glibc linux         # chả việc gì phải lăn tăn. Cứ --force
@@ -135,6 +136,9 @@ _(Tất nhiên, nếu bạn cố tình bỏ qua hai gói trên, thì bạn chả
 cần đọc bài này, bởi vì sẽ không có chuyện nhập hai thư mục; tuy nhiên,
 trong tương lai gần hay xa bạn sẽ phải đối mặt với vấn đề nâng cấp
 `glibc` và `linux` thôi.)_
+
+Một số chương trình sẽ phải biên dịch lại bởi vì bạn đang nâng cấp lên
+nhân mới. Nhưng đây là vấn đề hoàn toàn khác.
 
 ## Ý tưởng kỳ khôi khác
 
