@@ -108,7 +108,7 @@ pacman -S busybox rsync        # quên là không được đâu nhé
 rsync -rapv /lib/ /usr/lib/    # chuyển hết thư viện vào /usr/lib/
 mv /lib/ /lib.backup/          # bước trung gian chết chóc
 busybox ln -s /usr/lib/ /lib   # ... bằng cú nhảy ngọt ngào
-rm -rf /usr/lib/modules/       # cài lại gói linux sẽ có
+# rm -rf /usr/lib/modules/     # xem phần chú ý
 ldconfig                       # cũng chả cần bước này đâu
 pacman -Suv                    # nâng cấp hệ thống thôi
 pacman -Sf glibc linux         # chả việc gì phải lăn tăn. Cứ --force
@@ -139,6 +139,20 @@ trong tương lai gần hay xa bạn sẽ phải đối mặt với vấn đề 
 
 Một số chương trình sẽ phải biên dịch lại bởi vì bạn đang nâng cấp lên
 nhân mới. Nhưng đây là vấn đề hoàn toàn khác.
+
+Bên trong `/usr/lib/modules/` là các mô-đun để dùng cho nhân `linux` hiện
+tại. Có thể xảy ra xung đột khi bạn nâng cấp gói `linux`, vì do sự trùng
+lắp thư mục. Khi đó, bạn chuyển thư mục trùng lắp qua dạng sao lưu trước
+khi tiếp tục. Ví dụ, nếu nhân cũ là `3.4.x` và nhân mới cũng `3.4.x`, bạn
+có thể cần
+<pre>
+mv /usr/lib/modules/3.4-ARCH/ /usr/lib/modules/3.4-ARCH.backup/
+pacman -Sf glibc linux
+</pre>
+
+Sau khi an toàn thì có thể xóa đi thư mục sao lưu `.backup` ở trên.
+Tác giả bài viết thì chọn các đơn giản hơn là ... xóa luôn đi toàn bộ
+thư mục `/usr/lib/modules/` :D
 
 ## Ý tưởng kỳ khôi khác
 
