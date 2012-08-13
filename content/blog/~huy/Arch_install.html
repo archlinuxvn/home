@@ -1,123 +1,101 @@
 ---
-title: Arch Install
+title: Arch Install by a crazy way
 allow_comment: yes
+tags: ['sysadmin', 'archlinux', 'install']
 ---
 
 # Crazy boy cài Arch
 
-Hưởng ứng bài viết [Moving System](/blog/~icy/moving_your_system/) của anh Kỳ Anh, sau một đêm hí hoáy cuối cùng mình cũng cài xong Arch theo một cách cực kì crazy.
+Hưởng ứng bài viết [Moving System](/blog/~icy/moving_your_system/) của
+anh Kỳ Anh, sau một đêm hí hoáy cuối cùng mình cũng cài xong Arch theo
+một cách cực kì crazy.
 
-## Ý tưởng ban đầu:
+## Ý tưởng ban đầu
 
-- Phiên bản [Arch 15/7](http://www.archlinux.org/news/install-media-20120715-released/) có nhiều thay đổi, quan trọng nhất là loại bỏ `hệ thống AFI (Arch Flamework Installation )`. Điều này có nghĩa là việc cài đặt Arch sẽ giống với `Gentoo` và phải có network.
+Arch quá `đơn giản` nên mình mới phải viết bài này :)
 
-- Việc bạn boot vào bằng iso file tức là bạn đã có một hệ thống cơ bản. Vậy tại sao không dùng chính hệ thống cơ bản đó mà xây dựng lên ?
+* Phiên bản [Arch 15/7] [] có nhiều thay đổi, quan trọng nhất là loại bỏ
+`hệ thống AFI (Arch Flamework Installation )`. Điều này có nghĩa là việc
+cài đặt Arch sẽ giống với `Gentoo` và phải có network.
 
- 
+* Việc bạn boot vào bằng iso file tức là bạn đã có một hệ thống cơ bản.
+Vậy tại sao không dùng chính hệ thống cơ bản đó mà xây dựng lên ?
 
-### Hiện thực ý tưởng :
 
-- Sau khi bạn `boot` vào bằng iso file, sẽ cần thực hiện các bước sau:
+## Hiện thực ý tưởng
 
-+ Phân chia lại lãnh thổ cho từng vùng: `/, /home, /boot và swap`:
+Sau khi bạn `boot` vào bằng iso file, sẽ cần thực hiện các bước sau:
+
+* Phân chia lại lãnh thổ cho từng vùng: `/`, `/home`, `/boot` và `swap`
+bằng lệnh `fdisk /dev/sda` rồi nhấn m để xem menu hướng dẫn.
+* Tôi thực hiện phân vùng theo thứ tự sau cho dễ nhớ:
 <pre>
--fdisk /dev/sda: nhấn m để xem menu hướng dẫn.
-</pre>
-
-- Tôi thực hiện phân vùng theo thứ tự sau cho dễ nhớ:
-<pre>
-.Boot -> Root -> swap ->Home
+Boot -> Root -> swap ->Home
 (sda1 -> sda2 -> sda3 ->sda4)
 (ext2 - > ext4 ->swap -> ext4)
 </pre>
+* `Mount` phân vùng `Root` bằng lệnh `mount /dev/sda2 /mnt`
 
-+ `Mount` phân vùng `Root`:
-<pre>
-mount /dev/sda2 /mnt
-</pre>
- 
-
-+ Tai đây ta sẽ tiến hành copy toàn bộ image của hệ thống hiện tại vào /mnt:
+* Tại đây ta sẽ tiến hành copy toàn bộ image của hệ thống hiện tại vào `/mnt`:
 <pre>
 cp -R /usr /mnt
-
 cp -R /bin /mnt
-
 cp -R /sbin /mnt
-
 cp -R /etc /mnt
-
 cd /mnt
-
 mkdir dev mnt proc run srv tmp var media opt root sys home boot
-
 ln -s usr/lib lib
 </pre>
- 
 
-+ Vấn đề tiếp theo là coppy file `vmlinux` và tạo `initramfs.img`:
+* Vấn đề tiếp theo là coppy file `vmlinux` và tạo `initramfs.img`:
 <pre>
 mount /dev/sda1 /mnt/boot
-</pre>
-
-Tiến hành copy file `vmlinux`:
-<pre>
 cp /usr/src/3.4.4-3-ARCH/vmlinux /boot
 </pre>
- 
-Tiến hành tạo file `initramfs.img`
+
+* Tiến hành tạo file `initramfs.img`
 <pre>
 mkinitcpio -c /etc/mkinitcpio-custom.conf -g /boot/initramfs.img
 </pre>
- 
 
-+ Copy `grub-legacy`:
+* Copy `grub-legacy`:
 <pre>
 cp -a /usr/lib/grub/i386-pc/* /boot/grub
 </pre>
- 
-
-+ `Chroot` vào hệ thống mới:
+* `Chroot` vào hệ thống mới:
 <pre>
 chroot /mnt /bin/bash
-
 mount -t proc none /mnt/proc
-
 mount --rbind /dev /mnt/dev
-
 grub
-
 grub>root (hd0,0)
-
 grub>setup (hd0)
-
 grub>quit
 </pre>
- 
 
-+ Chỉnh sửa lại file `menu.lst` cho phù hợp với các phân vùng của bạn.
+* Chỉnh sửa lại file `menu.lst` cho phù hợp với các phân vùng của bạn.
 
-+ Chỉnh sửa file `/etc/fstab`:
-
-Bạn chỉnh sửa lại `fstab` cho phù hợp với các phân vùng của bạn:
+* Chỉnh sửa file `/etc/fstab`: Bạn chỉnh sửa lại `fstab` cho phù hợp với các phân vùng của bạn:
 <pre>
 devpts    /dev/pts   devpts  defaults    0      0
-
 shm       /dev/shm   tmpfs   nodev,nosuid    0      0
-
 tmpfs     /tmp       tmpfs   nodev,nosuid   0    0
-
 /dev/sdax  /Y        Z       defaults      0     1
 </pre>
 với x là số của phân vùng Y là mount point và Z là `filesystem`.
 
-+ Chỉnh sửa file `/etc/inittab` để tránh việc autologin vào root trên `tty1`: xóa đoạn `-a root` trong file `/etc/inittab` dòng 
+* Chỉnh sửa file `/etc/inittab` để tránh việc autologin vào root trên `tty1`:
+xóa đoạn `-a root` trong file `/etc/inittab` dòng
 <pre>
 c1:2345:respawn:/sbin/agetty
 </pre>
-+ Đặt lại `passwd root`:
+
+
+* Đặt lại `passwd root`:
 <pre>
 passwd root
 </pre>
 
-`umount` và `reboot`
+`umount` và `reboot` ;)
+
+[Arch 15/7]: http://www.archlinux.org/news/install-media-20120715-released/
