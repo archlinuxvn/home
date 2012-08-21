@@ -39,7 +39,7 @@ EOF
       file_name = path
     else
       file_name = File.join("./content/", path.slice(0,path.size - 1))
-      ext = %w{.html .rb /index.html /index.rb}.detect do |e|
+      ext = %w{.html .md .rb /index.html /index.rb}.detect do |e|
         File.file?("#{file_name}#{e}")
       end
       file_name = ext ? "#{file_name}#{ext}" : nil
