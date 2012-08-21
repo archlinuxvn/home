@@ -1,7 +1,7 @@
 ---
 title: Cài đặt ArchLinux mới 1 cách dễ dàng nhất
 allow_comment: yes
-tags: ['archlinux', 'install','newbie']
+tags: ['archlinux', 'install', 'newbie']
 ---
 
 # Cài đặt ArchLinux mới 1 cách dễ dàng nhất
@@ -15,24 +15,25 @@ Vừa rồi có vài sự kiện lớn xảy ra :
 
 Dẫn tới việc người dùng mới muốn tiếp xúc với `Archlinux` cảm thấy khá nhiều khó khăn.
 Cá nhân mình thì mình cũng không thích việc này lắm.
-Tuy nhiên, theo lời giải thích của [Allan McRae](http://allanmcrae.com/2012/08/are-we-removing-what-defines-arch-linux/)
- - 1 trong những developer chính của Arch - thì việc thay đổi là cần thiết bởi lẽ
- *`Being on the bleeding edge is not much fun without the occasional cut…`*
+Tuy nhiên, theo lời giải thích của [Allan McRae] []
+_(một trong những developer chính của Arch)_
+thì việc thay đổi là cần thiết bởi lẽ
 
-Mặc dù xài `Linux` cũng khá lâu, nhưng mình vẫn khoái 1 câu nói của [Bill Gate](http://www.goodreads.com/author/quotes/23470.Bill_Gates):
-*`“I choose a lazy person to do a hard job. Because a lazy person will find an easy way to do it.”`*
+> Being on the bleeding edge is not much fun without the occasional cut ...
+
+Mặc dù dùng `Linux` cũng khá lâu, nhưng mình vẫn khoái 1 câu nói của [Bill Gate] []:
+
+> I choose a lazy person to do a hard job. Because a lazy person will find an easy way to do it.
 
 Vì mình là `lazy person` nên không việc gì mình phải tìm 1 cách HardCore để làm hết
   <img src='http://forums.gamevn.com/images/smilies/Smiles/2cool_go.gif'/>.
 Nếu Arch đã bỏ `AIF` ở các bản mới hơn thì mình chỉ việc lấy đĩa cũ có `AIF` mà xài.
-Rất may mắn là mình vẫn còn giữa 1 phiên bản `Archlinux Dual Install` - bản ngày `19.8.2011`.(Upload sau há)
+Rất may mắn là mình vẫn còn giữa 1 phiên bản `Archlinux Dual Install` - bản ngày `19.8.2011` _(Upload sau há)_
 
-Vì hướng dẫn trên mạng quá nhiều.
-Chỉ cần [Google](http://bit.ly/Prujv4) 1 tý là ra cả tá nên mình chỉ tập trung 1 số vấn đề khi cài Arch bản mới.
+Vì hướng dẫn trên mạng quá nhiều, chỉ cần [Google] []
+1 tý là ra cả tá nên mình chỉ tập trung 1 số vấn đề khi cài Arch bản mới.
 
-Các vấn để sẽ gặp:
-
-## Chuẩn bị:
+## Chuẩn bị
 
 * 1 cái máy tính
 * 1 cái đĩa ArchLinux `Netinstall` hoặc `Dual Install` phiên bản trước ngày 25.7.2012
@@ -42,7 +43,7 @@ Các vấn để sẽ gặp:
 
 1 số kiến thức sơ đẳng ? Vì sao? Vì mình không sẽ không hướng dẫn bạn làm việc với cái màn hình `TTY` như thế nào.
 Bạn phải tự mày mò cách connect được vào `Internet` bằng `ethernet` hay bằng `wifi` bằng dòng lệnh. Bạn phải biết `chroot`
-như thế nào. Nếu bạn không giải quyết được những thứ đó ? Mình nghĩ `Ubuntu` hay `Mint` sẽ thích hợp với bạn hơn.<img src='http://forums.gamevn.com/images/smilies/Smiles/6cool_surrender.gif'/>
+như thế nào. Nếu bạn không giải quyết được những thứ đó ? Mình nghĩ `Ubuntu` hay `Mint` sẽ thích hợp với bạn hơn. <img src='http://forums.gamevn.com/images/smilies/Smiles/6cool_surrender.gif'/>
 
 Còn cái đầu lạnh là việc đương nhiên, `Linux` không phải là `Windows`. Và bạn cũng không phải là `thượng đế`
 
@@ -55,22 +56,22 @@ là hệ thống cũ.
 * Lưu ý là chỉ chọn `core` thôi nhé vì nếu chọn thêm rất dễ bị xung đột 1 số phần mềm. Nếu bạn đủ sức kiểm soát được
 thì mình nghĩ bài viết này quá thừa thải.* <img src='http://forums.gamevn.com/images/smilies/Smiles/3cool_nosebleed.gif' />
 
-## [mkinitcpio](https://wiki.archlinux.org/index.php/Mkinitcpio)
+## [mkinitcpio] []
 
 Đây là điều khó chịu đầu tiên của chúng ta gặp. Nhưng chúng ta chưa sửa vội. Hãy hoàn thành phần cài đặt của mình đã.
-<blockquote>
-<img width="100%" src='http://i.imgur.com/ODd3N.png' />
-</blockquote>
 
-## [Grub](https://wiki.archlinux.org/index.php/GRUB_Legacy)
+<img width="100%" src='http://i.imgur.com/ODd3N.png' />
+
+## [Grub] []
 
 Tất nhiên đây là vấn đề chúng ta buộc phải giải quyết vì Grub Legacy không còn được hỗ trợ.
 
-## Solution:
+## Solution
 
-* `mkinitcpio`:
+### mkinitcpio
 
 Cái này giải quyết cực kỳ đơn giản. Xem lại log 1 tý :
+
 <pre>
 STARTING mkinitcpio . Executing chroot /mnt /sbin/mkinitcpio
  -p linux >>/var/log/aif/mkinitcpio.log 2>&1\n
@@ -81,7 +82,8 @@ No such file or directory
 Tức là `/sbin/mkinitcpio` không tồn tại. Không tồn tại thì kiếm chỗ nào nó tồn tại ấy.
 
 Bây giờ tới việc khắc phục nó. Trước tiên hãy tận hưởng hệ thống mới bằng chroot.
-Hãy đọc `ArchWiki` phần [chroot](https://wiki.archlinux.org/index.php/Change_Root#Change_root).
+Hãy đọc `ArchWiki` phần [chroot] [].
+
 <pre>
 $ mount /dev/sdaX /mnt
 $ cd /mnt/
@@ -91,14 +93,17 @@ $ mount -o bind /dev dev/
 $ mount -t devpts pts dev/pts/
 $ chroot /mnt /bin/bash
 </pre>
+
 *sdaX là `partition` chứa root , nếu bạn tách `var root boot` ra riêng thì nên `mount` hết vào.*
 Bạn có thể không cần dùng `chroot` cũng được. Nhưng để cho dễ thì `chroot` vẫn tốt hơn.
+
 <pre>
 $ which mkinitcpio
 /usr/bin/mkinitcpio
 </pre>
 
 Kiếm được rồi thì cứ làm giống cái lệnh trong `AIF` mà táng thôi.
+
 <pre>
 $ mkinitcpio -p linux
 </pre>
@@ -108,7 +113,7 @@ Lưu ý là bạn có thể gặp 1 số lỗi. Đó là do bạn `chroot` khôn
 
 1 số lỗi như *`bsdcpio: failed to set default locale`* có thể khắc phục sau cũng đc.
 
-* Grub -> Grub2 :
+### Grub -> Grub2
 
 Ta có thể sử dụng `syslinux` lúc cài đặt. Tuy nhiên mình không thích `syslinux`.
 Sử dụng `Grub2` cũng khá tốt. Có điều config rắc rối hơn `Grub` nhiều.
@@ -134,7 +139,7 @@ $ grub-mkconfig -o /boot/grub/grub.cfg
 
 Giờ chỉ việc reboot để hưởng thành quả của các bạn mà thôi. Sau đó tự mò tiếp nhé <img src='http://forums.gamevn.com/images/smilies/Smiles/3cool_adore.gif'/>
 
-`1 số lời khuyên nhỏ:`
+## 1 số lời khuyên nhỏ
 
 * Đọc `Wiki` và `search google` không những giúp bạn giải quyết những vấn đề gặp phải mà
 còn tăng cường trí trông minh <img src='http://forums.gamevn.com/images/smilies/Smiles/2cool_sexy_girl.gif'/>
@@ -142,3 +147,10 @@ còn tăng cường trí trông minh <img src='http://forums.gamevn.com/images/s
 * Hãy vào IRC của `#archlinuxvn` để được hỗ trợ nhiều hơn.
 * Bạn có thể bỏ qua ArchLinux nếu bạn cảm thấy nó quá khó dùng. Nhưng đừng tỏ ra nguy hiểm. <img src='http://forums.gamevn.com/images/smilies/Smiles/2cool_burn_joss_stick.gif'/>
 * Không ai trách bạn dở. Người ta chỉ trách bạn không chịu tìm tòi mà thôi. Đừng quá phụ thuộc vào đồ ăn sẵn vì không phải lúc nào cũng có người nấu cơm đâu. <img src='http://forums.gamevn.com/images/smilies/Smiles/4cool_hungry.gif'/>
+
+[Allan McRae]: http://allanmcrae.com/2012/08/are-we-removing-what-defines-arch-linux/
+[Bill Gate]: http://www.goodreads.com/author/quotes/23470.Bill_Gates
+[Google]: http://bit.ly/Prujv4
+[mkinitcpio]: https://wiki.archlinux.org/index.php/Mkinitcpio
+[Grub]: https://wiki.archlinux.org/index.php/GRUB_Legacy
+[chroot]: https://wiki.archlinux.org/index.php/Change_Root#Change_root
