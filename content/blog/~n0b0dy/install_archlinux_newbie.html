@@ -6,27 +6,28 @@ tags: ['archlinux', 'install','newbie']
 
 # Cài đặt ArchLinux mới 1 cách dễ dàng nhất
 
- Vừa rồi có vài sự kiện lớn xảy ra :
- 
+Vừa rồi có vài sự kiện lớn xảy ra :
+
 * 14.7.2012 - `ArchLinux` thông báo việc nhập hai thư mục `/lib/` và `/usr/lib` thành một.
 * 20.7.2012 - `GRUB Legacy`(hay còn gọi là `grub` hay `grub 1`) không còn được hỗ trợ.
-* 25.7.2012 - Phiên bản cài đặt mới của `ArchLinux` được phát hành. 
+* 25.7.2012 - Phiên bản cài đặt mới của `ArchLinux` được phát hành.
   `AIF` (Arch Installation Framework) không còn tồn tại. Việc cài đặt được thay đổi hoàn toàn.
 
 Dẫn tới việc người dùng mới muốn tiếp xúc với `Archlinux` cảm thấy khá nhiều khó khăn.
-Cá nhân mình thì mình cũng không thích việc này lắm. 
+Cá nhân mình thì mình cũng không thích việc này lắm.
 Tuy nhiên, theo lời giải thích của [Allan McRae](http://allanmcrae.com/2012/08/are-we-removing-what-defines-arch-linux/)
  - 1 trong những developer chính của Arch - thì việc thay đổi là cần thiết bởi lẽ
  *`Being on the bleeding edge is not much fun without the occasional cut…`*
- 
+
 Mặc dù xài `Linux` cũng khá lâu, nhưng mình vẫn khoái 1 câu nói của [Bill Gate](http://www.goodreads.com/author/quotes/23470.Bill_Gates):
 *`“I choose a lazy person to do a hard job. Because a lazy person will find an easy way to do it.”`*
 
-Vì mình là `lazy person` nên không việc gì mình phải tìm 1 cách HardCore để làm hết <img src='http://forums.gamevn.com/images/smilies/Smiles/2cool_go.gif'/>.
+Vì mình là `lazy person` nên không việc gì mình phải tìm 1 cách HardCore để làm hết
+  <img width="100%" src='http://forums.gamevn.com/images/smilies/Smiles/2cool_go.gif'/>.
 Nếu Arch đã bỏ `AIF` ở các bản mới hơn thì mình chỉ việc lấy đĩa cũ có `AIF` mà xài.
 Rất may mắn là mình vẫn còn giữa 1 phiên bản `Archlinux Dual Install` - bản ngày `19.8.2011`.(Upload sau há)
 
-Vì hướng dẫn trên mạng quá nhiều. 
+Vì hướng dẫn trên mạng quá nhiều.
 Chỉ cần [Google](http://bit.ly/Prujv4) 1 tý là ra cả tá nên mình chỉ tập trung 1 số vấn đề khi cài Arch bản mới.
 
 Các vấn để sẽ gặp:
@@ -34,7 +35,7 @@ Các vấn để sẽ gặp:
 ## Chuẩn bị:
 
 * 1 cái máy tính
-* 1 cái đĩa ArchLinux `Netinstall` hoặc `Dual Install` phiên bản trước ngày 25.7.2012 
+* 1 cái đĩa ArchLinux `Netinstall` hoặc `Dual Install` phiên bản trước ngày 25.7.2012
 * Mạng Internet
 * 1 số kiến thức sơ đẳng về `Linux` và câu lệnh `Linux`. Khả năng search Google và Wiki.
 * 1 cái đầu lạnh và 1 trái tim hồng
@@ -48,7 +49,7 @@ Còn cái đầu lạnh là việc đương nhiên, `Linux` không phải là `W
 ## core-remote
 
 Thực sự mà nói thì bạn không cần phải luyến tiếc hệ thống cũ của `Arch` làm gì. Hệ thống mới của Arch xài rất tốt.
-Vì vậy lưu ý cho những ai sử dụng đĩa `Dual Install` thì nên cài bằng `core-remote` vì `core-local` của bạn hoàn toàn 
+Vì vậy lưu ý cho những ai sử dụng đĩa `Dual Install` thì nên cài bằng `core-remote` vì `core-local` của bạn hoàn toàn
 là hệ thống cũ.
 
 * Lưu ý là chỉ chọn `core` thôi nhé vì nếu chọn thêm rất dễ bị xung đột 1 số phần mềm. Nếu bạn đủ sức kiểm soát được
@@ -73,7 +74,7 @@ Cái này giải quyết cực kỳ đơn giản. Xem lại log 1 tý :
 <pre>
 STARTING mkinitcpio . Executing chroot /mnt /sbin/mkinitcpio
  -p linux >>/var/log/aif/mkinitcpio.log 2>&1\n
-chroot: failed to run command `/sbin/mkinitcpio': 
+chroot: failed to run command `/sbin/mkinitcpio':
 No such file or directory
 </pre>
 
@@ -82,24 +83,24 @@ Tức là `/sbin/mkinitcpio` không tồn tại. Không tồn tại thì kiếm 
 Bây giờ tới việc khắc phục nó. Trước tiên hãy tận hưởng hệ thống mới bằng chroot.
 Hãy đọc `ArchWiki` phần [chroot](https://wiki.archlinux.org/index.php/Change_Root#Change_root).
 <pre>
-	$ mount /dev/sdaX /mnt 		
-	$ cd /mnt/
-	$ mount -t proc proc proc/
-	$ mount -t sysfs sys sys/
-	$ mount -o bind /dev dev/
-	$ mount -t devpts pts dev/pts/
-	$ chroot /mnt /bin/bash
+$ mount /dev/sdaX /mnt
+$ cd /mnt/
+$ mount -t proc proc proc/
+$ mount -t sysfs sys sys/
+$ mount -o bind /dev dev/
+$ mount -t devpts pts dev/pts/
+$ chroot /mnt /bin/bash
 </pre>
 *sdaX là `partition` chứa root , nếu bạn tách `var root boot` ra riêng thì nên `mount` hết vào.*
 Bạn có thể không cần dùng `chroot` cũng được. Nhưng để cho dễ thì `chroot` vẫn tốt hơn.
 <pre>
-	$ which mkinitcpio
-	/usr/bin/mkinitcpio
+$ which mkinitcpio
+/usr/bin/mkinitcpio
 </pre>
 
 Kiếm được rồi thì cứ làm giống cái lệnh trong `AIF` mà táng thôi.
 <pre>
-	$ mkinitcpio -p linux
+$ mkinitcpio -p linux
 </pre>
 
 Lưu ý là bạn có thể gặp 1 số lỗi. Đó là do bạn `chroot` không đúng cách.
@@ -117,25 +118,25 @@ thuận tiện hơn.(Có thể để luôn nhưng mà không khuyến khích)
 
 Trong môi trường `chroot`, hãy `update` tất cả các gói cài đặt của bạn và cài `grub-bios` vào:
 <pre>
-	$ pacman -Syy grub-bios
+$ pacman -Syy grub-bios
 </pre>
 
 *Lưu ý : tùy vào hệ thống của bạn thế nào bạn nên sử dụng `Grub 2` phù hợp với hệ thống nhất.
 Đọc [Grub2](https://wiki.archlinux.org/index.php/GRUB2) để biết thêm chi tiết.*
 
 <pre>
-	$ modprobe dm-mod
-	$ grub-install --recheck --debug /dev/sda
-	$ mkdir -p /boot/grub/locale
-	$ cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
-	$ grub-mkconfig -o /boot/grub/grub.cfg
+$ modprobe dm-mod
+$ grub-install --recheck --debug /dev/sda
+$ mkdir -p /boot/grub/locale
+$ cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
+$ grub-mkconfig -o /boot/grub/grub.cfg
 </pre>
 
 Giờ chỉ việc reboot để hưởng thành quả của các bạn mà thôi. Sau đó tự mò tiếp nhé <img src='http://forums.gamevn.com/images/smilies/Smiles/3cool_adore.gif'/>
 
 `1 số lời khuyên nhỏ:`
 
-* Đọc `Wiki` và `search google` không những giúp bạn giải quyết những vấn đề gặp phải mà 
+* Đọc `Wiki` và `search google` không những giúp bạn giải quyết những vấn đề gặp phải mà
 còn tăng cường trí trông minh <img src='http://forums.gamevn.com/images/smilies/Smiles/2cool_sexy_girl.gif'/>
 * Nếu bạn thất bại. Đừng nản. Kiên trì thì chắc chắc sẽ thành công.
 * Hãy vào IRC của `#archlinuxvn` để được hỗ trợ nhiều hơn.
