@@ -166,15 +166,15 @@ Xem thêm về [pdb](http://docs.python.org/py3k/library/pdb.html)
 Hữu ích nếu bạn phải code nhiều, lập ra danh sách các việc cần làm (TODO) hay các nơi cần chỉnh sửa (FIXME!)
 
 ## Syntax Highlight và Validation (Kiểm tra)
-Bật syntax, filetype, indent lên nào. Cái này xài vim là phải bật rồi. Thôi kệ vẫn cứ quăng vào đây
-Sửa `.`.vim.rc`
+Bật `syntax, filetype, indent` lên nào. Cái này xài vim là phải bật rồi. Thôi kệ vẫn cứ quăng vào đây
+Sửa `.``.vim.rc`
 <pre>
 syntax on
 filetype on 
 filetype plugin indent on
 </pre>
 
-plugin pyflakes sẽ giúp ta xác định được những import không cần thiết hoặc sai cú pháp.
+`plugin pyflakes` sẽ giúp ta xác định được những import không cần thiết hoặc sai cú pháp.
 Và tốt hơn là bạn nên tắt chức năng `quickfix` đi (cái này để làm gì thì `:help quickfix` để biết thêm chi tiết, thật sự không cần thiết trong trường hợp này)
 
 <pre>
@@ -182,7 +182,7 @@ let g:pyflakes_use_quickfix = 0
 </pre>
 
 ### Tab completion 
-Phần trông đợi nhất, việc lập trình dễ dàng hay không phần nhiều là ở đây, chúng ta đã cài đặt plugin supertab, giờ đây \<tab\> \<s-tab\> có thể thay thế cho cả \<C-p\>, \<C-n\>, \<C-x\>\</c-u\>
+Phần trông đợi nhất, việc lập trình dễ dàng hay không phần nhiều là ở đây, chúng ta đã cài đặt `plugin supertab`giờ đây \<tab\> \<s-tab\> có thể thay thế cho cả \<C-p\>, \<C-n\>, \<C-x\>\</c-u\>
 Bật chế độ completion lên thôi. Thêm vào `.vim.rc`
 <pre>
 autocmd FileType python set omnifunc=pythoncomplete#Complete
@@ -252,8 +252,7 @@ autocmd FileType python set omnifunc=python3complete#Complete
 
 * `<leader>` là `\`
 * Về PEP8 (Đang tìm hiểu)
-Một plugin nữa là pep8. Plugin này giúp validate code bạn theo chuẩn [PEP8] [] và hiện ra trong cửa sổ quickfix
-[PEP8]: http://www.python.org/dev/peps/pep-0008/
+Một plugin nữa là pep8. Plugin này giúp validate code bạn theo chuẩn [PEP8](http://www.python.org/dev/peps/pep-0008/) và hiện ra trong cửa sổ quickfix
 
 Bạn phải cài đặt pep8 trước khi có thể sử dụng plugin này
 
@@ -276,5 +275,3 @@ let g:pep8_map='\<leader\>8'
 * Bạn không muốn tốn nhiều công sức như vậy, lời khuyên của mình là bạn hãy chọn: EClipse IDE + Vrapper + Pydev. Bạn sẽ có những thứ để code python thuận tiện nhất với key binding cơ bản của vim. Có một dự án là Eclim (Eclipse + Vim), bạn có thể tìm hiểu.
 * Mọi ý kiến đóng góp, câu hỏi được hoan nghênh. Nhưng hãy nhớ "đặt câu hỏi một cách thông minh".
 </pre>
-<br>
-<font color="RED"><b>Bài viết cần được sửa chữa</b></font>
