@@ -9,10 +9,12 @@ tags: ['vietnamese', 'vim', 'python']
 ## Build lại vim để hỗ trợ python 3
 
 Mặc định gói cài đặt vim trên archlinux được build không hỗ trợ cả python 2 và 3. Để kiểm tra điều này bạn hãy chạy lệnh `vim --version` sẽ thấy `-python -python3`, có nghĩa là không hỗ trợ. Vì xảy ra một vài xung đột giữa việc hỗ trợ python 2 và 3 trên vim.<br>
-Ví dụcơ bản là bạn code hoàn toàn trên python 3 (giống tôi) nhưng nếu để đuôi tệp tin là .py thì nó lại nhận là python 2, khá khó chịu (cá nhân ghét phải đặt đuôi tệp tin python là .py3).<br>
-Maintainer của gói vim đã quyết định build vim không hỗ trợ cả python 2 và 3. Đưa quyền quyết định cho người dùng. Và bạn sẽ gặp vấn đề là không thể dùng auto-completion (tự hoàn thiện) với code (mã) python trên vim. Trong khi đó là một trong những tính năng hữu dụng nhất của một editor (trình chỉnh sửa văn bản). Muốn dùng vim, muốn lập trình python 3. Còn chờ gì nữa, đi build lại vim thôi. Đọc thêm về python trong phần giúp đỡ trong vim (dùng :help python)
 
-Tải source về build? Ồ không, tại sao phải cực khổ thế chứ, và làm thế thì pacman sẽ không quản lí gói vim được, archlinux có hệ thống `abs (Arch Build System)`, tại sao bạn lại không dùng?
+Ví dụ cơ bản là bạn code hoàn toàn trên `python 3` (giống tôi) nhưng nếu để đuôi tệp tin là .py thì nó lại nhận là python 2, khá khó chịu (cá nhân ghét phải đặt đuôi tệp tin `python` là .py3).<br>
+
+`Maintainer`của gói vim đã quyết định build vim không hỗ trợ cả python 2 và 3. Đưa quyền quyết định cho người dùng. Và bạn sẽ gặp vấn đề là không thể dùng `auto-completion` (tự hoàn thiện) với code (mã) `python` trên vim. Trong khi đó là một trong những tính năng hữu dụng nhất của một `editor` (trình chỉnh sửa văn bản). Muốn dùng vim, muốn lập trình python 3. Còn chờ gì nữa, đi build lại vim thôi. Đọc thêm về `python` trong phần giúp đỡ trong `vim` (dùng `:help python`)
+
+Tải mã nguồn về build? Ồ không, tại sao phải cực khổ thế chứ, và làm thế thì pacman sẽ không quản lí gói vim được, `archlinux` có hệ thống `abs (Arch Build System)`, tại sao bạn lại không dùng?
 
 Để có thể dùng abs bạn phải cài đặt gói cùng tên: `abs`
 <pre>
@@ -23,14 +25,10 @@ Chạy nào
 sudo abs
 </pre>
 
-Giờ bạn đã tệp tin PKGBUILD của tất cả các gói cài đặt trên ArchLinux, chúng nằm trong thư mục /var/abs
-Tìm hiểu thêm về abs và PKGBUILD tại đây:
-<pre>
-https://wiki.archlinux.org/index.php/Arch_Build_System
-https://wiki.archlinux.org/index.php/PKGBUILD
-</pre>
+Giờ bạn đã tệp tin `PKGBUILD` của tất cả các gói cài đặt trên `ArchLinux`, chúng nằm trong thư mục `/var/abs`
+Tìm hiểu thêm về [abs](https://wiki.archlinux.org/index.php/Arch_Build_System) và [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD)
 
-Tìm đến PKGBUILD của gói vim thôi. Nó nằm trong /var/abs/extra/vim
+Tìm đến `PKGBUILD` của gói vim thôi. Nó nằm trong `/var/abs/extra/vim`
 Copy nó sang thư mục người dùng để việc build thuận tiện hơn
 <pre>
 cp -r /var/abs/extra/vim ~/
@@ -39,11 +37,11 @@ cd vào thư mục vim
 <pre>
 cd ~/vim
 </pre>
-Chỉnh sửa file PKGBUILD cho phù hợp nào. Mở nó lên bằng vim (chắc chắn rồi :)), còn cái nào vào đây nữa), tìm đến những dòng này
+Chỉnh sửa file `PKGBUILD` cho phù hợp nào. Mở nó lên bằng `vim` (chắc chắn rồi :)), còn cái nào vào đây nữa), tìm đến những dòng này
 <pre>
  # fix python name
 sed -i -e 's|vi_cv_path_python, python|vi_cv_path_python, python2|' \
- vim-build/src/configure.in
+vim-build/src/configure.in
 </pre>
 và sửa lại thành thế này 
 <pre>
@@ -68,10 +66,11 @@ Mọi thứ đã ổn, build và cài đặt thôi
 makepkg -i
 </pre>
 
+
 ## Lập trình trở nên dễ dàng hơn? Làm thế nào
 
-Bạn đã dùng vim thì không thể không biết đến vim plugins (những thành phần hỗ trợ vim). Chúng sẽ giúp việc lập trình trở nên `đơn giản` và `vui vẻ` hơn. Cài đặt và sử dụng chúng thôi. Ở bài này sẽ đề cập đến những plugin cần thiết cho việc lập trình python.
-Đầu tiên, luôn khuyên bạn nên sử dụng một plugins manager (trình quản lí thành phần hỗ trợ) để giúp việc cài đặt và sử dụng plugin dễ dàng hơn. Ở đây tôi dùng `Pathogen`, có một plugin tương tự là `Vundle`, bạn có thể tìm hiểu thêm. Và bạn  nên làm mới thư mục .vim của mình đi. Xóa tất cả mọi thứ trong đó đi (cân nhắc trước khi làm việc này). Xong làm theo các bước sau để cài đặt `Pathogen`
+Bạn đã dùng vim thì không thể không biết đến `vim plugins` (những thành phần hỗ trợ vim). Chúng sẽ giúp việc lập trình trở nên `đơn giản` và `vui vẻ` hơn. Cài đặt và sử dụng chúng thôi. Ở bài này sẽ đề cập đến những plugin cần thiết cho việc lập trình python.
+Đầu tiên, luôn khuyên bạn nên sử dụng một `plugins manager` (trình quản lí thành phần hỗ trợ) để giúp việc cài đặt và sử dụng `plugin` dễ dàng hơn. Ở đây tôi dùng `Pathogen`, có một `plugin` tương tự là `Vundle`, bạn có thể tìm hiểu thêm. Và bạn  nên làm mới thư mục .vim của mình đi. Xóa tất cả mọi thứ trong đó đi (cân nhắc trước khi làm việc này). Xong làm theo các bước sau để cài đặt `Pathogen`
 <pre>
 mkdir -p ~/.vim/autoload ~/.vim/bundle
 curl -so ~/.vim/autoload/pathogen.vim https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
@@ -81,9 +80,9 @@ thêm dòng này vào `.`.vim.rc` để pathogen tự động nhận các plugin
 call pathogen#infect()
 </pre>
 
-Giờ hãy cài đặt plugin vào ~/.vim/bundle sử dụng chính các thư mục của plugin không phải copy này nọ vào ftplugin blah blah này nọ nữa.
+Giờ hãy cài đặt `plugin` vào `~/.vim/bundle` sử dụng chính các thư mục của `plugin` không phải copy này nọ vào `ftplugin` blah blah này nọ nữa.
 
-Giờ là cài đặt danh sách các plugin `tôi dùng`. Sử dụng git để có thể dễ dàng trong việc cập nhật, sao lưu (nếu cần) (sử dụng git thế nào thì bạn tự tìm hiểu)
+Giờ là cài đặt danh sách các plugin `tôi dùng`. Sử dụng `git` để có thể dễ dàng trong việc cập nhật, sao lưu (nếu cần) (sử dụng `git` thế nào thì bạn tự tìm hiểu)
 <pre>
 cd ~/.vim/
 git init
@@ -111,12 +110,13 @@ Và dưới đây là giải thích phần nào về lợi ích của việc xà
 
 ### Gập mã 
 <b>(Code Folding)</b><br>
-Việc này giúp chúng ta xem code dễ dàng hơn, các code không cần thiết sẽ được nhóm lại, hệt như các IDE vẫn làm, tuy nhiên đây là một editor nên mọi việc hơi khó khăn tí.
-thêm những dòng này vào `.`.vim.rc`
+Việc này giúp chúng ta xem code dễ dàng hơn, các code không cần thiết sẽ được nhóm lại, hệt như các `IDE` vẫn làm, tuy nhiên đây là một editor nên mọi việc hơi khó khăn tí.
+thêm những dòng này vào `.``.vim.rc`
 <pre>
 set foldmethod=indent
 set foldlevel=99
 </pre>
+
 Sử dụng?
 Dùng `za` để đóng và mở code dựa theo indent (chỗ thụt vào).
 
@@ -157,13 +157,9 @@ Tạo tệp tin pdb.snippet
 import pdb; pdb.set_trace()
 </pre>
 
-Xem thêm về pdb
-<pre>
-http://docs.python.org/py3k/library/pdb.html
-</pre>
+Xem thêm về [pdb](http://docs.python.org/py3k/library/pdb.html)
 
-<b>Chú ý:</b>Để có thể debug chương trình python có thể dùng gói [pydb] [] có sẵn trên repo của archlinux (cái này giống với gcc)
-[pydb]: http://bashdb.sourceforge.net/pydb/
+<b>Chú ý:</b>Để có thể debug chương trình python có thể dùng gói [pydb](http://bashdb.sourceforge.net/pydb/) có sẵn trên repo của archlinux (cái này giống với gcc)
 
 ### TaskList 
 <b>(Danh sách tác vụ)</b> [Sẽ cập nhật sau]
@@ -202,8 +198,7 @@ Cửa sổ phía trên sẽ hiện
 L.append(object) -- append object to end 
 </pre>
 
-Vậy `pydoc` để làm gì? Đi chuyển con trỏ đến một module và <leader>pw thử xem nào :). Nó sẽ hiện thông tin cho bạn về module đó trên một cửa sổ khác. Việc này giúp tra cứu nhanh hơn, tuy nhiên bạn vẫn có thể làm việc này với lệnh help() sau khi chạy python trên terminal.
-
+Vậy `pydoc` để làm gì? Đi chuyển con trỏ đến một `module` và `pw` thử xem nào :). Nó sẽ hiện thông tin cho bạn về module đó trên một cửa sổ khác. Việc này giúp tra cứu nhanh hơn, tuy nhiên bạn vẫn có thể làm việc này với lệnh `help()` sau khi chạy `python` trên `terminal`.
 
 ## Những tính năng bổ sung cần thiết
 `Buffers`: Mọi thứ được quăng vào buffer, dễ dàng hơn trong thao tác.
@@ -228,11 +223,11 @@ Bài viết hoàn toàn là dựa trên quan điểm cá nhân, chỉ mang tính
 </pre>
 
 ## Tham khảo
-<pre>
-http://blog.sontek.net/blog/detail/turning-vim-into-a-modern-python-ide (gần như là dịch từ bài này ra, sau khi đọc được nó :) )
-ArchLinux Forum: https://bbs.archlinux.org/ 
-Vim Tips Wiki: http://vim.wikia.com/wiki/Vim_Tips_Wiki (một trang vô cùng có ích)
-</pre>
+
+[Vim-python](http://blog.sontek.net/blog/detail/turning-vim-into-a-modern-python-ide) (gần như là dịch từ bài này ra, sau khi đọc được nó :) )
+[ArchLinux Forum](https://bbs.archlinux.org/)<br>
+[Vim Tips Wiki](http://vim.wikia.com/wiki/Vim_Tips_Wiki) (một trang vô cùng có ích)
+
 
 ## Những điều bạn nên tìm hiểu thêm và một số chú ý
 * Nên đọc kĩ bài viết ở blog mình đưa và tìm hiểu thêm về<br>
@@ -245,7 +240,7 @@ Vim Tips Wiki: http://vim.wikia.com/wiki/Vim_Tips_Wiki (một trang vô cùng c�
  
 * Sử dụng `:help \<something\>` với những vấn đề bạn cần tìm hiểu mà mình không thể nêu hết ở trên
 
-* Nếu bạn gặp vấn đề ở phần syntax highlight với pythoncomplete thì làm theo dưới đây
+* Nếu bạn gặp vấn đề ở phần `syntax highlight` với `pythoncomplete` thì làm theo dưới đây
 <pre>
 curl -so ~/.vim/autoload/python3complete.vim http://lilydjwg.is-programmer.com/user_files/lilydjwg/File/python3complete.vim
 	
@@ -259,19 +254,14 @@ autocmd FileType python set omnifunc=python3complete#Complete
 * Về PEP8 (Đang tìm hiểu)
 Một plugin nữa là pep8. Plugin này giúp validate code bạn theo chuẩn [PEP8] [] và hiện ra trong cửa sổ quickfix
 [PEP8]: http://www.python.org/dev/peps/pep-0008/
+
 Bạn phải cài đặt pep8 trước khi có thể sử dụng plugin này
-Thông qua aur: 
-<pre>
-https://aur.archlinux.org/packages.php?ID=30140\&detail=1
-</pre>
-Thông qua git:
-<pre>
-https://github.com/jcrocholl/pep8
-</pre>
-Từ trang chủ:
-<pre>
-http://pypi.python.org/pypi/pep8/#downloads
-</pre>
+
+Thông qua [aur](https://aur.archlinux.org/packages.php?ID=30140\&detail=1)
+
+Thông qua [git](https://github.com/jcrocholl/pep8)
+
+[Từ trang chủ](http://pypi.python.org/pypi/pep8/#downloads)
 
 Đặt tổ hợp phím cho dễ sử dụng. Hoặc sử dụng mặc định là `\<F5>`
 <pre>
