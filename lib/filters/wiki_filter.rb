@@ -41,6 +41,12 @@ class WikiFilter < Nanoc::Filter
       title = path.split("/").last.split("_").map(&:capitalize).join(" ") if title.nil?
       title.strip!
       "<a href=\"%s\">%s</a>" % [path, title]
+    end.gsub(%r{:([a-z0-9_-]+):}) do |m|
+      smile = $1.downcase
+      file_name = "./content/i/sm/#{smile}.gif"
+      File.file?(file_name) \
+        ? "<img width=\"25px\" src=\"/i/sm/#{smile}.gif\"/>" \
+        : m
     end
   end
 end
