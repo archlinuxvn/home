@@ -6,6 +6,8 @@ tags: ['programming', 'vim', 'python']
 
 # Vim và Python3
 
+Bài này chỉ ra vài mẹo để lập trình python3 với vim.
+
 ## Build lại vim để hỗ trợ python 3
 
 Mặc định gói cài đặt vim trên archlinux được build không hỗ trợ cả python 2 và 3. Để kiểm tra điều này bạn hãy chạy lệnh `vim --version` sẽ thấy `-python -python3`, có nghĩa là không hỗ trợ. Vì xảy ra một vài xung đột giữa việc hỗ trợ python 2 và 3 trên vim.
@@ -61,12 +63,11 @@ sửa thành
 
 Vẫn là thêm cách nhanh hơn `:%s/--disable-python3interp/--enable-python3interp`
 
-Mọi thứ đã ổn, build và cài đặt thôi
-<pre>
-makepkg -i
-</pre>
+Mọi thứ đã ổn, build và cài đặt thôi, với lệnh `makepkg -i`.
 
 ## Lập trình trở nên dễ dàng hơn? Làm thế nào
+
+Dưới đây là vài mẹo để  việc lập trình trong Vim dễ dàng hơn ;)
 
 ### Vim plugins
 
@@ -235,37 +236,31 @@ Bài viết hoàn toàn là dựa trên quan điểm cá nhân, chỉ mang tính
 ## Những điều bạn nên tìm hiểu thêm và một số chú ý
 
 * Nên đọc kĩ bài viết ở blog mình đưa và tìm hiểu thêm về
-
 ** `pytest plugin`
 ** `tích hợp git vào vim`
 ** `gundo plugin để xem xét các thay đổi gần đây, cấu trúc như git commit vậy`
 ** `tìm kiếm thông minh (fuzzy search)` (Với mình grep là đủ rồi)
 ** `Django` (Đang tìm hiểu)
 ** `TaskList`
-
 * Sử dụng `:help \<something\>` với những vấn đề bạn cần tìm hiểu mà mình không thể nêu hết ở trên
-
 * Nếu bạn gặp vấn đề ở phần `syntax highlight` với `pythoncomplete` thì làm theo dưới đây
 <pre>
 curl -so ~/.vim/autoload/python3complete.vim http://lilydjwg.is-programmer.com/user_files/lilydjwg/File/python3complete.vim
 
-Sửa lại trong .vimrc
+# Sửa lại trong .vimrc
 autocmd FileType python set omnifunc=pythoncomplete#Complete
-thành (chú ý python và python3)
+
+# thành (chú ý python và python3)
 autocmd FileType python set omnifunc=python3complete#Complete
 </pre>
-
 * `<leader>` là `\`
 * Về PEP8 (Đang tìm hiểu)
 Một plugin nữa là pep8. Plugin này giúp validate code bạn theo chuẩn [PEP8](http://www.python.org/dev/peps/pep-0008/) và hiện ra trong cửa sổ quickfix
 
-Bạn phải cài đặt pep8 trước khi có thể sử dụng plugin này
-
-Thông qua [aur](https://aur.archlinux.org/packages.php?ID=30140\&detail=1)
-
-Thông qua [git](https://github.com/jcrocholl/pep8)
-
-[Từ trang chủ](http://pypi.python.org/pypi/pep8/#downloads)
+Bạn phải cài đặt `pep8` trước khi có thể sử dụng plugin này
+* Thông qua [aur](https://aur.archlinux.org/packages.php?ID=30140\&detail=1)
+* Thông qua [git](https://github.com/jcrocholl/pep8)
+* [Từ trang chủ](http://pypi.python.org/pypi/pep8/#downloads)
 
 Đặt tổ hợp phím cho dễ sử dụng. Hoặc sử dụng mặc định là `\<F5>`
 <pre>
