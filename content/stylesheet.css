@@ -119,6 +119,7 @@ pre {
   background-color: black;
   padding: 1em;
   font-family: monospace;
+  overflow-x: auto;
 }
 
 pre.license {
