@@ -111,7 +111,6 @@ a:hover {
 
 code {
   color: green;
-  font-family: monospace;
 }
 
 pre {
@@ -124,6 +123,7 @@ pre {
 
 pre code {
   color: white;
+  font-family: monospace;
 }
 
 pre.license {
