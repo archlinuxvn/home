@@ -7,6 +7,9 @@
   </head>
   <body>
     <div id="main">
+      <% if @item[:title] %>
+        <h1><%= @item[:title] %></h1>
+      <% end %>
       <%= yield %>
       <% if not @item[:virtual] %>
         <p>
