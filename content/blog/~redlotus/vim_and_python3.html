@@ -137,7 +137,7 @@ Bạn có thể sửa, thêm mới trong `~/.vim/bundle/snipmate-snippets/snippe
 
 Tùy chọn: Tạo `snippet` cho `pdb` (`python debugger`) _(TODO: chưa thử)_. Tạo tệp tin `pdb.snippet`
 
-  import pdb; pdb.set_trace()
+    import pdb; pdb.set_trace()
 
 Xem thêm về [pdb] [].
 
@@ -153,11 +153,10 @@ Hữu ích nếu bạn phải code nhiều, lập ra danh sách các việc cầ
 
 Bật `syntax, filetype, indent` lên nào. Cái này xài vim là phải bật rồi. Thôi kệ vẫn cứ quăng vào đây. Sửa `~/.vim.rc`
 
-<pre>
-syntax on
-filetype on
-filetype plugin indent on
-</pre>
+
+    syntax on
+    filetype on
+    filetype plugin indent on
 
 `plugin pyflakes` sẽ giúp ta xác định được những import không cần thiết hoặc sai cú pháp.
 Và tốt hơn là bạn nên tắt chức năng `quickfix` đi (cái này để làm gì thì `:help quickfix` để biết thêm chi tiết, thật sự không cần thiết trong trường hợp này) bằng cách gán `let g:pyflakes_use_quickfix = 0`
@@ -166,11 +165,10 @@ Và tốt hơn là bạn nên tắt chức năng `quickfix` đi (cái này để
 
 Phần trông đợi nhất, việc lập trình dễ dàng hay không phần nhiều là ở đây, chúng ta đã cài đặt plugin `supertab` giờ đây `<tab> <S-tab>` có thể thay thế cho cả `<C-p>`, `<C-n>`, `<C-x><C-u>`
 Bật chế độ completion lên thôi. Thêm vào `.vim.rc`
-<pre>
-autocmd FileType python set omnifunc=pythoncomplete#Complete
-let g:SuperTabDefaultCompletionType = "context"
-set completeopt=menuone,longest
-</pre>
+
+    autocmd FileType python set omnifunc=pythoncomplete#Complete
+    let g:SuperTabDefaultCompletionType = "context"
+    set completeopt=menuone,longest
 
 Tùy chọn `preview` ở `completeopt` sẽ hiện thông tin về completion ở cửa sổ phía trên. Cá nhân mình nghĩ nó không cần thiết.
 
