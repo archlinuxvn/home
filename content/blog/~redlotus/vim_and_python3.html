@@ -124,33 +124,33 @@ Sử dụng? Dùng `za` để đóng và mở code dựa theo indent (chỗ th�
 ### Chia cửa sổ
 
 Đôi lúc bạn cần so sánh code hay thao tác trên nhiều tệp tin liên quan với nhau thì chia cửa sỗ ra nhiều vùng sẽ rất có ích. Trong vim bạn có thể dễ dàng làm điều này.
-<pre>
-Chia theo chiều dọc: \<C-w\>v hoặc :vsplit
-Chia theo chiều ngang: \<C-w\>s hoặc :split
-Đóng: \<C-w\>q hoặc :quit (:q)
-</pre>
+
+    Chia theo chiều dọc: <C-w>v hoặc `:vsplit`
+    Chia theo chiều ngang: <C-w>s hoặc `:split`
+    Đóng: <C-w>q hoặc :quit (:q)
+
 
 Để di chuyển giữa các cửa sổ đó thì bạn phải dùng tổ hợp `\<C-w\>\<phím di chuyển\>`. Để dễ dàng hơn tại sao ta không dùng `\<C-phím di chuyển\>`.
 Thêm vào `~/.vimrc`
 
-<pre>
-map \<C-j\> \<C-w\>j
-map \<C-k\> \<C-w\>k
-map \<C-l\> \<C-w\>l
-map \<C-h\> \<C-w\>h
-</pre>
+
+    map <C-j> <C-w>j
+    map <C-k> <C-w>k
+    map <C-l> <C-w>l
+    map <C-h> <C-w>h
+
 Giờ mọi việc đã dễ dàng hơn rất nhiều và thao tác cũng nhanh hơn.
 
 ### Snippets
 
 Cho phép ta định nghĩa những cấu trúc có sẵn khi code. Ví dụ:
-<pre>
-def\<tab\>
 
-trở thành:
+    def<tab>
 
-def name(data):
-</pre>
+    trở thành:
+
+    def name(data):
+
 
 Bạn có thể sửa, thêm mới trong `~/.vim/bundle/snipmate-snippets/snippets/python`. Xem các tệp tin có sẵn để xem cấu trúc.
 
@@ -184,7 +184,7 @@ Và tốt hơn là bạn nên tắt chức năng `quickfix` đi (cái này để
 
 ### Tab completion
 
-Phần trông đợi nhất, việc lập trình dễ dàng hay không phần nhiều là ở đây, chúng ta đã cài đặt `plugin supertab`giờ đây \<tab\> \<s-tab\> có thể thay thế cho cả \<C-p\>, \<C-n\>, \<C-x\>\</c-u\>
+Phần trông đợi nhất, việc lập trình dễ dàng hay không phần nhiều là ở đây, chúng ta đã cài đặt plugin `supertab` giờ đây \<tab\> \<S-tab\> có thể thay thế cho cả \<C-p\>, \<C-n\>, \<C-x\>\<C-u\>
 Bật chế độ completion lên thôi. Thêm vào `.vim.rc`
 <pre>
 autocmd FileType python set omnifunc=pythoncomplete#Complete
@@ -194,11 +194,11 @@ set completeopt=menuone,longest
 <b>*Tùy chọn</b> preview ở completeopt sẽ hiện thông tin về completion ở cửa sổ phía trên. Cá nhân mình nghĩ nó không cần thiết.
 
 <b>Ví dụ</b>
-<pre>
-shoplist.\<tab\> --> append
-Cửa sổ phía trên sẽ hiện
-L.append(object) -- append object to end
-</pre>
+
+    shoplist.<tab> --> append
+    Cửa sổ phía trên sẽ hiện
+    L.append(object) -- append object to end
+
 
 Vậy `pydoc` để làm gì? Đi chuyển con trỏ đến một `module` và `pw` thử xem nào :). Nó sẽ hiện thông tin cho bạn về module đó trên một cửa sổ khác. Việc này giúp tra cứu nhanh hơn, tuy nhiên bạn vẫn có thể làm việc này với lệnh `help()` sau khi chạy `python` trên `terminal`.
 
@@ -206,9 +206,9 @@ Vậy `pydoc` để làm gì? Đi chuyển con trỏ đến một `module` và `
 
 Vài thứ linh tinh nhưng rất có ích
 
-* `Buffers`: Mọi thứ được quăng vào buffer, dễ dàng hơn trong thao tác. Di chuyển giữa các buffer: `:b\<số thứ tự\>`. Đóng buffer: `:bw`
-* `NERDTree`: Duyệt tệp tin ngay trong vim (`NERDTree`). Có thể dùng lệnh `:NERDTreeToggle` hoặc gán tổ hợp phím bạn thích bằng `nmap \<F3\> :NERDTreeToggle\<CR\>`
-* `Taglist`: Duyệt qua các tag (tên module, biến, class...). Lệnh `:TlistToggle` hoặc `nmap \<F2\> :TlistToggle\<CR\>`
+* `Buffers`: Mọi thứ được quăng vào buffer, dễ dàng hơn trong thao tác. Di chuyển giữa các buffer: `:b<số thứ tự>`. Đóng buffer: `:bw`
+* `NERDTree`: Duyệt tệp tin ngay trong vim (`NERDTree`). Có thể dùng lệnh `:NERDTreeToggle` hoặc gán tổ hợp phím bạn thích bằng `nmap <F3> :NERDTreeToggle<CR>`
+* `Taglist`: Duyệt qua các tag (tên module, biến, class...). Lệnh `:TlistToggle` hoặc `gán tổ hợp phím bạn thích bằng nmap <F2> :TlistToggle<CR>`
 
 ## Linh tinh
 
@@ -219,7 +219,7 @@ Vài thứ linh tinh nhưng rất có ích
   * `tìm kiếm thông minh (fuzzy search)` (Với mình grep là đủ rồi)
   * `Django` (Đang tìm hiểu)
   * `TaskList`
-* Sử dụng `:help \<something\>` với những vấn đề bạn cần tìm hiểu mà mình không thể nêu hết ở trên
+* Sử dụng `:help <something>` với những vấn đề bạn cần tìm hiểu mà mình không thể nêu hết ở trên
 * Nếu bạn gặp vấn đề ở phần `syntax highlight` với `pythoncomplete` thì làm theo dưới đây
 <pre>
 curl -so ~/.vim/autoload/python3complete.vim http://lilydjwg.is-programmer.com/user_files/lilydjwg/File/python3complete.vim
@@ -237,11 +237,11 @@ Một plugin nữa là pep8. Plugin này giúp validate code bạn theo chuẩn 
   * Thông qua [aur](https://aur.archlinux.org/packages.php?ID=30140\&detail=1)
   * Thông qua [git](https://github.com/jcrocholl/pep8)
   * [Từ trang chủ](http://pypi.python.org/pypi/pep8/#downloads)
-* Đặt tổ hợp phím cho dễ sử dụng. Hoặc sử dụng mặc định là `\<F5>`
-<pre>
-let g:pep8_map='\<leader\>8'
-</pre>
-với `leader` là phím `\`
+* Đặt tổ hợp phím cho dễ sử dụng. Hoặc sử dụng mặc định là `<F5>`  
+
+    let g:pep8_map=`<leader>8`
+
+với `<leader>` là phím `\`
 
 ## Ghi chú của tác giả
 
@@ -256,7 +256,7 @@ với `leader` là phím `\`
 Các tài liệu tham khảo có ích
 
 * [Vim-python](http://blog.sontek.net/blog/detail/turning-vim-into-a-modern-python-ide)
-    (bài viết của mình gần như là bản dịch từ bài này ra)
+    (bài viết của mình gần như là bản dịch rút gọn từ bài này ra)
 * [ArchLinux Forum](https://bbs.archlinux.org/)
 * [Vim Tips Wiki](http://vim.wikia.com/wiki/Vim_Tips_Wiki) (một trang vô cùng có ích)
 
