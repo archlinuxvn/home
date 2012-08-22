@@ -52,9 +52,11 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
 
 ## Nhóm C: Thực hiện nhiều lần (mỗi khi viết bài)
 
-5. Sau khi soạn bài, bạn có thể sử dụng `nanoc` để tạo ra các trang tĩnh.
+5. Sau khi soạn bài, bạn có thể sử dụng `nanoc` để (biên dịch ) tạo ra các trang tĩnh.
    Bạn dùng lệnh `nanoc view` để tạo một máy phục vụ <http://localhost:3000>
    có thể truy cập được bằng trình duyệt trên máy tính của bạn.
+   _(Nhiều bạn gặp lỗi `File not found` khi vào địa chỉ này. Hãy nhớ là
+   bạn phải biên dịch mã nguồn trang chủ trước khi có thể xem chúng!)_
 
 6. Sau khi kiểm tra và vừa ý, bạn có thể xác nhận thay đổi bằng lệnh
    `git commit` và sau đó gửi thay đổi trên máy phục vụ bằng lệnh
@@ -70,14 +72,26 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
    lệnh `git push` vì lệnh này sẽ có ảnh hưởng trực tiếp tới máy phục vụ
    cùng với trang chủ của nhóm.
 
-## Nhóm D: Thông tin khác. Mẹo
+7. Để tránh gõ `nanoc` hoặc `nanoc compile` sau mỗi lúc soạn bài, bạn có
+   thể dùng `nanoc watch`: tiện ích này sẽ theo dõi và tự động biên dịch
+   mã nguồn sau mỗi khi có sự thay đổi.
 
-7. Sau khi bạn thực hiện thành công `git push`, máy phục vụ của VietTUG
-   sẽ tự động biên dịch và cập nhật thay đổi ở trang chủ của ArchLinuxVn.
-   Vì các thành viên đều có quyền truy cập như nhau đến mọi trang của nhóm,
-   bạn được khuyến cáo hãy **cẩn thận khi chỉnh sửa, thay đổi các bài viết
-   đã có**. Tốt nhất, nếu có điều gì phân vân, hãy hội ý với các bạn khác
-   trước khi quyết định!
+## Nhóm D: Quá trình xuất bản. Nhánh core
+
+7. Sau khi bạn thực hiện thành công `git push`, máy phục vụ của `VietTUG`
+   sẽ tự động biên dịch và cập nhật thay đổi ở trang chủ của `ArchLinux Vn`.
+   Bạn có thể đọc mã nguồn của kịch bản `bin/post-receive` để biết thêm chi
+   tiết. Một cách ngắn gọn, kịch bản này làm các việc sau:
+
+   * Cập nhật mã nguồn từ kho
+   * Xóa bỏ các thông tin thừa và có thể gây nguy hiểm
+   * Tải về các thư viện, quy tắc biên dịch từ nhánh `core`
+   * Chạy lệnh `nanoc compile` để biên dịch mã nguồn
+   * Tải kết quả lên trang chủ của nhóm
+
+5. Bạn không được thay đổi các tập tin `*.rb` và tập tin `layout/*`. Những
+   tập tin này chỉ được thay đổi bởi người quản lý cấp cao nhất, bởi chúng
+   nằm riêng ở nhánh `core`.
 
 8. Nếu bạn cần thay đổi, bổ sung một số quy tắc biên dịch hoặc thư viện,
    bạn cần quyền ghi vào nhánh `core` _(các thay đổi của những tập tin như
@@ -86,26 +100,58 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
    `core` để xác nhận các thay đổi của bạn. **Lưu ý** rằng việc này là cần
    thiết để đảm bảo an toàn cho máy phục vụ.
 
+9. Vì `core` là một nhánh đặc biệt, bạn `KHÔNG ĐƯỢC` trộn nhánh này vào
+   nhánh `master`. Hãy thảo luận với các thành viên khác trước khi mọi
+   việc rối tung cả lên.
+
+7. Vì các thành viên đều có quyền truy cập như nhau đến mọi trang của nhóm,
+   bạn được khuyến cáo hãy **cẩn thận khi chỉnh sửa, thay đổi các bài viết
+   đã có**. Tốt nhất, nếu có điều gì phân vân, hãy hội ý với các bạn khác
+   trước khi quyết định!
+
 ## Nhóm E: Quy tắc cần nhớ
 
-5. Không được thay đổi các tập tin `*.rb` và tập tin `layout/*`. Những
-   tập tin này chỉ được thay đổi bởi người quản lý cấp cao nhất. Xem
-   thêm nhóm D.
+Nếu không có kỷ luật, mọi thứ sẽ ngày càng rắc rối! Vì thế, bạn cố gắng
+tuân theo các chỉ dẫn để  giúp mọi người có thể theo dõi và phát triển các
+bài viết của bạn.
+
+### Đặt tên tập tin
 
 1. Đặt tên tập tin chỉ gồm chữ thường, dấu gạch chân và con số. Không dùng
    khoảng trắng, ký tự đặc biệt, tiếng Việt có dấu khi đặt tên tập tin.
 
 4. Nên chọn tên tập tin ngắn gọn, dễ nhớ. Không nên đổi tên tập tin vì
-   hệ thống bình luận Disqus sẽ không biết để chuyển các bình luận (nếu
-   có) từ bài với tập tin cũ qua bài với tập tin mới.
+   hệ thống bình luận Disqus sẽ không biết để chuyển các bình luận _(nếu
+   có)_ từ bài với tập tin cũ qua bài với tập tin mới.
+
+### Tiếng Anh. Tiếng Việt
+
+1. Đối tượng phục vụ chủ yếu của ArchLinuxVn là người sử dụng tiếng Việt.
+   Đã có các tài liệu tiếng Anh khắp nơi rồi, do đó, bạn không nhất thiết
+   phải... phát minh lại các bánh xe.
 
 7. Hạn chế sử dụng tiếng Anh. Nên tìm cách dịch những từ đơn giản, phổ
    biến qua tiếng Việt. Nếu bạn không chắc với cách dịch, có thể ghi
-   kèm từ gốc tiếng Anh. Ví dụ, _cập nhật (`update`)_.
+   kèm từ gốc tiếng Anh. Ví dụ, _cập nhật (`update`)_. Một số từ luôn có
+   thể dịch như: `code`, `copy`, `download`, `browser`,...
 
 8. Đánh dấu các thuật ngữ và các từ ngữ tiếng Anh bằng cặp dấu nháy ngược
-   (giống như để tô màu cho đoạn mã nguồn ngắn.) Việc này làm bài viết
+   _(giống như để tô màu cho đoạn mã nguồn ngắn.)_ Việc này làm bài viết
    dễ đọc hơn, tập trung hơn.
+
+### Dùng git cho tốt
+
+1. `Pull` trước khi `push`. Điều này có nghĩa là, nếu bạn không có xác nhận
+   vào kho `git` của trang chủ trong một thời gian tương đối dài _(một ngày chẳng hạn)_,
+   bạn nên chạy `git pull` để lấy về các thay đổi mới nhất từ kho trước khi
+   bạn bắt đầu soạn hay chỉnh bài. Lý do cho việc này rất đơn giản: Vì kho
+   do nhiều người tham gia chỉnh sửa, nên có khi điều bạn muốn thay đổi
+   đã có người khác làm rồi, và bạn không cần gây thêm rắc rối :big_smile:
+
+5. Nếu bạn có ghi vào kho [github] [], bạn hãy thực hiện gửi xác nhận
+   tới kho này, để các liên kết trong phần [liệt kê các thay đổi](/changes/)
+   được cập nhật đúng. Bạn cần biết dùng `remote` với `git`. _(Hãy hỏi
+  các bạn khác nếu bạn chưa biết nhé.)_
 
 9. Khi xác nhận thay đổi với `git commit`, bạn cần có chú thích tương đối
    ngắn gọn, nhưng *không nên quá ngắn gọn* (trừ trường hợp các thay đổi
@@ -118,15 +164,26 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
    * Nếu phải chú thích trên nhiều dòng, thì dòng đầu tiên là tóm tắt,
      sau đó là một dòng trắng, và sau đó là các chú thích khác. Ví dụ
 
-<pre>
-git commit -m'This is a subject or short message
+         git commit -m'This is a subject or short message
 
-This is a long description. The above line is a blank link.'
-</pre>
+         This is a long description. The above line is a blank link.'
 
-   Lưu ý rằng đây là những quy ước phổ biến khi làm việc với `git`.
+     Lưu ý rằng đây là những quy ước phổ biến khi làm việc với `git`.
 
-## Nhóm F: Lưu ý có ích khác
+10. Hãy xác nhận từng tập tin, từng thay đổi thay vì xác nhận nhóm các thay đổi.
+    Ví dụ, nếu bạn thực hiện thay đổi cho ba bài viết `A`, `B`, `C`, thì
+    đừng nên dùng lệnh `git commit -a ...` mà nên xác nhận cho từng bài viết
+    `git A -m'...'`, `git B -m'...'`. Điều này đặc biệt có ích khi các bài
+    viết `A`, `B`, `C` ít liên quan với nhau. Lợi ích của việc xác nhận
+    từng phần là việc trộn (`merging`) và tách (`git cherry-pick`) sẽ
+    đơn giản và ít lỗi hơn rất nhiều.
+
+## Thông tin `meta` của bài viết
+
+2. Trong phần `metadata` của mỗi bài viết, bạn có thể đặt các thông tin
+   tùy ý để tiện tìm kiếm sau này. Ví dụ `tags: [abc, xyz]`, hoặc
+   `created_at: 2012 July 25th`,... để tiện tìm kiếm. Một vài thông tin
+   sẽ được dùng trong tương lai để hỗ trợ `blog` và `tìm kiếm`.
 
 1. Để cho phép người dùng gửi bình luận cho bài viết của bạn, sau khi
    đặt tựa đề, bạn đặt `allow_comment: yes` trong phần `metadata` của
@@ -138,22 +195,12 @@ This is a long description. The above line is a blank link.'
     `/lib/filters/wiki_filter.rb`.
    Bạn có thể đọc hướng dẫn và theo dõi ví dụ có trong mã nguồn này.
 
-2. Trong phần `metadata` của mỗi bài viết, bạn có thể đặt các thông tin
-   tùy ý để tiện tìm kiếm sau này. Ví dụ `tags: [abc, xyz]`, hoặc
-   `created_at: 2012 July 25th`,... để tiện tìm kiếm. Một vài thông tin
-   sẽ được dùng trong tương lai để hỗ trợ `blog` và `tìm kiếm`.
-
 4. Cuối mỗi bài viết thường có thông tin về tác giả, ngày cập nhật cuối
    cùng. Để bỏ qua thông tin này, chỉ việc đặt `virtual: true` trong phần
    `metadata` của bài viết. _(Thực tế thì thiết lập này để dùng để phân
    biệt những trang tĩnh có nội dung đặt trên tập tin cụ thể, với các
    trang động được sinh ra nhờ các lọc đặc biệt, ví dụ, nhưng các trang
    `/tags/*`.)_
-
-5. Nếu bạn có ghi vào kho [github] [], bạn hãy thực hiện gửi xác nhận
-   tới kho này, để các liên kết trong phần [liệt kê các thay đổi](/changes/)
-   được cập nhật đúng. Bạn cần biết dùng `remote` với `git`. _(Hãy hỏi
-  các bạn khác nếu bạn chưa biết nhé.)_
 
 3. Để đánh dấu thẻ (`tag`) cho bài viết, trong phần `metadata` bạn có thể
    chỉ ra danh sách các thẻ như ví dụ sau đây. Mỗi thẻ chỉ gồm các chữ cái
@@ -162,12 +209,35 @@ This is a long description. The above line is a blank link.'
    việc dùng `[]` bởi `%w{}`. Ngoài ra, cách kiểm tra thẻ của `nanoc`
    thông qua `Nanoc::Helpers::Tagging` rất yếu.)_
 
-<pre>
----
-title: Tựa đề bài viết
-tags: ['git', 'programming']
----
-</pre>
+       ---
+       title: Tựa đề bài viết
+       tags: ['git', 'programming']
+       ---
+
+### Trình bày mã nguồn
+
+7. Nên hạn chế dùng các thẻ `HTML` trong bài viết. Ví dụ, `<pre>`, `<b>`,
+   các thẻ tô màu sắc, bởi chúng làm cho mã nguồn bài viết rất khó đọc
+
+8. Dùng khoảng trắng thay cho `tab`. Bạn có thể dùng `tab` khi soạn thảo
+   nhưng nhớ thay thế (`expand`) mỗi `tab` bằng 4 khoảng trắng. Đây là
+   quy ước chung. Nếu cần trao đổi thêm bạn hãy liên hệ với các bạn khác
+   qua nhóm thư hoặc kênh IRC.
+
+9. Tuy mỗi `tab` được thay bởi 4 khoảng trắng nhưng
+   khi canh dòng trong mã nguồn hãy dùng 2 khoảng trắng.
+
+9. Để trình bày mã nguồn, để đoạn mã nguồn ngắn trong cặp dấu nháy ngược (\`),
+   Đối với các đoạn mã dài, hãy đặt chúng trong `<pre> ... </pre>`,
+   hoặc dùng cách thụt đầu dòng 4 khoảng trắng cho mỗi dòng của đoạn mã;
+   cách sau cùng là tốt nhất, ít gây lỗi nhất.
+
+### Và những mẹo khác
+
+1. Học bằng ví dụ. Có rất nhiều quy tắc, mẹo vặt. Nhưng cách đơn giản
+   là đọc qua mã nguồn của những bài viết khác để xem các bạn khác đã
+   làm gì và bạn có thể bắt chước theo hay không. Ví dụ, về cách dùng
+   các biểu tượng mặt cười trong bài viết, hãy xem các bài của `n0b0dy`.
 
 [kramdown]: http://kramdown.rubyforge.org/quickref.html
 [nanoc]: http://nanoc.stoneship.org/docs/
