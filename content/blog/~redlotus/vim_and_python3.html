@@ -163,11 +163,14 @@ Xem thêm về [pdb](http://docs.python.org/py3k/library/pdb.html)
 
 **Chú ý:** Để có thể debug chương trình python có thể dùng gói [pydb](http://bashdb.sourceforge.net/pydb/) có sẵn trên repo của archlinux (cái này giống với gcc)
 
-### TaskList
-<b>(Danh sách tác vụ)</b> [Sẽ cập nhật sau]
+### TaskList (Danh sách tác vụ)
+
+**[Sẽ cập nhật sau]**
+
 Hữu ích nếu bạn phải code nhiều, lập ra danh sách các việc cần làm (TODO) hay các nơi cần chỉnh sửa (FIXME!)
 
 ## Syntax Highlight và Validation (Kiểm tra)
+
 Bật `syntax, filetype, indent` lên nào. Cái này xài vim là phải bật rồi. Thôi kệ vẫn cứ quăng vào đây. Sửa `~/.vim.rc`
 
 <pre>
@@ -177,11 +180,7 @@ filetype plugin indent on
 </pre>
 
 `plugin pyflakes` sẽ giúp ta xác định được những import không cần thiết hoặc sai cú pháp.
-Và tốt hơn là bạn nên tắt chức năng `quickfix` đi (cái này để làm gì thì `:help quickfix` để biết thêm chi tiết, thật sự không cần thiết trong trường hợp này)
-
-<pre>
-let g:pyflakes_use_quickfix = 0
-</pre>
+Và tốt hơn là bạn nên tắt chức năng `quickfix` đi (cái này để làm gì thì `:help quickfix` để biết thêm chi tiết, thật sự không cần thiết trong trường hợp này) bằng cách gán `let g:pyflakes_use_quickfix = 0`
 
 ### Tab completion
 
@@ -205,43 +204,21 @@ Vậy `pydoc` để làm gì? Đi chuyển con trỏ đến một `module` và `
 
 ### Những tính năng bổ sung cần thiết
 
-`Buffers`: Mọi thứ được quăng vào buffer, dễ dàng hơn trong thao tác.
-Di chuyển giữa các buffer: `:b\<số thứ tự\>`
-Đóng buffer: `:bw`
+Vài thứ linh tinh nhưng rất có ích
 
-`NERDTree`: Duyệt tệp tin ngay trong vim (`NERDTree`). Có thể dùng lệnh `:NERDTreeToggle` hoặc gán tổ hợp phím bạn thích
-<pre>
-nmap \<F3\> :NERDTreeToggle\<CR\>
-</pre>
+* `Buffers`: Mọi thứ được quăng vào buffer, dễ dàng hơn trong thao tác. Di chuyển giữa các buffer: `:b\<số thứ tự\>`. Đóng buffer: `:bw`
+* `NERDTree`: Duyệt tệp tin ngay trong vim (`NERDTree`). Có thể dùng lệnh `:NERDTreeToggle` hoặc gán tổ hợp phím bạn thích bằng `nmap \<F3\> :NERDTreeToggle\<CR\>`
+* `Taglist`: Duyệt qua các tag (tên module, biến, class...). Lệnh `:TlistToggle` hoặc `nmap \<F2\> :TlistToggle\<CR\>`
 
-`Taglist`: Duyệt qua các tag (tên module, biến, class...).
-Lệnh `:TlistToggle`
-hoặc
-<pre>
-nmap \<F2\> :TlistToggle\<CR\>
-</pre>
-
-
-<pre>
-Bài viết hoàn toàn là dựa trên quan điểm cá nhân, chỉ mang tính chất tham khảo. Đừng thụ động, hãy tùy biến mọi thứ theo cách của riêng mình.
-</pre>
-
-## Tham khảo
-
-[Vim-python](http://blog.sontek.net/blog/detail/turning-vim-into-a-modern-python-ide) (gần như là dịch từ bài này ra, sau khi đọc được nó :) )
-[ArchLinux Forum](https://bbs.archlinux.org/)<br>
-[Vim Tips Wiki](http://vim.wikia.com/wiki/Vim_Tips_Wiki) (một trang vô cùng có ích)
-
-
-## Những điều bạn nên tìm hiểu thêm và một số chú ý
+## Linh tinh
 
 * Nên đọc kĩ bài viết ở blog mình đưa và tìm hiểu thêm về
-** `pytest plugin`
-** `tích hợp git vào vim`
-** `gundo plugin để xem xét các thay đổi gần đây, cấu trúc như git commit vậy`
-** `tìm kiếm thông minh (fuzzy search)` (Với mình grep là đủ rồi)
-** `Django` (Đang tìm hiểu)
-** `TaskList`
+  * `pytest plugin`
+  * `tích hợp git vào vim`
+  * `gundo plugin để xem xét các thay đổi gần đây, cấu trúc như git commit vậy`
+  * `tìm kiếm thông minh (fuzzy search)` (Với mình grep là đủ rồi)
+  * `Django` (Đang tìm hiểu)
+  * `TaskList`
 * Sử dụng `:help \<something\>` với những vấn đề bạn cần tìm hiểu mà mình không thể nêu hết ở trên
 * Nếu bạn gặp vấn đề ở phần `syntax highlight` với `pythoncomplete` thì làm theo dưới đây
 <pre>
@@ -256,25 +233,32 @@ autocmd FileType python set omnifunc=python3complete#Complete
 * `<leader>` là `\`
 * Về PEP8 (Đang tìm hiểu)
 Một plugin nữa là pep8. Plugin này giúp validate code bạn theo chuẩn [PEP8](http://www.python.org/dev/peps/pep-0008/) và hiện ra trong cửa sổ quickfix
-
-Bạn phải cài đặt `pep8` trước khi có thể sử dụng plugin này
-* Thông qua [aur](https://aur.archlinux.org/packages.php?ID=30140\&detail=1)
-* Thông qua [git](https://github.com/jcrocholl/pep8)
-* [Từ trang chủ](http://pypi.python.org/pypi/pep8/#downloads)
-
-Đặt tổ hợp phím cho dễ sử dụng. Hoặc sử dụng mặc định là `\<F5>`
+* Bạn phải cài đặt `pep8` trước khi có thể sử dụng plugin này
+  * Thông qua [aur](https://aur.archlinux.org/packages.php?ID=30140\&detail=1)
+  * Thông qua [git](https://github.com/jcrocholl/pep8)
+  * [Từ trang chủ](http://pypi.python.org/pypi/pep8/#downloads)
+* Đặt tổ hợp phím cho dễ sử dụng. Hoặc sử dụng mặc định là `\<F5>`
 <pre>
 let g:pep8_map='\<leader\>8'
 </pre>
-`leader` là phím `\`
+với `leader` là phím `\`
 
+## Ghi chú của tác giả
 
-## Chú ý cuối cùng
-
+* Bài viết hoàn toàn là dựa trên quan điểm cá nhân, chỉ mang tính chất tham khảo. Đừng thụ động, hãy tùy biến mọi thứ theo cách của riêng mình.
 * Mặc định trước khi đọc và làm theo bài này bạn đã có thể tùy chỉnh vim một cách cơ bản và thuận tiện với mình.
 * Bạn sử dụng vim với python3, không phải python2. Đừng đặt câu hỏi liên quan đến python2, hãy tự tìm hiểu thêm dựa trên bài này.
 * Bạn không muốn tốn nhiều công sức như vậy, lời khuyên của mình là bạn hãy chọn: EClipse IDE + Vrapper + Pydev. Bạn sẽ có những thứ để code python thuận tiện nhất với key binding cơ bản của vim. Có một dự án là Eclim (Eclipse + Vim), bạn có thể tìm hiểu.
 * Mọi ý kiến đóng góp, câu hỏi được hoan nghênh. Nhưng hãy nhớ "đặt câu hỏi một cách thông minh".
+
+## Tài liệu tham khảo
+
+Các tài liệu tham khảo có ích
+
+* [Vim-python](http://blog.sontek.net/blog/detail/turning-vim-into-a-modern-python-ide)
+    (bài viết của mình gần như là bản dịch từ bài này ra)
+* [ArchLinux Forum](https://bbs.archlinux.org/)
+* [Vim Tips Wiki](http://vim.wikia.com/wiki/Vim_Tips_Wiki) (một trang vô cùng có ích)
 
 [abs]: https://wiki.archlinux.org/index.php/Arch_Build_System
 [PKGBUILD]: https://wiki.archlinux.org/index.php/PKGBUILD
