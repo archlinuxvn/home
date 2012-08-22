@@ -115,11 +115,15 @@ code {
 }
 
 pre {
-  color: green;
+  color: white;
   background-color: black;
   padding: 1em;
   font-family: monospace;
   overflow-x: auto;
+}
+
+pre code {
+  color: white;
 }
 
 pre.license {
