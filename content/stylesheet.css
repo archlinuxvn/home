@@ -115,11 +115,15 @@ code {
 }
 
 pre {
-  color: green;
+  color: white;
   background-color: black;
   padding: 1em;
   font-family: monospace;
   overflow-x: auto;
+}
+
+pre code {
+  color: white;
 }
 
 pre.license {
@@ -132,5 +136,15 @@ pre.license {
 blockquote {
   margin-left: 0.5em;
   padding-left: 1em;
-  border-left: 1px solid gray;
+  border-left: 1px solid #ccc;
+}
+
+table {
+  width: 100%;
+  border:1px solid #ccc;
+}
+
+td {
+  border-top: 1px solid #ccc;
+  padding: 2px;
 }
