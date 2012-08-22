@@ -10,45 +10,37 @@ Bài này chỉ ra vài mẹo để lập trình python3 với vim.
 
 ## Build lại vim để hỗ trợ python 3
 
-Mặc định gói cài đặt vim trên archlinux được build không hỗ trợ cả python 2 và 3. Để kiểm tra điều này bạn hãy chạy lệnh `vim --version` sẽ thấy `-python -python3`, có nghĩa là không hỗ trợ. Vì xảy ra một vài xung đột giữa việc hỗ trợ python 2 và 3 trên vim.
+Mặc định gói cài đặt `vim` trên ArchLinux được biên dịch không hỗ trợ cả `Python 2` và `Python 3`. Để kiểm tra điều này bạn hãy chạy lệnh `vim --version` sẽ thấy `-python -python3`, có nghĩa là không hỗ trợ. Vì xảy ra một vài xung đột giữa việc hỗ trợ python 2 và 3 trên vim.
 
-Ví dụ cơ bản là bạn code hoàn toàn trên `python 3` (giống tôi) nhưng nếu để đuôi tệp tin là .py thì nó lại nhận là python 2, khá khó chịu (cá nhân ghét phải đặt đuôi tệp tin `python` là .py3).
+Ví dụ cơ bản là bạn code hoàn toàn trên `python 3` (giống tôi) nhưng nếu để đuôi tệp tin là `.py` thì nó lại nhận là `python 2`, khá khó chịu (cá nhân ghét phải đặt đuôi tệp tin `python` là `.py3`).
 
-`Maintainer`của gói vim đã quyết định build vim không hỗ trợ cả python 2 và 3. Đưa quyền quyết định cho người dùng. Và bạn sẽ gặp vấn đề là không thể dùng `auto-completion` (tự hoàn thiện) với code (mã) `python` trên vim. Trong khi đó là một trong những tính năng hữu dụng nhất của một `editor` (trình chỉnh sửa văn bản). Muốn dùng vim, muốn lập trình python 3. Còn chờ gì nữa, đi build lại vim thôi. Đọc thêm về `python` trong phần giúp đỡ trong `vim` (dùng `:help python`)
+`Maintainer`của gói vim đã quyết định biên dịch `vim` không hỗ trợ cả Python 2 và 3. Đưa quyền quyết định cho người dùng. Và bạn sẽ gặp vấn đề là không thể dùng `auto-completion` (tự hoàn thiện) với code (mã) `python` trên vim. Trong khi đó là một trong những tính năng hữu dụng nhất của một `editor` (trình chỉnh sửa văn bản). Muốn dùng vim, muốn lập trình python 3. Còn chờ gì nữa, đi biên dịch lại `vim` thôi. Đọc thêm về `python` trong phần giúp đỡ trong `vim` (dùng `:help python`)
 
-Tải mã nguồn về build? Ồ không, tại sao phải cực khổ thế chứ, và làm thế thì pacman sẽ không quản lí gói vim được, `archlinux` có hệ thống `abs (Arch Build System)`, tại sao bạn lại không dùng?
+Tải mã nguồn về biên dịch? Ồ không, tại sao phải cực khổ thế chứ, và làm thế thì pacman sẽ không quản lí gói vim được, `archlinux` có hệ thống `abs (Arch Build System)`, tại sao bạn lại không dùng?
 
 Để có thể dùng abs bạn phải cài đặt gói cùng tên: `abs`
-<pre>
-sudo pacman -S abs
-sudo abs
-</pre>
 
-Giờ bạn đã tệp tin `PKGBUILD` của tất cả các gói cài đặt trên `ArchLinux`, chúng nằm trong thư mục `/var/abs`
-Tìm hiểu thêm về [abs] [] và [PKGBUILD] [].
+    sudo pacman -S abs
+    sudo abs
 
-Tìm đến `PKGBUILD` của gói vim thôi. Nó nằm trong `/var/abs/extra/vim`
-Copy nó sang thư mục người dùng để việc build thuận tiện hơn
-<pre>
-cp -r /var/abs/extra/vim ~/
-cd ~/vim
-</pre>
+Giờ bạn đã tệp tin `PKGBUILD` của tất cả các gói cài đặt trên `ArchLinux`, chúng nằm trong thư mục `/var/abs`. Tìm hiểu thêm về [abs] [] và [PKGBUILD] [].
+
+Tìm đến `PKGBUILD` của gói vim thôi. Nó nằm trong `/var/abs/extra/vim`. Chép nó sang thư mục người dùng để việc build thuận tiện hơn
+
+    cp -r /var/abs/extra/vim ~/
+    cd ~/vim
 
 Chỉnh sửa file `PKGBUILD` cho phù hợp nào. Mở nó lên bằng `vim` (chắc chắn rồi :)), còn cái nào vào đây nữa), tìm đến những dòng này
 
-<pre>
-# fix python name
-sed -i -e 's|vi_cv_path_python, python|vi_cv_path_python, python2|' \
-  vim-build/src/configure.in
-</pre>
+    # fix python name
+    sed -i -e 's|vi_cv_path_python, python|vi_cv_path_python, python2|' \
+      vim-build/src/configure.in
 
 và sửa lại thành thế này
 
-<pre>
-#fix python name
-# sed -i -e 's|vi_cv_path_python, python|vi_cv_path_python, python2|' \
-#  vim-build/src/configure.in
-</pre>
+    #fix python name
+    # sed -i -e 's|vi_cv_path_python, python|vi_cv_path_python, python2|' \
+    #  vim-build/src/configure.in
 
 Cách nhanh nhất là `:72,73s/^/#` (đừng hỏi cái này để làm gì)
 
@@ -61,52 +53,51 @@ sửa thành
 --enable-python3interp
 </pre>
 
-Vẫn là thêm cách nhanh hơn `:%s/--disable-python3interp/--enable-python3interp`
+Vẫn là thêm cách nhanh hơn `:%s/--disable-python3interp/--enable-python3interp`.
 
 Mọi thứ đã ổn, build và cài đặt thôi, với lệnh `makepkg -i`.
 
-## Lập trình trở nên dễ dàng hơn? Làm thế nào
+## Để việc lập trình dễ dàng hơn
 
 Dưới đây là vài mẹo để  việc lập trình trong Vim dễ dàng hơn ;)
 
 ### Vim plugins
 
 Bạn đã dùng vim thì không thể không biết đến `vim plugins` (những thành phần hỗ trợ vim). Chúng sẽ giúp việc lập trình trở nên `đơn giản` và `vui vẻ` hơn. Cài đặt và sử dụng chúng thôi. Ở bài này sẽ đề cập đến những plugin cần thiết cho việc lập trình python.
+
 Đầu tiên, luôn khuyên bạn nên sử dụng một `plugins manager` (trình quản lí thành phần hỗ trợ) để giúp việc cài đặt và sử dụng `plugin` dễ dàng hơn. Ở đây tôi dùng `Pathogen`, có một `plugin` tương tự là `Vundle`, bạn có thể tìm hiểu thêm. Và bạn  nên làm mới thư mục .vim của mình đi. Xóa tất cả mọi thứ trong đó đi (cân nhắc trước khi làm việc này). Xong làm theo các bước sau để cài đặt `Pathogen`
-<pre>
-mkdir -p ~/.vim/autoload ~/.vim/bundle
-curl -so ~/.vim/autoload/pathogen.vim https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
-</pre>
+    mkdir -p ~/.vim/autoload ~/.vim/bundle
+    curl -so ~/.vim/autoload/pathogen.vim \
+      https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+
 thêm dòng này vào `~/.vim.rc` để `pathogen` tự động nhận các plugin.
-<pre>
-call pathogen#infect()
-</pre>
+
+    call pathogen#infect()
 
 Giờ hãy cài đặt `plugin` vào `~/.vim/bundle` sử dụng chính các thư mục của `plugin` không phải copy này nọ vào `ftplugin` blah blah này nọ nữa.
 
 Giờ là cài đặt danh sách các plugin `tôi dùng`. Sử dụng `git` để có thể dễ dàng trong việc cập nhật, sao lưu (nếu cần) (sử dụng `git` thế nào thì bạn tự tìm hiểu)
-<pre>
-cd ~/.vim/
-git init
 
-git submodule add https://github.com/scrooloose/nerdtree.git bundle/nerdtree
-git submodule add https://github.com/fs111/pydoc.vim.git bundle/pydoc
-git submodule add https://github.com/ervandew/supertab.git bundle/supertab
-git submodule add https://github.com/vim-scripts/taglist.vim.git bundle/taglist
-git submodule add https://github.com/vim-scripts/pythoncomplete.git bundle/pythoncomplete
-git submodule add https://github.com/vim-scripts/TaskList.vim.git bundle/tasklist [optional]
-git submodule add https://github.com/fholgado/minibufexpl.vim.git bundle/minibufexpl
-git submodule add https://github.com/bartekd/better-snipmate-snippets.git bundle/snipmate-snippets
-git submodule add https://github.com/FromtonRouge/OmniCppComplete.git bundle/omnicppcomplete
-git submodule add https://github.com/alfredodeza/pytest.vim.git bundle/pytest
-git submodule add https://github.com/kevinw/pyflakes-vim.git bundle/pyflakes
-git submodule add https://github.com/vim-scripts/pep8.git bundle/pep8 [optional]
+    cd ~/.vim/
+    git init
 
-git submodule init
-git submodule update
-git submodule foreach git submodule init
-git submodule foreach git submodule update
-</pre>
+    git submodule add https://github.com/scrooloose/nerdtree.git bundle/nerdtree
+    git submodule add https://github.com/fs111/pydoc.vim.git bundle/pydoc
+    git submodule add https://github.com/ervandew/supertab.git bundle/supertab
+    git submodule add https://github.com/vim-scripts/taglist.vim.git bundle/taglist
+    git submodule add https://github.com/vim-scripts/pythoncomplete.git bundle/pythoncomplete
+    git submodule add https://github.com/vim-scripts/TaskList.vim.git bundle/tasklist [optional]
+    git submodule add https://github.com/fholgado/minibufexpl.vim.git bundle/minibufexpl
+    git submodule add https://github.com/bartekd/better-snipmate-snippets.git bundle/snipmate-snippets
+    git submodule add https://github.com/FromtonRouge/OmniCppComplete.git bundle/omnicppcomplete
+    git submodule add https://github.com/alfredodeza/pytest.vim.git bundle/pytest
+    git submodule add https://github.com/kevinw/pyflakes-vim.git bundle/pyflakes
+    git submodule add https://github.com/vim-scripts/pep8.git bundle/pep8 [optional]
+
+    git submodule init
+    git submodule update
+    git submodule foreach git submodule init
+    git submodule foreach git submodule update
 
 Và dưới đây là giải thích phần nào về lợi ích của việc xài các plugin ở trên
 
@@ -114,10 +105,9 @@ Và dưới đây là giải thích phần nào về lợi ích của việc xà
 
 Việc này giúp chúng ta xem code dễ dàng hơn, các code không cần thiết sẽ được nhóm lại, hệt như các `IDE` vẫn làm, tuy nhiên đây là một editor nên mọi việc hơi khó khăn tí.
 thêm những dòng này vào `~/.vim.rc`
-<pre>
-set foldmethod=indent
-set foldlevel=99
-</pre>
+
+    set foldmethod=indent
+    set foldlevel=99
 
 Sử dụng? Dùng `za` để đóng và mở code dựa theo indent (chỗ thụt vào).
 
@@ -129,10 +119,7 @@ Sử dụng? Dùng `za` để đóng và mở code dựa theo indent (chỗ th�
     Chia theo chiều ngang: <C-w>s hoặc `:split`
     Đóng: <C-w>q hoặc :quit (:q)
 
-
-Để di chuyển giữa các cửa sổ đó thì bạn phải dùng tổ hợp `\<C-w\>\<phím di chuyển\>`. Để dễ dàng hơn tại sao ta không dùng `\<C-phím di chuyển\>`.
-Thêm vào `~/.vimrc`
-
+Để di chuyển giữa các cửa sổ đó thì bạn phải dùng tổ hợp `<C-w><phím di chuyển>`. Để dễ dàng hơn tại sao ta không dùng `<C-phím di chuyển>`. Thêm vào `~/.vimrc`
 
     map <C-j> <C-w>j
     map <C-k> <C-w>k
@@ -143,23 +130,15 @@ Giờ mọi việc đã dễ dàng hơn rất nhiều và thao tác cũng nhanh 
 
 ### Snippets
 
-Cho phép ta định nghĩa những cấu trúc có sẵn khi code. Ví dụ:
-
-    def<tab>
-
-    trở thành:
-
-    def name(data):
-
+Cho phép ta định nghĩa những cấu trúc có sẵn khi code. Ví dụ: khi gõ vào `def<tab>` thì nội dung sẽ xuất hiện kết quả cuối cùng `def name(data):`
 
 Bạn có thể sửa, thêm mới trong `~/.vim/bundle/snipmate-snippets/snippets/python`. Xem các tệp tin có sẵn để xem cấu trúc.
 
-Tùy chọn: Tạo snippet cho pdb (python debugger) `(chưa thử)`. Tạo tệp tin `pdb.snippet`
-<pre>
-import pdb; pdb.set_trace()
-</pre>
+Tùy chọn: Tạo `snippet` cho `pdb` (`python debugger`) _(TODO: chưa thử)_. Tạo tệp tin `pdb.snippet`
 
-Xem thêm về [pdb](http://docs.python.org/py3k/library/pdb.html)
+  import pdb; pdb.set_trace()
+
+Xem thêm về [pdb] [].
 
 **Chú ý:** Để có thể debug chương trình python có thể dùng gói [pydb](http://bashdb.sourceforge.net/pydb/) có sẵn trên repo của archlinux (cái này giống với gcc)
 
@@ -184,81 +163,85 @@ Và tốt hơn là bạn nên tắt chức năng `quickfix` đi (cái này để
 
 ### Tab completion
 
-Phần trông đợi nhất, việc lập trình dễ dàng hay không phần nhiều là ở đây, chúng ta đã cài đặt plugin `supertab` giờ đây \<tab\> \<S-tab\> có thể thay thế cho cả \<C-p\>, \<C-n\>, \<C-x\>\<C-u\>
+Phần trông đợi nhất, việc lập trình dễ dàng hay không phần nhiều là ở đây, chúng ta đã cài đặt plugin `supertab` giờ đây `<tab> <S-tab>` có thể thay thế cho cả `<C-p>`, `<C-n>`, `<C-x><C-u>`
 Bật chế độ completion lên thôi. Thêm vào `.vim.rc`
 <pre>
 autocmd FileType python set omnifunc=pythoncomplete#Complete
 let g:SuperTabDefaultCompletionType = "context"
 set completeopt=menuone,longest
 </pre>
-<b>*Tùy chọn</b> preview ở completeopt sẽ hiện thông tin về completion ở cửa sổ phía trên. Cá nhân mình nghĩ nó không cần thiết.
 
-<b>Ví dụ</b>
+Tùy chọn `preview` ở `completeopt` sẽ hiện thông tin về completion ở cửa sổ phía trên. Cá nhân mình nghĩ nó không cần thiết.
+
+**Ví dụ**
 
     shoplist.<tab> --> append
     Cửa sổ phía trên sẽ hiện
     L.append(object) -- append object to end
 
-
-Vậy `pydoc` để làm gì? Đi chuyển con trỏ đến một `module` và `pw` thử xem nào :). Nó sẽ hiện thông tin cho bạn về module đó trên một cửa sổ khác. Việc này giúp tra cứu nhanh hơn, tuy nhiên bạn vẫn có thể làm việc này với lệnh `help()` sau khi chạy `python` trên `terminal`.
+Vậy `pydoc` để làm gì? Đi chuyển con trỏ đến một `module` và `pw` thử xem nào :big_smile: Nó sẽ hiện thông tin cho bạn về module đó trên một cửa sổ khác. Việc này giúp tra cứu nhanh hơn, tuy nhiên bạn vẫn có thể làm việc này với lệnh `help()` sau khi chạy `python` trên `terminal`.
 
 ### Những tính năng bổ sung cần thiết
 
 Vài thứ linh tinh nhưng rất có ích
 
-* `Buffers`: Mọi thứ được quăng vào buffer, dễ dàng hơn trong thao tác. Di chuyển giữa các buffer: `:b<số thứ tự>`. Đóng buffer: `:bw`
-* `NERDTree`: Duyệt tệp tin ngay trong vim (`NERDTree`). Có thể dùng lệnh `:NERDTreeToggle` hoặc gán tổ hợp phím bạn thích bằng `nmap <F3> :NERDTreeToggle<CR>`
-* `Taglist`: Duyệt qua các tag (tên module, biến, class...). Lệnh `:TlistToggle` hoặc `gán tổ hợp phím bạn thích bằng nmap <F2> :TlistToggle<CR>`
+* `Buffers`:
+  Mọi thứ được quăng vào buffer, dễ dàng hơn trong thao tác. Di chuyển giữa các buffer: `:b<số thứ tự>`. Đóng buffer: `:bw`
+* `NERDTree`:
+  Duyệt tệp tin ngay trong vim (`NERDTree`). Có thể dùng lệnh `:NERDTreeToggle` hoặc gán tổ hợp phím bạn thích bằng `nmap <F3> :NERDTreeToggle<CR>`
+* `Taglist`:
+  Duyệt qua các tag (tên module, biến, class...). Lệnh `:TlistToggle` hoặc `gán tổ hợp phím bạn thích bằng nmap `<F2>` :TlistToggle<CR>`
 
 ## Linh tinh
 
 * Nên đọc kĩ bài viết ở blog mình đưa và tìm hiểu thêm về
   * `pytest plugin`
-  * `tích hợp git vào vim`
-  * `gundo plugin để xem xét các thay đổi gần đây, cấu trúc như git commit vậy`
-  * `tìm kiếm thông minh (fuzzy search)` (Với mình grep là đủ rồi)
+  * tích hợp git vào vim
+  * `gundo plugin` để xem xét các thay đổi gần đây, cấu trúc như `git commit` vậy
+  * tìm kiếm thông minh (`fuzzy search`) _(Với mình grep là đủ rồi)_
   * `Django` (Đang tìm hiểu)
   * `TaskList`
 * Sử dụng `:help <something>` với những vấn đề bạn cần tìm hiểu mà mình không thể nêu hết ở trên
 * Nếu bạn gặp vấn đề ở phần `syntax highlight` với `pythoncomplete` thì làm theo dưới đây
-<pre>
-curl -so ~/.vim/autoload/python3complete.vim http://lilydjwg.is-programmer.com/user_files/lilydjwg/File/python3complete.vim
 
-# Sửa lại trong .vimrc
-autocmd FileType python set omnifunc=pythoncomplete#Complete
+      curl -so ~/.vim/autoload/python3complete.vim \
+        http://lilydjwg.is-programmer.com/user_files/lilydjwg/File/python3complete.vim
 
-# thành (chú ý python và python3)
-autocmd FileType python set omnifunc=python3complete#Complete
-</pre>
-* `<leader>` là `\`
-* Về PEP8 (Đang tìm hiểu)
-Một plugin nữa là pep8. Plugin này giúp validate code bạn theo chuẩn [PEP8](http://www.python.org/dev/peps/pep-0008/) và hiện ra trong cửa sổ quickfix
+      # Sửa lại trong .vimrc
+      autocmd FileType python set omnifunc=pythoncomplete#Complete
+
+      # thành (chú ý python và python3)
+      autocmd FileType python set omnifunc=python3complete#Complete
+
+  với `<leader>` là `\`
+* Về PEP8 (Đang tìm hiểu):
+  Một plugin nữa là pep8 giúp kiểm tra mã nguồn theo chuẩn [PEP8] [] và hiện ra trong cửa sổ `quickfix`
 * Bạn phải cài đặt `pep8` trước khi có thể sử dụng plugin này
-  * Thông qua [aur](https://aur.archlinux.org/packages.php?ID=30140\&detail=1)
-  * Thông qua [git](https://github.com/jcrocholl/pep8)
-  * [Từ trang chủ](http://pypi.python.org/pypi/pep8/#downloads)
-* Đặt tổ hợp phím cho dễ sử dụng. Hoặc sử dụng mặc định là `<F5>`  
+  thông qua [aur](https://aur.archlinux.org/packages.php?ID=30140\&detail=1),
+  [git](https://github.com/jcrocholl/pep8), hoặc tải về [từ trang chủ](http://pypi.python.org/pypi/pep8/#downloads)
+* Đặt tổ hợp phím cho dễ sử dụng. Hoặc sử dụng mặc định là `<F5>`
 
-    let g:pep8_map=`<leader>8`
+      let g:pep8_map=`<leader>8`
 
-với `<leader>` là phím `\`
+  với `<leader>` là phím `\`
 
 ## Ghi chú của tác giả
 
 * Bài viết hoàn toàn là dựa trên quan điểm cá nhân, chỉ mang tính chất tham khảo. Đừng thụ động, hãy tùy biến mọi thứ theo cách của riêng mình.
 * Mặc định trước khi đọc và làm theo bài này bạn đã có thể tùy chỉnh vim một cách cơ bản và thuận tiện với mình.
-* Bạn sử dụng vim với python3, không phải python2. Đừng đặt câu hỏi liên quan đến python2, hãy tự tìm hiểu thêm dựa trên bài này.
-* Bạn không muốn tốn nhiều công sức như vậy, lời khuyên của mình là bạn hãy chọn: EClipse IDE + Vrapper + Pydev. Bạn sẽ có những thứ để code python thuận tiện nhất với key binding cơ bản của vim. Có một dự án là Eclim (Eclipse + Vim), bạn có thể tìm hiểu.
-* Mọi ý kiến đóng góp, câu hỏi được hoan nghênh. Nhưng hãy nhớ "đặt câu hỏi một cách thông minh".
+* Bạn sử dụng vim với `python3`, không phải `python2`. Đừng đặt câu hỏi liên quan đến `python2`, hãy tự tìm hiểu thêm dựa trên bài này.
+* Bạn không muốn tốn nhiều công sức như vậy, lời khuyên của mình là bạn hãy chọn tổ hợp `EClipse IDE`, `Vrapper` và `Pydev`. Bạn sẽ có những thứ để lập trình `python` thuận tiện nhất với `key binding` cơ bản của vim. Có một dự án là `Eclim` (`Eclipse` + `Vim`), bạn có thể tìm hiểu.
+* Mọi ý kiến đóng góp, câu hỏi được hoan nghênh. Hãy nhớ *đặt câu hỏi một cách thông minh*.
 
 ## Tài liệu tham khảo
 
 Các tài liệu tham khảo có ích
 
 * [Vim-python](http://blog.sontek.net/blog/detail/turning-vim-into-a-modern-python-ide)
-    (bài viết của mình gần như là bản dịch rút gọn từ bài này ra)
-* [ArchLinux Forum](https://bbs.archlinux.org/)
-* [Vim Tips Wiki](http://vim.wikia.com/wiki/Vim_Tips_Wiki) (một trang vô cùng có ích)
+    _(bài viết của mình gần như là bản dịch rút gọn từ bài này ra)_
+* [Vim Tips Wiki](http://vim.wikia.com/wiki/Vim_Tips_Wiki) _(một trang vô cùng có ích)_
 
 [abs]: https://wiki.archlinux.org/index.php/Arch_Build_System
 [PKGBUILD]: https://wiki.archlinux.org/index.php/PKGBUILD
+[PEP8]: http://www.python.org/dev/peps/pep-0008/
+[pdb]: http://docs.python.org/py3k/library/pdb.html
