@@ -1,9 +1,11 @@
-# INTRODUCTION
+---
+title: Fetching list of smilies
+---
 
 `n0b0dy` often uses some smilies from foreign forum.
 We need a simple smilies support.
 
-# FETCH LIST OF SMILIES
+## Fetching list of smilies
 
 The following script was used to fetch all smilies from known posts.
 This script is provided here for educational purpose. :adore:
