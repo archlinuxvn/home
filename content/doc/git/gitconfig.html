@@ -43,56 +43,55 @@ Bạn cũng thấy là bạn có thể chọn tên tùy ý. Đây thực tế l�
 bạn luôn có thể `mạo danh` người khác. Nhưng đừng làm thế; hãy chọn cho
 chính bạn một `nickname` thật kêu, thật đáng nhớ với mọi người nhé.
 
-<pre>
-# Purpose: Sample configuration for git client
-# Author : Anh K. Huynh
-# License: Fair license
-# Date   : Somedays (MLTR)
+    #!ini
+    # Purpose: Sample configuration for git client
+    # Author : Anh K. Huynh
+    # License: Fair license
+    # Date   : Somedays (MLTR)
 
-[user]
+    [user]
 
-name = icy
-email = kyanh@viettug.org
+    name = icy
+    email = kyanh@viettug.org
 
-[color]
+    [color]
 
-branch = auto
-diff = auto
-status = auto
+    branch = auto
+    diff = auto
+    status = auto
 
-[alias]
+    [alias]
 
-pu = push
-pl = pull
-ci = commit
-di = diff --color-words
-st = status -uno
-stt = status
-co = checkout
-br = branch
-lg = log -p
-logf = log --follow
-lol = log --graph --decorate --pretty=oneline --abbrev-commit
-lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
-ls = ls-files
-mg = merge
+    pu = push
+    pl = pull
+    ci = commit
+    di = diff --color-words
+    st = status -uno
+    stt = status
+    co = checkout
+    br = branch
+    lg = log -p
+    logf = log --follow
+    lol = log --graph --decorate --pretty=oneline --abbrev-commit
+    lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+    ls = ls-files
+    mg = merge
 
-[color "branch"]
+    [color "branch"]
 
-current = white
-local = magenta
-remote = cyan
+    current = white
+    local = magenta
+    remote = cyan
 
-[color "diff"]
+    [color "diff"]
 
-meta = yellow bold
-frag = magenta bold
-old = red bold
-new = green bold
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
 
-[color "status"]
+    [color "status"]
 
-added = yellow
-changed = green
-untracked = cyan
-</pre>
+    added = yellow
+    changed = green
+    untracked = cyan
