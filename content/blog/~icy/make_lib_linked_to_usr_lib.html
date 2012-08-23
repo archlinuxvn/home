@@ -43,13 +43,12 @@ Thư mục `/lib/` chứa các thư viện liên kết động cần cho tất c
 và chương trình có dùng liên kết động trên hệ thống. Thiếu thư mục `/lib/`,
 hệ thống không khởi động được, và hầu hết các chương trình trên hệ thống
 sẽ bị `chết`. Bởi vì, lấy ví dụ chương trình `pacman`:
-<pre>
-$ ldd /usr/bin/pacman |grep ' /lib'
-    libc.so.6 => /lib/libc.so.6 (0xb7507000)
-    librt.so.1 => /lib/librt.so.1 (0xb71dd000)
-    libpthread.so.0 => /lib/libpthread.so.0 (0xb7148000)
-    libdl.so.2 => /lib/libdl.so.2 (0xb70bb000)
-</pre>
+
+    $ ldd /usr/bin/pacman |grep ' /lib'
+        libc.so.6 => /lib/libc.so.6 (0xb7507000)
+        librt.so.1 => /lib/librt.so.1 (0xb71dd000)
+        libpthread.so.0 => /lib/libpthread.so.0 (0xb7148000)
+        libdl.so.2 => /lib/libdl.so.2 (0xb70bb000)
 
 Một khi xóa đi `/lib/` thì còn gì để mà chạy nữa! **Đây chính là điểm mấu chốt:**
 để có thể gộp `/lib/` và `/usr/lib/` là một, phải có một thời điểm trung gian
@@ -61,12 +60,11 @@ cuối cùng!
 Nếu nhớ rằng có thể dùng `ldconfig` để điều chỉnh cách tìm kiếm các thư viện,
 ta có thể dùng mẹo sau:
 
-<pre>
-cp -r /lib/ /00lib/
-echo /00lib/ > /etc/ld.so.conf.d/00lib.conf
-ldconfig
-rm -rf /lib/
-</pre>
+    #!bash
+    cp -r /lib/ /00lib/
+    echo /00lib/ > /etc/ld.so.conf.d/00lib.conf
+    ldconfig
+    rm -rf /lib/
 
 Thật đơn giản! Chỉ bằng việc dùng `ldconfig` để đảm rằng các thư viện bên
 trong `/00lib/` sẽ được tìm kiếm đầu tiên là xong, ta có thể yên tâm xóa
@@ -86,20 +84,19 @@ có mỗi một tập tin `/bin/busybox`, và tập tin này chả cần (quái)
 thư viện bên trong `/lib/` hay `/usr/lib`. Bởi vì đó là một chương trình
 được biên dịch theo kiểu tĩnh (`statically linked`)
 
-<pre>
-$ pacman -Ql busybox
-busybox /bin/
-busybox /bin/busybox
+    #!bash
+    $ pacman -Ql busybox
+    busybox /bin/
+    busybox /bin/busybox
 
-$ ldd /bin/busybox
-        not a dynamic executable
+    $ ldd /bin/busybox
+            not a dynamic executable
 
-$ file /bin/busybox
-/bin/busybox: ELF 32-bit LSB executable,
-  Intel 80386, version 1 (SYSV),
-  statically linked, for GNU/Linux 2.6.32,
-  BuildID[sha1]=0x1500e79b35b24e8781672524362ce71bbe5e1bfe, stripped
-</pre>
+    $ file /bin/busybox
+    /bin/busybox: ELF 32-bit LSB executable,
+      Intel 80386, version 1 (SYSV),
+      statically linked, for GNU/Linux 2.6.32,
+      BuildID[sha1]=0x1500e79b35b24e8781672524362ce71bbe5e1bfe, stripped
 
 Chính nhờ `busybox` mà bạn sẽ đi qua giai đoạn trung gian cực kỳ dễ dàng.
 Hãy thử xem nhé. Dưới đây là tất cả các bước bạn phải làm, không cần
@@ -107,18 +104,17 @@ quan tâm thư viện nào thuộc gói này. Khả năng thành công là `99%`
 _(Tất nhiên, tác giả phải dành `1%` còn lại để  không bị la mắng là đã hướng dẫn
 ... tầm bậy ;)_
 
-<pre>
-pacman -Syv                    # đảm bảo lấy gói mới nhất
-pacman -S busybox rsync        # quên là không được đâu nhé
-rsync -rapv /lib/ /usr/lib/    # chuyển hết thư viện vào /usr/lib/
-mv /lib/ /lib.backup/          # bước trung gian chết chóc
-busybox ln -s /usr/lib/ /lib   # ... bằng cú nhảy ngọt ngào
-# rm -rf /usr/lib/modules/     # xem phần chú ý
-ldconfig                       # cũng chả cần bước này đâu
-pacman -Suv                    # nâng cấp hệ thống thôi
-pacman -Sf glibc linux         # chả việc gì phải lăn tăn. Cứ --force
-rm -rf /lib.backup/            # tạm biệt chim én
-</pre>
+    #!bash
+    pacman -Syv                    # đảm bảo lấy gói mới nhất
+    pacman -S busybox rsync        # quên là không được đâu nhé
+    rsync -rapv /lib/ /usr/lib/    # chuyển hết thư viện vào /usr/lib/
+    mv /lib/ /lib.backup/          # bước trung gian chết chóc
+    busybox ln -s /usr/lib/ /lib   # ... bằng cú nhảy ngọt ngào
+    # rm -rf /usr/lib/modules/     # xem phần chú ý
+    ldconfig                       # cũng chả cần bước này đâu
+    pacman -Suv                    # nâng cấp hệ thống thôi
+    pacman -Sf glibc linux         # chả việc gì phải lăn tăn. Cứ --force
+    rm -rf /lib.backup/            # tạm biệt chim én
 
 Không cần giải thích gì thêm. Bởi vì mọi chuyện đã quá rõ ràng :)
 
@@ -133,9 +129,8 @@ bạn nằm ở đâu vì `mô-đun` dành cho `eth0` không có để mà nạp
 
 Do đó, ngay sau khi chạy `pacman -Suv`, bạn nhớ chạy lệnh sau để đảm bảo
 rằng cả hai gói `glibc` và `linux` đều được nâng cấp.
-<pre>
-pacman -Sf glibc linux
-</pre>
+
+    pacman -Sf glibc linux
 
 _(Tất nhiên, nếu bạn cố tình bỏ qua hai gói trên, thì bạn chả bao giờ phải
 cần đọc bài này, bởi vì sẽ không có chuyện nhập hai thư mục; tuy nhiên,
@@ -150,10 +145,9 @@ tại. Có thể xảy ra xung đột khi bạn nâng cấp gói `linux`, vì do
 lắp thư mục. Khi đó, bạn chuyển thư mục trùng lắp qua dạng sao lưu trước
 khi tiếp tục. Ví dụ, nếu nhân cũ là `3.4.x` và nhân mới cũng `3.4.x`, bạn
 có thể cần
-<pre>
-mv /usr/lib/modules/3.4-ARCH/ /usr/lib/modules/3.4-ARCH.backup/
-pacman -Sf glibc linux
-</pre>
+
+    mv /usr/lib/modules/3.4-ARCH/ /usr/lib/modules/3.4-ARCH.backup/
+    pacman -Sf glibc linux
 
 Sau khi an toàn thì có thể xóa đi thư mục sao lưu `.backup` ở trên.
 Tác giả bài viết thì chọn các đơn giản hơn là ... xóa luôn đi toàn bộ

@@ -61,9 +61,8 @@ tìm lên trang chủ của ArchLinux tải về tập tin `.iso`,
 hoặc lấy từ các bản đã có trên máy của bạn, rồi dùng lệnh `dd` để chuyển
 dữ liệu ra USB như sau
 
-<pre>
-dd if=/path/to/iso/file of=/dev/my-usb
-</pre>
+{:.sh}
+    dd if=/path/to/iso/file of=/dev/my-usb
 
 với `my-usb` có thể là `sdb`, `sdc`,... tùy trường hợp. Bạn phải chọn đúng
 vì lệnh `dd` dù thành công hay dang dở cũng khiến cho bạn mất sạch dữ liệu
@@ -152,9 +151,9 @@ Với máy Y, khởi động từ USB, gõ `/arch/setup` để bắt đầu cài
 
 * `(Y)`: Bắt đầu chuyển đổi dữ liệu bằng `rsync` như sau đây. Với thư mục
   `/X/boot`, bạn gõ vào lệnh
-<pre>
-rsync -rapv --progress root@ip_of_X:/X/root/ /Y/root/
-</pre>
+
+      rsync -rapv --progress \
+        root@ip_of_X:/X/root/ /Y/root/
 
 * _(Lưu ý là trong lệnh trên, cuối mỗi thư mục đều có dấu `/`.)_
   `(Y)`: Bây giờ, khi lệnh ở trên đang chạy, bạn gõ vào `Alt F2` để chuyển qua
@@ -177,10 +176,10 @@ rsync -rapv --progress root@ip_of_X:/X/root/ /Y/root/
 * Nếu máy X không có phân vùng `boot` riêng, còn máy mới lại có, thì rõ
   ràng bây giờ chẳng có gì trong `/Y/boot/`. Bạn chuyển mọi thứ trong
   `/Y/root/boot/` qua đó là xong, bằng các lệnh sau
-<pre>
-rsync -rapv --delete /Y/root/boot/ /Y/boot/
-rm -rfv /Y/boot/*
-</pre>
+
+  {:.sh}
+      rsync -rapv --delete /Y/root/boot/ /Y/boot/
+      rm -rfv /Y/boot/*
 
   _(Lệnh sau cùng đảm bảo rằng `/Y/root/boot` sạch sẽ, vì nó sẽ không được
   dùng nữa.)_
@@ -231,13 +230,11 @@ máy `Y` chứ không phải máy `X`. Gợi ý:
   `/root/`, `/boot/` (nếu có), `/var` (nếu có), tạm thời bỏ qua phân vùng
   `/home/`. Dưới đây là mẫu thực tế của một máy dùng phân vùng `/boot/` riêng.
 
-<pre>
-devpts    /dev/pts devpts defaults                     0 0
-none      /dev/shm tmpfs  defaults,noexec,nodev,nosuid 0 0
-/dev/sda2 /        ext3   defaults                     0 1
-/dev/sda1 /boot    ext3   defaults                     0 1
-/dev/sda4 /home    ext4   defaults                     1 1
-</pre>
+      devpts    /dev/pts devpts defaults                     0 0
+      none      /dev/shm tmpfs  defaults,noexec,nodev,nosuid 0 0
+      /dev/sda2 /        ext3   defaults                     0 1
+      /dev/sda1 /boot    ext3   defaults                     0 1
+      /dev/sda4 /home    ext4   defaults                     1 1
 
   _(Trong tập tin `/Y/root/etc/fstab` các dòng chỉ chứa khoảng trắng hoặc bắt
   đầu bằng dấu thăng `#` là dòng chú thích, không có nghĩa gì với hệ thống.)_
@@ -285,16 +282,15 @@ Trong khi chỉnh `kernel`, thì lưu ý
   Trước tiên, thực hiện kết nối `binding` cho `proc` và `dev` như sau
   đây, để sau khi `chroot` vào các thông tin về ổ cứng, tiến trình còn
   có hiệu lực:
-<pre>
-mkdir /Y/root/dev/  /Y/root/proc
-mount -o bind /dev  /Y/root/dev
-mount -o bind /proc /Y/root/proc
-</pre>
+
+      #!bash
+      mkdir /Y/root/dev/  /Y/root/proc
+      mount -o bind /dev  /Y/root/dev
+      mount -o bind /proc /Y/root/proc
 
 * Tiếp theo, nếu `/boot/` dùng phân vùng riêng, thì bạn kết nối tiếp
-<pre>
-mount -o bind /Y/boot/ /Y/root/boot/
-</pre>
+
+      mount -o bind /Y/boot/ /Y/root/boot/
 
 * Tiến hành `chroot` vào hệ thống bằng lệnh `chroot /Y/root`. Sau đó,
   nếu dùng `grub-{1,2}`, bạn thi  hành lệnh `grub-install /dev/sda` để
