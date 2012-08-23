@@ -148,3 +148,34 @@ td {
   border-top: 1px solid #ccc;
   padding: 2px;
 }
+
+table.CodeRay {
+  border: 0px solid #ccc;
+  padding: 0px;
+}
+
+table.CodeRay pre {
+  padding: 0em;
+}
+
+table.CodeRay td {
+  border: 0px solid #ccc;
+}
+
+table.CodeRay td.line-numbers {
+  border: 0px solid gray;
+  padding-right: 5px;
+}
+
+table.CodeRay td.line-numbers a,
+table.CodeRay td.line-numbers a:link,
+table.CodeRay td.line-numbers a:visited,
+table.CodeRay td.line-numbers a:hover {
+  font-family: monospace;
+}
+
+table.CodeRay td.code {
+  border: 0px solid gray;
+  padding: 0px;
+  margin: 0px;
+}

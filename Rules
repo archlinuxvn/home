@@ -39,6 +39,7 @@ compile '/changes/' do
   filter :erb
   filter :kramdown
   filter :wiki
+  filter :colorize_syntax, :coderay => { :line_numbers => :table }
   layout 'default'
 end
 
@@ -46,6 +47,7 @@ compile '/tags/*' do
   filter :erb
   filter :kramdown
   filter :wiki
+  filter :colorize_syntax, :coderay => { :line_numbers => :table }
   layout 'default'
 end
 
@@ -55,6 +57,7 @@ compile '*' do
   else
     filter :kramdown
     filter :wiki
+    filter :colorize_syntax, :coderay => { :line_numbers => :table }
     layout 'default'
   end
 end
