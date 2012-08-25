@@ -19,7 +19,7 @@ Mặc định gói cài đặt `vim` trên ArchLinux được biên dịch khôn
 
 Ví dụ cơ bản là bạn code hoàn toàn trên `python 3` (giống tôi) nhưng nếu để đuôi tệp tin là `.py` thì nó lại nhận là `python 2`, khá khó chịu (cá nhân ghét phải đặt đuôi tệp tin `python` là `.py3`).
 
-`Maintainer`của gói vim đã quyết định biên dịch `vim` không hỗ trợ cả Python 2 và 3. Đưa quyền quyết định cho người dùng. Và bạn sẽ gặp vấn đề là không thể dùng `auto-completion` (tự hoàn thiện) với code (mã) `python` trên vim. Trong khi đó là một trong những tính năng hữu dụng nhất của một `editor` (trình chỉnh sửa văn bản). Muốn dùng vim, muốn lập trình python 3. Còn chờ gì nữa, đi biên dịch lại `vim` thôi. Đọc thêm về `python` trong phần giúp đỡ trong `vim` (dùng `:help python`)
+`Maintainer` của gói vim đã quyết định biên dịch `vim` không hỗ trợ cả Python 2 và 3. Đưa quyền quyết định cho người dùng. Và bạn sẽ gặp vấn đề là không thể dùng `auto-completion` (tự hoàn thiện) với code (mã) `python` trên vim. Trong khi đó là một trong những tính năng hữu dụng nhất của một `editor` (trình chỉnh sửa văn bản). Muốn dùng vim, muốn lập trình python 3. Còn chờ gì nữa, đi biên dịch lại `vim` thôi. Đọc thêm về `python` trong phần giúp đỡ trong `vim` (dùng `:help python`)
 
 Tải mã nguồn về biên dịch? Ồ không, tại sao phải cực khổ thế chứ, và làm thế thì pacman sẽ không quản lí gói vim được, `archlinux` có hệ thống `abs (Arch Build System)`, tại sao bạn lại không dùng?
 
@@ -184,14 +184,14 @@ Tùy chọn `preview` ở `completeopt` sẽ hiện thông tin về completion �
     Cửa sổ phía trên sẽ hiện
     L.append(object) -- append object to end
 
-Vậy `pydoc` để làm gì? Đi chuyển con trỏ đến một `module` và `pw` thử xem nào :big_smile: Nó sẽ hiện thông tin cho bạn về module đó trên một cửa sổ khác. Việc này giúp tra cứu nhanh hơn, tuy nhiên bạn vẫn có thể làm việc này với lệnh `help()` sau khi chạy `python` trên `terminal`.
+Vậy `pydoc` để làm gì? Đi chuyển con trỏ đến một `module` và `<leader>pw` thử xem nào :big_smile: Nó sẽ hiện thông tin cho bạn về module đó trên một cửa sổ khác. Việc này giúp tra cứu nhanh hơn, nhất là khi `đọc mã (code)`. Tuy nhiên bạn vẫn có thể làm việc này với lệnh `help()` sau khi chạy `python` trên `terminal` hoặc dùng idle.
 
 ### Những tính năng bổ sung cần thiết
 
 Vài thứ linh tinh nhưng rất có ích
 
 * `Buffers`:
-  Mọi thứ được quăng vào buffer, dễ dàng hơn trong thao tác. Di chuyển giữa các buffer: `:b<số thứ tự>`. Đóng buffer: `:bw`
+  Mọi thứ được quăng vào buffer (bộ đệm), dễ dàng hơn trong thao tác với nhiều tệp tin cùng lúc. Di chuyển giữa các buffer: `:b<số thứ tự>`. Đóng buffer: `:bw`
 * `NERDTree`:
   Duyệt tệp tin ngay trong vim (`NERDTree`). Có thể dùng lệnh `:NERDTreeToggle` hoặc gán tổ hợp phím bạn thích bằng `nmap <F3> :NERDTreeToggle<CR>`
 * `Taglist`:
