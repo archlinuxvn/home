@@ -1,13 +1,11 @@
 ---
-title: Thay đổi gần đây
+title: Những bài viết mới nhất
 virtual: true
 ---
 
-## Những bài viết mới nhất
-
 <%= recent_posts %>
 
-## Những xác nhận gần nhất
+# Những xác nhận gần nhất
 
 Dưới đây là những thay đổi gần đây của trang chủ _(trên nhánh `master`)_
 ở dạng danh sách những xác nhận vào kho `git` ở `Github`.
