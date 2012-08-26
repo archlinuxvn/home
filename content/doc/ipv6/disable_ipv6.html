@@ -36,7 +36,7 @@ Như vậy, `curl` thường tốn hai bước để biết được địa ch�
 
 _(Tệ hơn nữa, nếu máy phân giải tên miền không được thiết kế đúng để xử lý
 các yêu cầu liên quan `ipv6`, thì `curl` sẽ chỉ dừng lại ở yêu cầu đầu tiên,
-và kết qủa là `curl` báo lỗi không tìm thấy tên miền `archlinuxvn`.
+và kết qủa là `curl` báo lỗi không tìm thấy tên miền `archlinuxvn.org`.
 Ta sẽ bàn kỹ hơn điều này trong [bài viết khác] [icy_mydns].)_
 
 Ngoài `curl`, những chương trình thực hiện tìm kiếm `ipv6` trước `ipv4`
@@ -46,9 +46,9 @@ còn có: `ssh`, `git`, `firefox`,...
 
 Cách đồng bộ nhất, nhưng khó thực hiện nhất: biên dịch lại [nhân Linux] [kernel],
 và tất cả các chương trình để bỏ đi hỗ trợ `ipv6`. Việc này có thể thực hiện
-trong Gentoo (FIXME), và có thể trong ArchLinux. Tuy nhiên, ý tưởng biên
-dịch lại mọi thứ có vẻ điên rồ, và sẽ chẳng giúp ích gì nếu bạn muốn trải
-nghiệm cả `ipv6` và `ipv4`.
+trong Gentoo (FIXME), và có thể trong ArchLinux _(nhờ ABS)_.
+Tuy nhiên, ý tưởng biên dịch lại mọi thứ có vẻ điên rồ,
+và sẽ chẳng giúp ích gì nếu bạn muốn trải nghiệm cả `ipv6` và `ipv4`.
 
 ### linux
 
