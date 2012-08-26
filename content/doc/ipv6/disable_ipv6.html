@@ -1,0 +1,119 @@
+---
+title: Không dùng ipv6
+allow_comment: yes
+tags: ['inet6', 'tuning', 'dns']
+---
+
+* TOC
+{:toc}
+
+----
+
+Khắp nơi đang chuẩn bị chuyển sang [ipv6] []. Nhưng cho tới khi việc
+chuyển đổi hoàn tất, việc dùng `ipv6` có khi là trở ngại vì nhiều chương
+trình chưa được hỗ trợ tốt, làm chậm kết nối, hay thậm chí chẳng thể
+hoạt động được.
+
+Bài viết này cung cấp vài cách để bỏ đi hỗ trợ `ipv6` trong các chương trình.
+
+## Một trong những lý do
+
+_Trả lời ngắn:_ Chậm
+
+_Trả lời dài dòng:_
+Khi chương trình của bạn kết nối vào mạng, công việc đầu tiên là tìm địa
+chỉ `IP` ứng với tên miền. Ví dụ, khi thi hành lệnh
+
+    curl -IL http://archlinuxvn.org/
+
+thì `curl` sẽ gửi yêu cầu `tìm địa chỉ IP của tên miền archlinuxvn` tới
+máy phân giải tên miền (được cho trong `/etc/resolv.conf`). Trừ khi có cài
+đặt cụ thể, `curl` yêu cầu tìm `địa chỉ IPv6`. Nếu máy phân giải tên miền
+trả lời không có _(chắc chắc không có với điều kiện hạ tầng mạng công cộng
+ở Việt Nam hiện nay)_, `curl` sẽ gửi tiếp yêu cầu `tìm địa chỉ IPv4`.
+
+Như vậy, `curl` thường tốn hai bước để biết được địa chỉ của tên miền.
+
+_(Tệ hơn nữa, nếu máy phân giải tên miền không được thiết kế đúng để xử lý
+các yêu cầu liên quan `ipv6`, thì `curl` sẽ chỉ dừng lại ở yêu cầu đầu tiên,
+và kết qủa là `curl` báo lỗi không tìm thấy tên miền `archlinuxvn`.
+Ta sẽ bàn kỹ hơn điều này trong [bài viết khác] [icy_mydns].)_
+
+Ngoài `curl`, những chương trình thực hiện tìm kiếm `ipv6` trước `ipv4`
+còn có: `ssh`, `git`, `firefox`,...
+
+## Tắt hỗ trợ ipv6
+
+Cách đồng bộ nhất, nhưng khó thực hiện nhất: biên dịch lại [nhân Linux] [kernel],
+và tất cả các chương trình để bỏ đi hỗ trợ `ipv6`. Việc này có thể thực hiện
+trong Gentoo (FIXME), và có thể trong ArchLinux. Tuy nhiên, ý tưởng biên
+dịch lại mọi thứ có vẻ điên rồ, và sẽ chẳng giúp ích gì nếu bạn muốn trải
+nghiệm cả `ipv6` và `ipv4`.
+
+### linux
+
+Tắt hỗ trợ `ipv6` từ bên trong nhân Linux bằng cách thêm dòng `ipv6.disable=1`
+vào dòng lệnh nạp nhân (lúc khởi động, nhờ `grub`, `lilo` hay `syslinux`).
+Cách khác là dùng `sysctl` lúc máy đang chạy, hoặc kể từ lúc máy khởi động
+
+    # cat /etc/sysctl.d/ipv6.conf
+
+    net.ipv6.conf.all.disable_ipv6 = 1
+    # net.ipv6.conf.eth0.disable_ipv6 = 1
+    # net.ipv6.conf.wlan0.disable_ipv6 = 1
+
+Nếu bạn dùng lệnh `sysctl`, bạn phải thực hiện cho từng `card` mạng
+_(trong ví dụ trên ta có `eth0` và `wlan0`)_
+
+**Lưu ý quan trọng:** ngay cả khi bạn tắt `ipv6` cho nhân theo cách trên,
+thì các chương trình được biên dịch với hỗ trợ `ipv6` vẫn không biết mà
+chúng cứ cố dùng `ipv6` trước _(như giải thích cho chương trình `curl` ở trên)_.
+Vì thế, bạn cần thực hiện tắt `ipv6` cho các chương trình cụ thể như trong
+các mục tiếp theo.
+
+### curl
+
+Để chỉ dùng địa chỉ `ipv4`, thêm tùy chọn `-4` hoặc `--ipv4`. Ví dụ,
+
+    curl -4IL http://archlinuxvn.org/
+
+Bạn cũng có thể sử dụng `~/.curlrc` để thiết lập cho mọi lệnh `curl`, bằng
+cách thêm dòng `--ipv4` vào tập tin đó.
+
+### ssh
+
+Thêm vào `/etc/ssh/ssh_config` hoặc `~/.ssh/config` dòng sau
+
+    Host *
+      AddressFamily inet
+
+(`inet` dùng để chỉ `ipv4` và `inet6` dùng để chỉ `ipv6`.) Dòng `Host *` sẽ
+có tác dụng cho tất cả các kết nối. Tuy nhiên, nếu chỉ muốn áp dụng thiết
+lập cho `host` cụ thể, bạn có thể dùng
+
+    Host example.net
+      AddressFamily inet
+
+(Xem thêm `man 5 ssh_config` để biết thêm chi tiết.)
+
+### git
+
+Thật không may, tác giả chưa tìm ra cách nào. Tài liệu `man 1 git` không
+đề cập tới việc dùng `ipv6`.
+
+### Firefox
+
+Trên thanh địa chỉ của trình duyệt, gõ vào `about:config` để đi đến trang
+liệt kê mọi cấu hình của Firefox. Tìm kiếm `ipv6` rồi chọn giá trị
+`true` cho biến `network.dns.disableIPv6`.
+
+## Linh tinh
+
+Trong quá trình viết [máy phân giải tên miền riêng] [icy_mydns], tác giải
+thấy rằng nhiều thư viện và chương trình không hoạt động do sự hỗ trợ
+`ipv6` không đồng bộ _(chỗ có, chỗ không)_. Cách đơn giản và mau lẹ là
+tắt đi `ipv6`, vừa nhanh, vừa tiện ;)
+
+[ipv6]: http://en.wikipedia.org/wiki/Ipv6
+[icy_mydns]: /blog/~icy/build_your_own_dns_resolver/
+[kernel]: /faq/what_is_linux/
