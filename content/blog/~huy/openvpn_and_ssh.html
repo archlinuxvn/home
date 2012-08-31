@@ -1,0 +1,81 @@
+---
+title: Openvpn and SSH Authentication
+allow_comment: yes
+---
+
+
+**Mục lục**
+
+1. ToC
+{:toc}
+
+----
+
+**Bài viết này để note lại những thứ linh tinh mà tôi đã làm và gặp phải, không phải bài viết hứơng dẫn chi tiết !**
+
+# OpenVPN:
+
+* Đối với máy khách, tập tin cấu hình ( trên Arch ) là `/etc/openvpn/client.conf`, để xem hướng dẫn cụ thể những gì nên ghi vào tập tin này:
+
+      man openvpn
+
+Ở đây, tôi muốn lưu ý đến hai dòng là
+
+      USER và GROUP
+
+Bạn sẽ phải khởi tạo một kết nối VPN bằng root. Lí do cho việc này là nó triệu gọi chương trình ip trong `/usr/sbin/ip` tạo các route và thiết bị tun0. Nhưng sau đó, để hạ đặc quyền, bạn có thể dùng user và group khai báo trong tập tin cấu hình để chuyển qua thay cho root. Nhưng việc này lại dẫn đến một sự cố dở hơi:
+
+Đó là, trong linux việc tắt một kêt nối là gọi `Ctrl^C (terminate)`. Việc này gọi đến `/usr/sbin/ip del` . Nhưng lệnh này chỉ gọi được với root để tắt tun0 interface. Trong khi tùy chọn `USER, GROUP` lại là `nobody` (tất nhiên bạn có thể chọn cái khác ). Nhưng nobody là nhóm không đặc quyền. Vì thế `/usr/sbin/ip` sẽ gọi một lệnh `kill` chứ không phải `terminate`.
+
+ 
+
+# PublickeyAthenticaion SSH
+
+Việc điều khiển từ xa vào một máy tính nào đó là nhu cầu cơ bản. thế nhưng một vấn đề đặt ra là: làm sao để cho một số người nhất định vào được mà thôi, trong trường hợp mật khẩu bị lộ ?
+
+Việc này được giải quyết bằng việc xác thực bằng `publickey`.
+
+ 
+
++ Tập tin `/etc/ssh/sshd_config`:
+
+      RSAAthentication yes
+
+      PublickeyAuthentication yes
+
+      AuthorizedKeysFile    %h/.ssh/authorized_keys
+
+ 
+
++ Tập tin `/home/user/authorized_keys`
+
+      echo "$your_public_key" > /home/user/.ssh/authorized_keys
+
++ Thay đổi lại quyền truy xuất:
+
+      chmod 700 /home/user
+
+      chmod 700 /home/user/.ssh
+
+      chmod 700 /home/user/.ssh/authorized_keys
+
+ 
+
++ Khởi động lại `sshd`:
+
+**Nếu quá trình đăng nhập bạn gặp phải lỗi dở hơi là `offering private key` nhưng bỏ qua việc xác thực bằng phrase key thì hãy nhơ kiểm tra lại phiên bản của 2 bản openssh trên hai máy đó**
+
+# Timeout:
+
++ Tập tin `/etc/ssh/ssh_conf`:
+
+      ServerAliveInterval 120
+
+      ServerAliveCountMax 0
+
++ Tập tin `/etc/sshd_conf`:
+
+      ClientAliveInterval 300
+
+      ClientAliveCountMax 0
+    
