@@ -14,11 +14,11 @@
 #            an official PKGBUILD in ArchLinux.
 #          * Old PKGBUILD for Connman was removed from AUR (sh!)
 #            You don't know how to get it to build the old one.
-#          * The last version of Connman that works with e17-svn
+#          * The last version of Connman that works with e17-svn is 0.76
 #          * The old code 0.76:
 #            - openvn supports doesn't work with the latest packages in Arch
 #            - `iptables.c` is out-of-date and it needs to be patched.
-#          * `iptables.c` in 0.79 can be built
+#          * `iptables.c` in 0.79 can be built. It is used in `iptables.diff`
 #          * Connman 0.78 can be built, can be installed and started, and
 #            e17 module can see the interfaces (wifi, ethernet) but these
 #            supports are disabled, and this version of connman can't start
