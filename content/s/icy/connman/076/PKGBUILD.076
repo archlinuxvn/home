@@ -1,4 +1,4 @@
-# Purpose: Build an old version of 0.76 to work with e17-svn (75246)
+# Purpose: Build connman 0.76 to get it work with e17-svn (75246)
 # Author : Anh K. Huynh
 # License: Fair license
 # Date   : 2012 Sep {07,08}
