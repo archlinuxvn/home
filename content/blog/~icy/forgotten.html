@@ -1,0 +1,44 @@
+---
+title: Viết để quên
+---
+
+Viết để quên, mấy cái mẹo lặt vặt vài hôm sẽ không còn dùng.
+
+* TOC
+{:toc}
+
+## E17 và Connman
+
+Đang bàn tới `e-svn` phiên bản `75246` _(ngày 7/9/2012)_.
+
+### Bài toán
+
+`connman` tích hợp rất tốt trong `e17`. Điều đáng buồn là bản mới nhất
+của `connman` thay đổi hoàn toàn cấu trúc gói tin `dbus` nên mô-đun cũ
+của `e17` không nhận ra các thông tin từ tiến trình `connman`. Đây chỉ
+là vấn đề của e17, vì mạng vẫn vào được với những thông tin đã có từ
+phiên bản cũ của `connman`. Tuy nhiên, để biên dịch lại và `vá` e17 là
+công việc chẳng đơn giản tí nào cả.
+
+Cách đơn giản là ... sử dụng lại phiên bản `connman-0.76`. Phiên bản này
+hỗ trợ `profile` _(sau này bị bỏ đi)_, là phiên bản cuối cùng được khẳng
+định làm việc tốt với `e-svn` phiên bản `75246`. Chú ý là hỗ trợ cho
+`openvn` sẽ không làm việc do `connman-0.76` sử dụng `API` cũ thư viện.
+
+### Biên dịch và cài Connman 0.76
+
+Bạn tải về  tất cả các tập tin từ địa chỉ [connman 0.76] [] về chung một thư
+mục trên máy, ví dụ `my-stupid-connman` rồi gõ lệnh `makepkg` là xong
+
+    mkdir my-stupid-connman && cd my-stupid-connman
+    _ROOT_URL=http://archlinuxvn.org/s/icy/connman/076/
+    _FILES="allow_group_network.diff iptables.diff PKGBUILD.076"
+    for _file in $_FILES; do wget $_ROOT_URL/$_file; done
+    makepkg -p PKGBUILD.076
+    sudo pacman -U connman-0.76-3-*.pkg.tar.xz
+
+Mất gần 4 tiếng đồng hồ để lựa chọn và biên dịch cho được gói này nên nếu
+bạn dùng theo mẹo trên thì nhớ gửi tác giả ít đồng uống cà phê ($2).
+
+[ARM]: http://arm.konnichi.com/search/
+[connman 0.76]: /s/icy/connman/076/
