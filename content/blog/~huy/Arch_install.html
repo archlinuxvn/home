@@ -69,11 +69,13 @@ X là số của thiết bị usb (nếu bạn cài bằng usb ) hoặc thay sdb
  
 + `Chroot` vào hệ thống mới:
 
-      chroot /mnt /bin/bash
-
       mount -t proc none /mnt/proc
 
       mount --rbind /dev /mnt/dev
+      
+      mount -t sysfs /sys /mnt/sys
+      
+      chroot /mnt /bin/bash
 
       grub
 
