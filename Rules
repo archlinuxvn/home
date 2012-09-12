@@ -51,6 +51,9 @@ compile '/tags/*' do
   layout 'default'
 end
 
+compile '/s/*' do
+end
+
 compile '*' do
   if item.binary?
     # don’t filter binary items
@@ -60,11 +63,6 @@ compile '*' do
     filter :colorize_syntax, :coderay => { :line_numbers => :table }
     layout 'default'
   end
-end
-
-compile '/tags/*/' do
-  filter :erb
-  layout '/default/'
 end
 
 route '/stylesheet/' do
