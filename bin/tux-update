@@ -27,7 +27,7 @@ _main() {
   cd $_D_TMP || die "Can't switch to $_TMP_DIR"
 
   msg "Downloading $_F_SRC from archlinuxvn.org"
-  rm -f $_D_TMP/$_F_SRC || die "Can't clean up the old file $_F_SRC"
+  rm -f $_D_TMP/$_F_SRC $_D_TMP/archlinuxvn.org/ || die "Can't clean up the old file $_F_SRC"
   wget http://m0.archlinuxvn.org/$_F_SRC -o /dev/null \
     || die "Can't download source file from archlinuxvn.org"
   msg "Extracting $_F_SRC"
