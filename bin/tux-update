@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Purpose: Update the page archlinuxvn.tuxfamily.org
+#          This script should run on Tuxfamily's node
+# Author : Anh  K. Huynh
+# Date   : 2012 Sep 13th
+# License: Fair license
+
+_D_TMP="$HOME/archlinuxvn/archlinuxvn.tuxfamily.org-web/tmp/"
+_D_DEST="$HOME/archlinuxvn/archlinuxvn.tuxfamily.org-web/htdocs/"
+_F_SRC="archlinuxvn.org.tgz"
+
+msg() {
+  echo "(tux) $*"
+}
+
+err() {
+  echo >&2 "(tux) $*"
+}
+
+die() {
+  err "$*"
+  exit 1
+}
+
+_main() {
+  cd $_D_TMP || die "Can't switch to $_TMP_DIR"
+
+  msg "Downloading $_F_SRC from archlinuxvn.org"
+  rm -f $_D_TMP/$_F_SRC || die "Can't clean up the old file $_F_SRC"
+  wget http://m0.archlinuxvn.org/$_F_SRC -o /dev/null \
+    || die "Can't download source file from archlinuxvn.org"
+  msg "Extracting $_F_SRC"
+  tar -xzf $_F_SRC
+  msg "Synchronizing files"
+  rsync -rap --delete $_D_TMP/archlinuxvn.org/ --exclude="irclog*" $_D_DEST/ \
+    || die "Can't synchronize files from the variant directory to $_D_DEST"
+}
+
+_main
