@@ -40,7 +40,7 @@ _setup() {
 
   source $HOME/bin/ssh-agent.sh >/dev/null 2>&1 || die "Can't load ssh configuration"
   msg "Testing ssh connection"
-  ssh -o ConnectTimeout=3 kyanh@ssh.tuxfamily.org uptime >/dev/null
+  echo ssh -o ConnectTimeout=3 kyanh@ssh.tuxfamily.org uptime >/dev/null
   if [[ $? -ge 1 ]]; then
     die "Can't make connect to remote server ssh.tuxfamily.org"
   fi
