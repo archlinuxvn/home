@@ -44,8 +44,20 @@ thêm chi tiết thì hãy xem trong mã nguồn của tập tin `PKGBUILD.076`.
 
 ### Thông tin khác
 
-Báo cáo lỗi ở trang phát triển của e17: [xem ở đây ] [e17-bug-report]
+Báo cáo lỗi ở trang phát triển của e17: [xem ở đây ] [e17-bug-report].
+Lỗi đã được chỉnh trong bản mới nhất của `e17`. Tuy nhiên, phiên bản này
+chưa được biên dịch cho ArchLinux.
+
+Một điều thú vị là một số lập trình viên của `e17` dùng ArchLinux cho công
+việc của họ. Điều này còn thể hiện ở các hướng dẫn cho gói [Entrance] []
+
+    edit rc.conf using your favorite text editor
+      vim /etc/rc.conf
+    Remove the startx daemon, and add the entranced daemon.
+    For example, extract of my rc.conf:
+      DAEMONS=(syslog-ng network netfs crond sshd alsa entranced fam)
 
 [ARM]: http://arm.konnichi.com/search/
 [connman 0.76]: /s/icy/connman/076/
 [e17-bug-report]: http://trac.enlightenment.org/e/ticket/1458
+[Entrance]: http://trac.enlightenment.org/e/wiki/Entrance
