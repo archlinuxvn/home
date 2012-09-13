@@ -1,0 +1,118 @@
+---
+title: e17 - Quê mờ cho gà mờ
+tags: ['e17', 'wm', 'draft']
+allow_comment: yes
+---
+
+Bài này điểm lại vài `wm` tác giả đã dùng, và giới thiệu khá chi tiết
+về `e17` (`enlightenment`.) Đây là tài liệu dài, sẽ được cập nhật
+thường xuyên cho tới khi tác giả hài lòng.
+
+`wm` là viết tắt của `window manager`. Đọc là `vê-kép-mờ`, nhưng tác
+giả hay nói ngọng `w` thành `quê` nên bài viết này có tiêu đề như bạn thấy.
+Đôi chỗ trong bài sẽ dùng `wm` cho cả `wm/dm`.
+
+* TOC
+{:toc}
+
+## wm/dm đã đùng
+
+Cũng khá là nhiều: `kde` (2001), `gnome` (200?),
+`blackbox` (2005), `fluxbox` (2005-2006), `openbox` (2008),
+`e17` (2010), `windows maker`, `xfce`, ...
+
+
+## e17 là gì
+
+Khoan nói `e17` là gì. Hãy nói là `mình cần gì`.
+
+## wm là vấn đề cá nhân
+
+Ngoài chuyện `wm` là vấn đề cá nhân, cần hiểu thêm là không có `wm` nào
+số một. Nếu thấy bạn bè dùng tốt thì có thể bạn dùng theo được. Nhưng bằng
+cách chuyển đổi giữa các môi trường làm việc khác nhau bạn sẽ thấy các nhu
+cầu thật sự của bản thân, các điểm hay dở của từng `wm`.
+
+Ví dụ,
+
+* `kde` thì quá đầy đủ tiện ích, đẹp, nhưng lại nặng nề, chậm chạp
+  và sẽ ngốn nhiều bin; Hoặc
+* `openbox` thì nhanh, gọn, nhẹ, đen thui trông rất là `geek`,
+  nhưng thử hỏi bạn gái của bạn có dùng được không? hoặc
+* `window maker` màu sắc và cách `decoration` rất đẹp, nhưng lại có nhiều
+  lỗi; hay
+* `xmonad` trông ngon thế nhưng bạn phải biết chút ít về ngôn ngữ lập
+  trình hàm Haskell để điều chỉnh cấu hình;
+* `xfce` có trò đính một cửa sổ vào một màn hình ảo cố định, nhưng thật
+  ra tính năng này gây phiền toái vì các cửa sổ luôn nhảy tới màn hình
+  ảo đang có `focus` khi cửa sổ được kích hoạt bởi chương trình khác
+  _(ví dụ `pidgin` gọi tới `Firefox` thì cửa sổ của `Firefox` sẽ luôn
+  nhảy tới màn hình đang có `pidgin`);
+
+## Mình cần gì
+
+Đây là những thứ tác giả cần ;)
+
+* Một `wm` hỗ trợ nhiều màn hình ảo, chuyển đổi qua lại giữa chúng dễ
+  dàng bằng chuột hay phím tắt;
+* Có thể dễ dàng tắt sạch mọi `border` của các cửa sổ: điều này rất có ích
+  nếu bạn chỉ có một hoặc số ít ứng dụng trên một màn hình ảo _(`Firefox`,
+  cửa sổ dòng lệnh `terminal`,...)_
+* Nhẹ nhàng, không cần nhẹ quá, và tất nhiên là không được nặng nề đủ
+  thứ chẳng biế dùng vào việc gì. `Nhẹ nhàng` ở đây bao gồm cả các bài trí,
+  sắp sếp các thành phần _(thử nhìn vào màn hình mặc định của `gnome` mới
+  nhất xem, chả hiểu sẽ phải dùng thế nào); Không cần phải sạch trơn
+  như kiểu của nhiều `wm` như `openbox` ;)
+* Dễ dùng, thậm chí bạn bè bất kỳ cũng dùng được. _(Lý do của việc này là
+  mình không cần tự làm khó chính bản thân mình.)_ `Dễ dùng` dẫn tới việc
+  phải có sẵn nhiều `đồ chơi`, đỡ mất công tìm kiếm, cài đặt lôi thôi;
+* **Nhớ** được thiết lập của các cửa sổ, để lần đăng nhập vào thì cách bố
+  trí các cửa sổ, kích cỡ, ... giống hệt như các thiết lập ở phiên làm
+  việc trước _(một số `wm` hỗ trợ `session` làm việc, như `xfce`, nhưng
+  các `session` không bao gồm thông tin về các cửa sổ mà chỉ có thông tin
+  về chương trình sẽ chạy)_
+
+Tạm như vậy. Trong danh sách trên, phần **nhớ** sẽ thú vị, vì không gì
+chán bằng mỗi lần bật máy tính lên lại phải sắp xếp lại các màn hình, cửa sổ.
+Lưu ý rằng **nhớ** khác với hỗ trợ **tiling**; nó gần gần với tính năng
+**group** trong một số `wm`.
+
+Đáp ứng yêu cầu gọn nhẹ và `nhớ` thì có thể nghĩ ngay tới [openbox] []
+Hãy xem cách giải quyết trong `wm` này:
+
+    chain [viewing=8,desktop=8]
+    a:{chain [title="* GIMP"]
+       a:{moveresizeto x:69 y:0 width:1373 height:1005
+         sendkeyevent usetarget:no key:C-j}
+       | lock [locked=no, title="Toolbox - *]}
+
+Đây là đoạn mã để di chuyển cửa sổ `GIMP` vào màn hình ảo số 8, thiết lập
+vị trí, kích thước cửa sổ. Eo ôi, nhìn vào cấu hình thế này thì phát mệt
+luôn. Có cả chương trình đồ họa như [OBApps] [] để khỏi phải
+[tự viết cấu hình cho từng ứng dụng] [openbox-per-app-configure] nhưng nó
+cũng không gồm mọi thứ bạn cần đâu ;) Ví dụ, nếu trong quá trình sử dụng
+bạn muốn cố định cửa sổ ở vị trí mới thì làm sao? Phải tự cấu hình lại từng
+đầu? Sao `wm` không có tính năng nhớ và lưu lại thiết lập cuối cùng?
+
+Còn `gnome`, `kde` quá nặng, nên loại khỏi cuộc chơi. Chưa kể `gnome`
+các phiên bản mới quá lạ lùng, lai căn, không còn sự đơn giản như xưa nữa.
+`xfce` đã bị loại như mô tả trong mục trước đây, khi gặp vấn đề với chuyện
+nhớ vị trí cửa sổ.
+
+Vậy là chỉ còn `e17` ;)
+
+## Lời khuyên
+
+Có rất nhiều `wm`, bạn có thể tìm thấy danh sách không đầy đủ ở [xwinman] [].
+Nếu bạn chưa dùng tới 6 kiểu `wm/dm` khác nhau thì cũng nên thử cái mới,
+biết đâu lại thấy tiếc vì ... không đổi mới sớm ;)
+
+Như một đoạn trong bài hát [All stars] [] của nhóm `Smash Mouth`
+
+> You'll never know if you don't go
+
+[xwinman]: http://xwinman.org/
+[All stars]: http://www.youtube.com/watch?v=L_jWHffIx5E
+[openbox]: http://openbox.org/wiki/Design_Documents:Actions
+[OBapps]: http://obapps.sourceforge.net/
+[openbox-per-app-configure]: http://openbox.org/wiki/Help:Applications
