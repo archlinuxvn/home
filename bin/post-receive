@@ -104,7 +104,7 @@ _build() {
 
 _fix_perm() {
   msg "Updating files permission"
-  cp $_D_VAR/_i/htaccess.root.xt $_D_VAR/output/.htaccess
+  cp $_D_VAR/_i/htaccess.root.txt $_D_VAR/output/.htaccess
   find $_D_VAR/output/ -mindepth 1 -type d -exec chmod 755 {} +
   find $_D_VAR/output/ -mindepth 1 -type f -exec chmod 644 {} +
 }
