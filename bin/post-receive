@@ -109,7 +109,7 @@ _fix_perm() {
 }
 
 _create_archive() {
-  tar --transform="s,^output,archlinuxvn.org," -cfvz $_F_ARCHIVE output/
+  tar --transform="s,^output,archlinuxvn.org," -czf $_F_ARCHIVE output/
 }
 
 _sync() {
