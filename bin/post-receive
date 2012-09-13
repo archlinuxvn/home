@@ -54,8 +54,9 @@ _update() {
   git pull || die "Can't update local source tree. Please ask your sysadmin for details"
 
   msg "Removing erb files"
-  rm -r lib/* layouts/* _i/* # Yep, we have to remove all of them!!!
-  find . -type f -iname "*.rb" -exec rm -f {} +
+  rm -r lib/* layouts/* _i/*
+  find .          -type f -iname "*.rb" -exec rm -f {} +
+  find ./content/ -type f -iname "*.sh" -exec rm -f {} +
 
   msg "Removing some files that should not be cached"
   rm  -f output/changes/index.html
