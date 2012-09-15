@@ -9,6 +9,12 @@
     <div id="main">
       <% if @item[:title] %>
         <h1><%= @item[:title] %></h1>
+          <% if @item[:tags] %>
+            <p>
+              <strong>Tags:</strong>
+              <%= @item[:tags].map{|tag| link_for_tag(tag, "/tags/")}.join(", ") %>
+            </p>
+          <% end %>
       <% end %>
       <%= yield %>
       <% if not @item[:virtual] %>
