@@ -15,18 +15,23 @@ giả hay nói ngọng `w` thành `quê` nên bài viết này có tiêu đề n
 * TOC
 {:toc}
 
-## wm/dm đã đùng
+## Chiến tranh wm
+
+Các tranh cãi về `wm` chưa bao giờ kết thúc, ngay cả với mỗi người.
+Hãy xem tác giả  `chiến` như thế nào.
+
+### wm/dm đã đùng
 
 Cũng khá là nhiều: `kde` (2001), `gnome` (200?),
 `blackbox` (2005), `fluxbox` (2005-2006), `openbox` (2008),
 `e17` (2010), `windows maker`, `xfce`, ...
 
 
-## e17 là gì
+### e17 là gì
 
 Khoan nói `e17` là gì. Hãy nói là `mình cần gì`.
 
-## wm là vấn đề cá nhân
+### wm là vấn đề cá nhân
 
 Ngoài chuyện `wm` là vấn đề cá nhân, cần hiểu thêm là không có `wm` nào
 số một. Nếu thấy bạn bè dùng tốt thì có thể bạn dùng theo được. Nhưng bằng
@@ -49,7 +54,7 @@ Ví dụ,
   _(ví dụ `pidgin` gọi tới `Firefox` thì cửa sổ của `Firefox` sẽ luôn
   nhảy tới màn hình đang có `pidgin`);
 
-## Mình cần gì
+### Mình cần gì
 
 Đây là những thứ tác giả cần ;)
 
@@ -101,7 +106,7 @@ nhớ vị trí cửa sổ.
 
 Vậy là chỉ còn `e17` ;)
 
-## Lời khuyên
+### Lời khuyên
 
 Có rất nhiều `wm`, bạn có thể tìm thấy danh sách không đầy đủ ở [xwinman] [].
 Nếu bạn chưa dùng tới 6 kiểu `wm/dm` khác nhau thì cũng nên thử cái mới,
@@ -110,6 +115,88 @@ biết đâu lại thấy tiếc vì ... không đổi mới sớm ;)
 Như một đoạn trong bài hát [All stars] [] của nhóm `Smash Mouth`
 
 > You'll never know if you don't go
+
+## Sử dụng e17: Dành cho gà mờ
+
+`e17` ban đầu rất dễ dùng. Nhưng `e17` cũng có những tính năng cao cấp
+và lạ lẫm cần hướng dẫn hoặc gợi ý.
+
+### Cài đặt
+
+Để dùng `e17`, bạn cần cài các gói thuộc nhóm `e17-svn` như sau
+
+    pacman -S e17-svn
+
+Trong tập tin `~/.xinitrc` bạn đặt lệnh gọi `e17`
+
+    export LANG=en_US.UTF-8
+    # fetchmail &
+    # source $HOME/.monicarc
+    # ibus-daemon -x -d
+    exec enlightenment_start
+
+Bạn không cần khởi động `ibus` ở đây nếu bạn biết cách cấu hình cho `ibus`
+bên trong `e17` ;)
+
+### Cấu hình cho `ibus`
+
+TODO
+
+## Nạp các mô-đun
+
+TODO
+
+### Cài đặt phím tắt
+
+TODO
+
+### Ghi nhớ thiết lập của cửa sổ
+
+TODO
+
+### Kết nối mạng với connman
+
+TODO
+
+## Dành cho người dùng có kinh nghiệm
+
+Nếu muốn phá phách một tí, đây là nơi bạn cần ;)
+
+### Biên dịch e17 từ mã nguồn
+
+Do `e17` đang được phát triển và chưa có phiên bản chính thức trong thời
+gian gần đây, các gói của `e17` có trong kho chính thức của ArchLinux
+là gói dạng `svn`, tức là chúng được đóng từ phiên bản (`snapshot`) từ kho `svn`.
+Khi bài này được viết, phiên bản đang dùng là `75246`, khá cũ.
+
+Để biên dịch `e17` từ mã nguồn, bạn phải biên dịch các gói của nó theo
+đúng thứ tự, cài vào hệ thống rồi mới biên dịch gói khác. Bạn có thể
+dùng [kịch bản có ở đây] (/s/icy/e17/build.script)
+
+    export _D_WORK=/home/pacman/src/
+    mkdir $_D_WORK && cd $_D_WORK
+    wget http://archlinuxvn.org/s/icy/e17/build.script
+    chmod 700 ./build.script
+    ./build.script
+
+Để dùng kịch bản này bạn cần
+
+  * Cài gói `subversion`, `sudo`
+  * Điều chỉnh `sudo` để có thể dùng lệnh `sudo pacman` để cài gói
+    với quyền của tài khoản bạn đang dùng trên hệ thống
+
+Khi dùng kịch bản `build.script`, nếu đang gặp lỗi khi biên dịch gói nào,
+bạn có thể điều chỉnh lỗi và bắt đầu biên dịch từ gói đó, ví dụ
+
+    _START=elementary ./build.script
+
+Thường thì bạn sẽ thiếu các thư viện, và để khắc phục thì hãy dùng `pacman`
+các các gói phụ thuộc. Một khi các gói được biên dịch và cài đúng thứ tự,
+bạn sẽ không gặp vấn đề với việc biên dịch các gói của `e17`.
+
+### Sao lưu và chuyển cấu hình qua máy khác
+
+TODO
 
 [xwinman]: http://xwinman.org/
 [All stars]: http://www.youtube.com/watch?v=L_jWHffIx5E
