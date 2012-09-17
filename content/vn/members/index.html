@@ -40,17 +40,13 @@ _(*): Nhân 32 bits (kiến trúc của máy tính có thể là 64 bits.)_
 
 Để kiểm tra bạn cài ArchLinux từ lúc nào, chạy lệnh
 
-<pre>
-grep filesystem /var/log/pacman.log \
-  | head -1
-</pre>
+    grep filesystem /var/log/pacman.log \
+      | head -1
 
 Để kiểm tra những lần nâng cấp lớn (có thay đổi `kernel`) trên máy, dùng lệnh
 
-<pre>
-grep -E 'upgraded (linux|kernel)' /var/log/pacman.log \
-  | grep -vE '(firmware|header)'
-</pre>
+    grep -E 'upgraded (linux|kernel)' /var/log/pacman.log \
+      | grep -vE '(firmware|header)'
 
 [stk]: http://projektantos.wordpress.com/
 [KyAnh]: /blog/~icy/
