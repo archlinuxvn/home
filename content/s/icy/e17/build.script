@@ -57,6 +57,7 @@ _build_pkg() {
     echo ":: Skip package $_pkg"
     return 0
   fi
+  cd $_D_WORK || { echo >&2 ":: Can't switch to $_D_WORK"; exit 1; }
   if [[ ! -d "$_D_WORK/$_pkg" ]]; then
     echo ":: Checking PKGBUILD for $_pkg"
     svn co svn://svn.archlinux.org/community/$_pkg \
