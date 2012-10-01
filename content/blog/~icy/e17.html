@@ -156,7 +156,21 @@ TODO
 
 ### Kết nối mạng với connman
 
-TODO
+Cho tới ngày 1/10/2012, các trục trặc của `connman` với `e17` đã được
+giải quyết _(bạn có thể xem ở  [forgotten] [] để biết tại sao)_.  Bạn sẽ
+hoàn toàn thoải mái khi dùng `connman` để quản lý kết nối mạng. Các yêu
+cầu như sau:
+
+* Gỡ bỏ các thiết lập mạng bằng tay trong `/etc/rc.conf` hoặc các nơi khác
+  trong `/etc/`
+* Cài đặt gói `connman` và cho phép `connman` chạy nền lúc khởi động
+  _(theo cách cũ, bạn thêm `connmand` vào biến `DAEMONS` trong `/etc/rc.conf`)_
+* Bật mô-đun `Connection Manager` trong `e17` (đây là mô-đun chuẩn của
+  `e17` nên bạn không cần cài các gói gì thêm)
+* Thêm `gadget` `Connetion Manager` vào chỗ nào đó, ví dụ trên thanh
+  `taskbar` trên màn hình
+
+Bạn sẽ điều chỉnh cấu hình mạng bằng con chuột thật đơn giản và tiện lợi.
 
 ## Dành cho người dùng có kinh nghiệm
 
@@ -197,7 +211,13 @@ bạn sẽ không gặp vấn đề  nào đáng kể `e17`.
 
 ### Sao lưu và chuyển cấu hình qua máy khác
 
-TODO
+Cấu hình của `e17`, thật không may, được lưu ở dạng `binary` không thể
+đọc được bằng các trình soạn thảo thông thường. Để sao lưu hoặc chuyển
+cấu hình của `e17` qua máy khác, bạn lưu hoặc chép nguyên thư mục `~/.e/`
+là xong. Khi chuyển qua máy khác, các thiết lập liên quan tới đường
+dẫn _(ví dụ hình nền)_ cần phải chỉnh lại tí chút; cần lưu ý là phiên bản
+`e17` ở máy mới cần có phiên bản lớn hơn hay bằng so với phiên bản của
+máy chứa cấu hình gốc của `e17`.
 
 [xwinman]: http://xwinman.org/
 [All stars]: http://www.youtube.com/watch?v=L_jWHffIx5E
@@ -205,3 +225,4 @@ TODO
 [OBapps]: http://obapps.sourceforge.net/
 [openbox-per-app-configure]: http://openbox.org/wiki/Help:Applications
 [makepkg]: /doc/pacman/makepkg/
+[forgotten]: /blog/~icy/forgotten/#e17-v-connman
