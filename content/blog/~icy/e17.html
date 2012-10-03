@@ -1,6 +1,6 @@
 ---
 title: e17 - Quê mờ cho gà mờ
-tags: ['e17', 'wm', 'draft']
+tags: ['e17', 'wm', 'draft', 'ibus']
 allow_comment: yes
 ---
 
@@ -138,9 +138,31 @@ Trong tập tin `~/.xinitrc` bạn đặt lệnh gọi `e17`
 Bạn không cần khởi động `ibus` ở đây nếu bạn biết cách cấu hình cho `ibus`
 bên trong `e17` ;)
 
-### Cấu hình cho `ibus`
+### Cấu hình bộ gõ tiếng Việt với `ibus`
 
-TODO
+`ibus` là bộ nhập khá  phổ biến. Sử dụng `ibus-unikey` là cách đơn giản
+và khá ổn định để gõ tiếng Việt trong Linux.
+
+* Sau khi cài các gói `ibus` và `ibus-unikey`
+* Bạn cần thiết lập ngôn ngữ như mô tả trong [lang/locale] []
+* Vào phần cài đặt của `e17`, chọn ngôn ngữ, chọn `input method settings`,
+  chọn phần `Advanced` rồi sau đó chọn `ibus` từ các bộ nhập có sẵn trên
+  hệ thống (ở trang `System`)
+* Để cấu hình cho `ibus` sử dụng bộ gõ tiếng Việt, bạn có thể chọn
+  `Setup Selected Input Method` trong phần cấu hình của `e17` hoặc
+  gõ lệnh `ibus-setup` từ [terminal] []
+* Với các ứng dụng `Qt` bạn cần cấu hình riêng, sử dụng lệnh `qtconfig`
+  chạy từ [terminal] [] rồi chọn `Interface` và cách nhập mặc định
+  _(default input method)_ là `XIM`
+* Cuối cùng, bạn cần thoát ra và đăng nhập trở lại vào `e17`. Bạn sẽ gõ
+  được tiếng Việt trên hầu hết các chương trình: Firefox, Opera, Chromium,
+  OpenOffice, LibreOffice,...
+
+Với một số `wm/dm` khác, bạn cần điều chỉnh các biến môi trường liên quan
+tới bộ nhập. `e17` cung cấp giao diện đồ họa để làm việc này, và hơn nữa,
+đã có sẵn thiết lập vừa đủ cho bạn dùng. Nếu muốn phá phách theo ý bạn,
+thì trong phần `Ngôn ngữ` của `e17` bạn có thể thêm vào bộ nhập riêng
+ở phần `Personal`.
 
 ## Nạp các mô-đun
 
@@ -226,3 +248,5 @@ máy chứa cấu hình gốc của `e17`.
 [openbox-per-app-configure]: http://openbox.org/wiki/Help:Applications
 [makepkg]: /doc/pacman/makepkg/
 [forgotten]: /blog/~icy/forgotten/#e17-v-connman
+[lang/locale]: /doc/lang/locale/
+[terminal]: /doc/terminal/
