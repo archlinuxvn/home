@@ -1,0 +1,44 @@
+---
+title: Dùng startx an toàn
+tags: ['x', 'startx', 'security']
+---
+
+Nhiều bạn dùng Linux một thời gian bắt đầu chuyển qua ... thời kỳ của
+`chuyên gia Linux` bằng cách bỏ đi giao điện đăng nhập với đồ họa như
+`kdm`, `gdm`, `slim`,... để dùng `startx`: Sau khi máy khởi động xong,
+hiện ra cái màn hình đen thui, gõ tên và chìa khóa vào, rồi gõ `startx`
+nhấn `Enter` cái bụp thế là màu mè hiện ra, rất khoái :big_smile:
+
+Nhìn oai thế chứ nếu không biết dùng thì bạn sẽ `tiêu đời` trong 30 giây!
+Bởi nếu chỉ gõ `startx` thì người dùng bình thường sẽ dễ dàng chuyển từ
+chế độ đồ họa ra `console`, nhấn `^C` và thế là có ngay dòng lệnh để
+phá máy của bạn.
+_(Làm thế nào để chuyển từ giao diện đồ họa qua `console`?
+Ai mà biết chứ :sexy_girl:)_
+
+## Cách dùng an toàn
+
+Đơn giản là gõ từ `console`
+
+    nohup startx & exit
+
+Lệnh `nohup` sẽ bật `startx` _(và vẫn giữ lệnh này tiếp tục chạy)_
+rồi ngay sau đó gọi lệnh `exit` đảm bảo `console` đang dùng được đóng.
+Như vậy, nếu từ chế độ đồ họa quay về `console` bạn cũng chỉ thấy con trỏ
+báo nhập thông tin đăng nhập trở lại.
+
+## Cách không an toàn
+
+Cách sau đây không an toàn
+
+    startx;exit
+
+Nếu cặp lệnh trên được gõ trực tiếp từ `console`, thì bằng cách dùng tổ
+hợp `^Z`, chế độ dòng lệnh cũng hiện ra ngon như bánh bao :)
+
+Một số bạn nghĩ ra cách để  tắt đi hiệu lực của tổ hợp `^Z`, nhưng nếu bạn
+khéo léo, chỉ cần dùng `^C` là đủ: Ngay sau lần nhấn `^C` đầu tiên, hệ
+thống cần chút thời gian để ngắt các chương trình và giao điện đồ họa đang
+chạy, **rồi** sau đó mới chuyển quan thi hành lệnh `exit`. Do đó, nếu bạn
+đủ nhanh chỉ việc gõ bồi vài tổ hợp `^C` trước khi hệ thống thi hành lệnh
+`exit` là được.
