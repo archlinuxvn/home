@@ -8,6 +8,25 @@ Viết để quên, mấy cái mẹo lặt vặt vài hôm sẽ không còn dùn
 * TOC
 {:toc}
 
+## Console-Kit
+
+Chả hiểu anh chàng này là gì. Ngó qua tài liệu thì thấy dùng để xử lý các
+vấn đề liên quan tới `user`, ví dụ, giúp `user` kết nối ổ đĩa với quyền
+`root` _(giống như chức năng của `pmount`)_. Đại khái thế.
+
+Bực cái là trên nhiều máy ảo `Ubuntu` trên `Amazon AWS` có sẵn chàng này.
+Cứ mỗi khi đăng ký máy ảo mới lại phải đi lọ dọ tắt đi, hơi mất công.
+Mà trên máy của mình cũng có chàng này mới chết. Nếu dùng `htop` để xem
+thì thấy nó phun ra cả đống _(`thread`)_.
+
+Mấy bạn trên kênh `irc` bảo dùng bởi các chương trình quản lý đăng nhập
+đồ họa _(`kdm`, `gdm`,...)_ Mình dùng [startx] [] thì thôi xóa đi vậy
+
+    pacman -Rs consolekit
+
+Trên các máy ảo `Amazon` cũng nên làm như thế. Không dùng thì xóa đi,
+để làm gì ngứa mắt :D
+
 ## E17 và Connman
 
 Đang bàn tới `e-svn` phiên bản `75246` _(ngày 7/9/2012)_.
@@ -65,3 +84,4 @@ việc của họ. Điều này còn thể hiện ở các hướng dẫn cho g�
 [connman 0.76]: /s/icy/connman/076/
 [e17-bug-report]: http://trac.enlightenment.org/e/ticket/1458
 [Entrance]: http://trac.enlightenment.org/e/wiki/Entrance
+[startx]: /doc/security/startx/
