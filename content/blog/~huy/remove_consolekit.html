@@ -1,0 +1,161 @@
+---
+title: Gỡ bỏ consolekit khoir Gnome3
+allow_comment: yes
+tags: ['consolekit', 'gnome3', 'systemd']
+---
+
+**Bài viết này chỉ áp dụng với Gnome và dùng startx để khởi động X, còn với các môi trường Desktop khác, tác giả chưa thử qua**
+
+* ToC
+{:toc} 
+
+## Consolekit là gì ?
+[Consolekit][] là một framework để quản lí phiên làm việc của người dùng để :
+
++Mount phân vùng,thiết bị không có trong tập tin `/etc/fstab`.
+
++Cho phép người dùng khởi động lại, tắt máy mà không yêu cầu nhập mật khẩu.
+
+## Polkit là gì ?
+[Polkit][] là một ứng dụng định nghĩa và áp dụng các chính sách, luật, cho phép nâng quyền tiến trình từ không đặc quyền lên có đặc quyền.
+
+Vấn đề nảy sinh rằng `polkit` và `consolekit` sẽ chồng lấn về chức năng. Tuy nhiên trong một số trình quản lí đăngnhập như `gdm` hay `kdm` lại yêu cầu `consolekit` như một gói phụ thuộc.
+
+Tuy nhiên `consolekit` đã không còn được duy trì nữa. Và [systemd][] cùng [polkit][]  là một thay thế tuyệt vời cho nó
+
+## Loại bỏ consolekit khỏi hệ thống:
+
+**Build lại các gói phụ thuộc vào consolekit(gdm,gnome-session, networkmanager) và polkit**
+
+Tác giả dùng [abs][] (Arch Build System ) để build lại các gói này:
+
+    sudo pacman -S abs base-devel
+
+    sudo abs
+
+    mkdir abs
+
+    cp -R /var/abs/* abs/
+
+#### GDM
+
+    cd abs/extra/gdm/
+
+    gedit PKGBUILD
+
+bạn bỏ `consolekit` trong dãy DEPEND (nếu có) và sửa dòng: `--with-systemd=no` thành `--with-systemd=yes`
+
+    makepkg
+
+    sudo pacman -U gdm-XX.pkg.tar.gz
+
+#### Gnome-session
+
+    cd abs/extra/gnome-session/
+
+    gedit PKGBUILD
+
+bạn bỏ `consolkit` trong dãy DEPEND và thêm dòng `--enable-systemd` vào phần `./configure`
+
+    makepkg
+
+    sudo pacman -U gnome-session-XX.pkg.tar.gz
+
+#### Networkmanager
+
+    cd abs/extra/networkmanager
+
+    gedit PKGBUILD
+
+bạn sửa dòng `--with-session-tracking=ck` thành `--with-session-tracking=systemd`
+
+    makepkg
+
+    sudo pacman -U networkmanager-XX.pkg.tar.gz
+
+ 
+
+#### Polkit
+
+    cd abs/extra/polkit
+
+    gedit PKGBUID
+
+bạn thêm dòng `--enable-systemd` vào `./configure`
+
+    makepkg
+
+    sudo pacman -U polkit-XX.pkg.tar.gz
+
+ 
+
+## Systemd và console
+
+Có một sự liên hệ nào đó giữa `systemd` và `console` mà lệnh `startx` gửi màn hình của bạn vào.
+
+### Thử nghiệm:
+
+#### Thử nghiệm 1
+
+Nếu chỉ có các bước trên, bạn dùng lệnh `startx` hay `gdm` đều dẫn đến việc không thể `mount` bất cứ ổ đĩa nào không có trong tập tin `/etc/fstab`. Và bạn phải dùng quyền root để tắt hoặc khởi động lại hệ thống dù bạn có tên trong nhóm power.
+
+##### Cách giải quyết nào cho vấn đề này ?
+
+##### Mount các ổ không có trong tập tin /etc/fstab:
+
+Bạn phải tạo một tập tin: `/etc/polkit-1/localauthority/50-local.d/org.freedesktop.udisks2.pkla`  với nội dung sau:
+
+    [Storage Permissions]
+
+    Identity=unix-group:storage
+
+    Action=org.freedesktop.udisks2.filesystem-mount;org.freedesktop.udisks2.modify-device
+
+    ResultAny=yes
+
+    ResultInactive=yes
+
+    ResultActive=yes
+    
+##### Khi dùng các chức năng khởi động lại, tắt máy phải có mật khẩu root:
+
+Bạn phải tạo một tập tin với đường dẫn: `/etc/polkit-1/localauthority/50-local.d/org.freedesktop.login1.pkla`
+
+    [Suspend/hibernate permissions]
+
+    Identity=unix-group:power
+
+    Action=org.freedesktop.login1.hibernate;org.freedesktop.login1.suspend;\
+    org.freedesktop.login1.reboot;org.freedesktop.login1.power-off
+
+    ResultAny=yes
+
+    ResultInactive=yes
+
+    ResultActive=yes
+
+#### Thử nghiệm 2
+
+Có một giải thích như sau `" Khi dùng lệnh startx mà không có đối số, xinit sẽ đặt màn hình của bạn sang một TTY khác. Vấn đề xảy ra rằng TTY đó không được xác thực, không được systemd (vốn đang chạy trong một TTY khác) theo dõi. Do đó thật ngốc nghếch khi trao quyền cho người lạ"`. Đó là lí do tại sao bạn phải tạo các tập tin trên, vì nó được dùng trong toàn hệ thống, không phụ thuộc sự theo dõi của `systemd`.
+
+#####Cách giải quyết ?
+
+Như đã nói, `systemd` không thể theo dõi các dịch vụ mà không nằm trong cùng một TTY với nó.
+Rất đơn giản, bạn chỉ cần dùng lệnh sau:
+
+    startx -- vt$(fgconsole)
+
+Mọi thứ sẽ được `systemd` theo dõi, không cần động tay chân tạo tập tin ( nếu tạo sai bạn có thể sẽ có một màn kịch khó hiểu không thể tả ) và tiết kiệm được một TTY.
+
+Để xem mọi thứ đã ổn chưa, dùng lệnh:
+
+    loginctl show-sesion X (với X là session_id mà bạn đang đăng nhập vào )
+
+Nếu thấy dòng `Active=yes`, tức là mọi thứ đều vận hành tốt.
+
+Mọi thứ đã ổn. Nếu bài viết có ích, hãy mời tác giả một buổi cafe nhé.
+
+[Consolekit]: https://wiki.archlinux.org/index.php/ConsoleKit
+[Polkit]: https://wiki.archlinux.org/index.php/Polkit
+[abs]: https://wiki.archlinux.org/index.php/ABS
+[systemd]: https://wiki.archlinux.org/index.php/Systemd
