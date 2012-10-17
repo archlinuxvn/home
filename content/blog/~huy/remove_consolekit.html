@@ -9,14 +9,14 @@ tags: ['consolekit', 'gnome3', 'systemd']
 * ToC
 {:toc} 
 
-## Consolekit là gì ?
+## Consolekit là gì 
 [Consolekit][] là một framework để quản lí phiên làm việc của người dùng để :
 
 + Mount phân vùng,thiết bị không có trong tập tin `/etc/fstab`.
 
 + Cho phép người dùng khởi động lại, tắt máy mà không yêu cầu nhập mật khẩu.
 
-## Polkit là gì ?
+## Polkit là gì 
 [Polkit][] là một ứng dụng định nghĩa và áp dụng các chính sách, luật, cho phép nâng quyền tiến trình từ không đặc quyền lên có đặc quyền.
 
 Vấn đề nảy sinh rằng `polkit` và `consolekit` sẽ chồng lấn về chức năng. Tuy nhiên trong một số trình quản lí đăngnhập như `gdm` hay `kdm` lại yêu cầu `consolekit` như một gói phụ thuộc.
@@ -39,7 +39,7 @@ Tác giả dùng [abs][] (Arch Build System ) để build lại các gói này:
     
 Với `abs` bạn yên tâm có thể build gần như tất cả các gói có trong các repo của Arch.
 
-### Build lại Gdm:
+### Build lại Gdm
 
     cd abs/extra/gdm/
 
@@ -53,7 +53,7 @@ bạn bỏ `consolekit` trong dãy DEPEND (nếu có) và sửa dòng: `--with-s
 
 Như vậy,  ta lại có một bản `gdm` tuy cũ nhưng hỗ trợ `systemd` để xài.
 
-### Build lại Gnome-session :
+### Build lại Gnome-session 
 
     cd abs/extra/gnome-session/
 
@@ -67,7 +67,7 @@ bạn bỏ `consolkit` trong dãy DEPEND và thêm dòng `--enable-systemd` vào
 
 `Gnome-session` đã không còn phụ thuộc vào `consolkit` và hỗ trợ `systemd`.
 
-### Build lại Networkmanager :
+### Build lại Networkmanager 
 
     cd abs/extra/networkmanager
 
