@@ -36,8 +36,10 @@ Tác giả dùng [abs][] (Arch Build System ) để build lại các gói này:
     mkdir abs
 
     cp -R /var/abs/* abs/
+    
+Với `abs` bạn yên tâm có thể build gần như tất cả các gói có trong các repo của Arch.
 
-**GDM**
+### Build lại Gdm:
 
     cd abs/extra/gdm/
 
@@ -49,7 +51,9 @@ bạn bỏ `consolekit` trong dãy DEPEND (nếu có) và sửa dòng: `--with-s
 
     sudo pacman -U gdm-XX.pkg.tar.gz
 
-**Gnome-session**
+Như vậy,  ta lại có một bản `gdm` tuy cũ nhưng hỗ trợ `systemd` để xài.
+
+### Build lại Gnome-session :
 
     cd abs/extra/gnome-session/
 
@@ -61,7 +65,9 @@ bạn bỏ `consolkit` trong dãy DEPEND và thêm dòng `--enable-systemd` vào
 
     sudo pacman -U gnome-session-XX.pkg.tar.gz
 
-**Networkmanager**
+`Gnome-session` đã không còn phụ thuộc vào `consolkit` và hỗ trợ `systemd`.
+
+### Build lại Networkmanager :
 
     cd abs/extra/networkmanager
 
@@ -73,9 +79,9 @@ bạn sửa dòng `--with-session-tracking=ck` thành `--with-session-tracking=s
 
     sudo pacman -U networkmanager-XX.pkg.tar.gz
 
- 
+Thay vì theo dõi với `consolekit`, giờ đã được `systemd` theo dõi.
 
-**Polkit**
+### Cuối cùng là gói Polkit
 
     cd abs/extra/polkit
 
@@ -87,13 +93,13 @@ bạn thêm dòng `--enable-systemd` vào `./configure`
 
     sudo pacman -U polkit-XX.pkg.tar.gz
     
- 
+`Polkit` giờ đã đảm nhiệm luôn nhiệm vụ của `consolekit` và bạn yên tâm xóa `consolekit` ra khỏi hệ thống.
 
 ## Systemd và console
 
 Có một sự liên hệ nào đó giữa `systemd` và `console` mà lệnh `startx` gửi màn hình của bạn vào.
 
-
+Hai thử nghiệm sau sẽ cho bạn thấy sự khác biệt đó.
 
 ###Thử nghiệm 1
 
