@@ -67,11 +67,14 @@ X là số của thiết bị usb (nếu bạn cài bằng usb ) hoặc thay sdb
       mount --rbind /dev /mnt/dev
       mount -t sysfs /sys /mnt/sys
       chroot /mnt /bin/bash
-      grub
-      grub>root (hd0,0)
-      grub>setup (hd0)
-      grub>quit
-
+      modprobe dm-mod
+      grub-install --target=i386-pc /boot/ --recheck /dev/sda
+      mkdir -p /boot/grub/locale
+      cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
+      sed -i '4 s/"quiet"/""/' /etc/default/grub
+      sed -i '5 s/""/"init=\/bin\/systemd"/' /etc/default/grub
+      grub-mkconfig -o /boot/grub/grub.cfg 
+      
 + Chỉnh sửa lại file `menu.lst` cho phù hợp với các phân vùng chứa kernel image và phân vùng root của bạn.
 
 + Chỉnh sửa file `/etc/fstab`:
