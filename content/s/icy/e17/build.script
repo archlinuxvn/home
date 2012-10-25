@@ -39,7 +39,7 @@ _D_WORK="${_D_WORK:-/home/pacman/srcxxx/}"
 ########################################
 
 # The order of the packages. Please don't change this
-_ORDER="eina eet evas evas_generic_loaders
+_ORDER="eina eet eobj evas evas_generic_loaders
         ecore eio embryo edje efreet
         e_dbus eeze elementary embryo ethumb e"
 # This module is quite buggy: e-modules-extra
