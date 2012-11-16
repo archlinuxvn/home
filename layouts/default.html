@@ -9,10 +9,14 @@
     <div id="main">
       <% if @item[:title] %>
         <h1><%= @item[:title] %></h1>
-          <% if @item[:tags] %>
+          <% unless @item[:tags].select{|tag| tag.match(/^[a-z0-9]+$/)}.empty? %>
             <p>
               <strong>Tags:</strong>
-              <%= @item[:tags].map{|tag| link_for_tag(tag, "/tags/")}.join(", ") %>
+              <%= @item[:tags].map{|tag|
+                tag.match(/^[a-z0-9]+$/) \
+                  ? link_for_tag(tag, "/tags/") \
+                  : nil
+                }.compact.join(", ") %>
             </p>
           <% end %>
       <% end %>
@@ -63,7 +67,7 @@ This page is published under the license <a href="http://creativecommons.org/lic
       </ul>
       <h2>Liên kết</h2>
       <ul>
-        <li><a href="/vn/irc/">irc</a> (<a href="/vn/bot/">bot</a>, <a href="/irclogs/">log</a>)</li>
+        <li><a href="/vn/irc/">irc</a> (<a href="/vn/bot/">bot</a>, <a href="/irclogs/"><s>log</s></a>)</li>
         <li>
           <a href="/vn/lists/">nhóm thư</a>,
           <a href="http://github.com/archlinuxvn/">mã nguồn</a></li>
