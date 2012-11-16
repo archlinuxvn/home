@@ -9,7 +9,7 @@
     <div id="main">
       <% if @item[:title] %>
         <h1><%= @item[:title] %></h1>
-          <% unless @item[:tags].select{|tag| tag.match(/^[a-z0-9]+$/)}.empty? %>
+          <% unless (@item[:tags] || []).select{|tag| tag.match(/^[a-z0-9]+$/)}.empty? %>
             <p>
               <strong>Tags:</strong>
               <%= @item[:tags].map{|tag|
