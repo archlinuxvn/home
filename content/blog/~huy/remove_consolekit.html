@@ -1,22 +1,22 @@
 ---
 title: Gỡ bỏ consolekit khỏi Gnome3
 allow_comment: yes
-tags: ['consolekit', 'gnome3', 'systemd']
+tags: ['consolekit', 'gnome3', 'systemd', 'security']
 ---
 
 **Bài viết này chỉ áp dụng với phiên bản Gnome nhỏ hơn 3.6 và dùng startx để khởi động X, còn với các môi trường Desktop khác, tác giả chưa thử qua**
 
 * ToC
-{:toc} 
+{:toc}
 
-## Consolekit là gì 
+## Consolekit là gì
 [Consolekit][] là một framework để quản lí phiên làm việc của người dùng để :
 
 + Mount phân vùng,thiết bị không có trong tập tin `/etc/fstab`.
 
 + Cho phép người dùng khởi động lại, tắt máy mà không yêu cầu nhập mật khẩu.
 
-## Polkit là gì 
+## Polkit là gì
 [Polkit][] là một ứng dụng định nghĩa và áp dụng các chính sách, luật, cho phép nâng quyền tiến trình từ không đặc quyền lên có đặc quyền.
 
 Vấn đề nảy sinh rằng `polkit` và `consolekit` sẽ chồng lấn về chức năng. Tuy nhiên trong một số trình quản lí đăngnhập như `gdm` hay `kdm` lại yêu cầu `consolekit` như một gói phụ thuộc.
@@ -36,7 +36,7 @@ Tác giả dùng [abs][] (Arch Build System ) để build lại các gói này:
     mkdir abs
 
     cp -R /var/abs/* abs/
-    
+
 Với `abs` bạn yên tâm có thể build gần như tất cả các gói có trong các repo của Arch.
 
 ### Build lại Gdm
@@ -53,7 +53,7 @@ bạn bỏ `consolekit` trong dãy DEPEND (nếu có) và sửa dòng: `--with-s
 
 Như vậy,  ta lại có một bản `gdm` tuy cũ nhưng hỗ trợ `systemd` để xài.
 
-### Build lại Gnome-session 
+### Build lại Gnome-session
 
     cd abs/extra/gnome-session/
 
@@ -67,7 +67,7 @@ bạn bỏ `consolkit` trong dãy DEPEND và thêm dòng `--enable-systemd` vào
 
 `Gnome-session` đã không còn phụ thuộc vào `consolkit` và hỗ trợ `systemd`.
 
-### Build lại Networkmanager 
+### Build lại Networkmanager
 
     cd abs/extra/networkmanager
 
@@ -92,7 +92,7 @@ bạn thêm dòng `--enable-systemd` vào `./configure`
     makepkg
 
     sudo pacman -U polkit-XX.pkg.tar.gz
-    
+
 `Polkit` giờ đã đảm nhiệm luôn nhiệm vụ của `consolekit` và bạn yên tâm xóa `consolekit` ra khỏi hệ thống.
 
 ## Systemd và console
@@ -122,7 +122,7 @@ Bạn phải tạo một tập tin: `/etc/polkit-1/localauthority/50-local.d/org
     ResultInactive=yes
 
     ResultActive=yes
-    
+
 ***Khi dùng các chức năng khởi động lại, tắt máy phải có mật khẩu root:***
 
 Bạn phải tạo một tập tin với đường dẫn: `/etc/polkit-1/localauthority/50-local.d/org.freedesktop.login1.pkla`
