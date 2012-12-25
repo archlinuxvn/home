@@ -72,10 +72,10 @@ luôn `VT` hiện hành, thì bạn _không thể thoát ra VT đó bằng cách
 tổ hợp phím thoát ra console mà bạn từng biết.
 
 Xem có vẻ an toàn. Tuy nhiên, trong một số điều kiện _khắc nghiệt_, ví dụ
-lỗi của chế độ đồ họa, của `wm`,... sẽ khiến các tiến trình (con) của lệnh
-`startx` kết thúc. Nếu không có biện pháp để chắc chắn rằng sau khi `startx`
-kết thúc, `VT` đang dùng vẫn có thể truy cập được, tiếp tục chờ hoặc nhận
-lệnh, thì vẫn có thể nói là _bạn tiêu tùng rồi_.
+lỗi của chế độ đồ họa, của `wm`,... các tiến trình (con) của lệnh `startx`
+kết thúc ngoài ý muốn. Nếu không có biện pháp phòng ngừa, thì sau khi
+`startx` (vừa) chạy xong, `VT` đang dùng tiếp tục chờ hoặc nhận lệnh,
+thì có thể nói là _bạn tiêu tùng rồi_.
 
 Vì vậy, dù cách `startx` sử dụng `VT` có thay đổi, thì bạn cứ xác định
 dùng `nohup startx & exit` hay cách tương tự để chắc ăn.
