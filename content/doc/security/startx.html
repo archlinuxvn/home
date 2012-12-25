@@ -3,6 +3,9 @@ title: Dùng startx an toàn
 tags: ['x', 'startx', 'security']
 ---
 
+* TOC
+{:toc}
+
 Nhiều bạn dùng Linux một thời gian bắt đầu chuyển qua ... thời kỳ của
 `chuyên gia Linux` bằng cách bỏ đi giao điện đăng nhập với đồ họa như
 `kdm`, `gdm`, `slim`,... để dùng `startx`: Sau khi máy khởi động xong,
@@ -13,14 +16,16 @@ Nhìn oai thế chứ nếu không biết dùng thì bạn sẽ `tiêu đời` t
 Bởi nếu chỉ gõ `startx` thì người dùng bình thường sẽ dễ dàng chuyển từ
 chế độ đồ họa ra `console`, nhấn `^C` và thế là có ngay dòng lệnh để
 phá máy của bạn.
-_(Làm thế nào để chuyển từ giao diện đồ họa qua `console`?
-Ai mà biết chứ :sexy_girl:)_
+_(Làm thế nào để chuyển từ giao diện đồ họa qua `console`? Có thể dùng
+tổ hợp phím `^ Alt F1`, `^ Alt F2`, ...; xem thêm phần cuối)_
 
 ## Cách dùng an toàn
 
 Đơn giản là gõ từ `console`
 
-    nohup startx & exit
+    cd ~
+    nohup startx & exit                 # log lưu trong `~/nohup.out`
+    nohup startx >/dev/null 2>&1 & exit # bỏ qua mọi log
 
 Lệnh `nohup` sẽ bật `startx` _(và vẫn giữ lệnh này tiếp tục chạy)_
 rồi ngay sau đó gọi lệnh `exit` đảm bảo `console` đang dùng được đóng.
@@ -42,3 +47,42 @@ thống cần chút thời gian để ngắt các chương trình và giao đi�
 chạy, **rồi** sau đó mới chuyển quan thi hành lệnh `exit`. Do đó, nếu bạn
 đủ nhanh chỉ việc gõ bồi vài tổ hợp `^C` trước khi hệ thống thi hành lệnh
 `exit` là được.
+
+## Startx và việc dùng chung terminal ảo
+
+_(Viết thêm vào ngày 25/12/2012)_
+
+Từ rất lâu rồi, mỗi khi dùng `startx` thì chế độ đồ họa của `X server`
+sẽ được thiết lập để dùng `terminal ảo` (`VT`) còn rỗi đầu tiên, thường
+là `VT7` _(các `VT1`, `VT2`,... `VT6` thường được tạo sẵn rồi)_. Như vậy
+khi `X` bắt đầu thì nơi bạn gõ lệnh `startx` vào và nơi đang thể hiện
+chế độ đồ họa nằm ở hai `VT` khác nhau; bởi vì bạn vẫn còn có thể truy cập
+vào `VT` đầu tiên nơi bạn dùng gõ lệnh `startx`, bạn vẫn có cơ hội nhấn
+tổ hợp phím `^C` chẳng hạn, để báo hệ thống kết thúc việc thi hành `startx`.
+Từ đây mới sinh ra mẹo như đã trình bày ở hai phần trên.
+
+Trong thời gian gần đây, khi sử dụng ArchLinux thì `startx` sẽ mặc định dùng
+luôn `VT` hiện hành, là `VT` mà bạn đang gõ lệnh `startx` vào. Bạn có thể
+điều chỉnh trong tập `$(HOME)/.xserverrc` _(ví dụ cho tập tin này
+có thể tìm ở `/etc/X11/xinit/xserverrc`)_.
+
+Câu hỏi đặt ra là khi `X` bắt đầu ngay trong `VT` bạn đang sử dụng, thì
+các mẹo ở trên còn có ích hay không? Câu trả lời là `có`. Khi `X` sử dụng
+luôn `VT` hiện hành, thì bạn _không thể thoát ra VT đó bằng cách nhấn các
+tổ hợp phím thoát ra console mà bạn từng biết.
+
+Xem có vẻ an toàn. Tuy nhiên, trong một số điều kiện _khắc nghiệt_, ví dụ
+lỗi của chế độ đồ họa, của `wm`,... sẽ khiến các tiến trình (con) của lệnh
+`startx` kết thúc. Nếu không có biện pháp để chắc chắn rằng sau khi `startx`
+kết thúc, `VT` đang dùng vẫn có thể truy cập được, tiếp tục chờ hoặc nhận
+lệnh, thì vẫn có thể nói là _bạn tiêu tùng rồi_.
+
+Vì vậy, dù cách `startx` sử dụng `VT` có thay đổi, thì bạn cứ xác định
+dùng `nohup startx & exit` hay cách tương tự để chắc ăn.
+
+## Dùng các login manager
+
+Một số `login manager` như `kdm`, `gdm`, `slim` sẽ rất tốt để thay thế
+cho việc dùng `startx` từ dòng lệnh. Tuy nhiên, việc dùng cái này hay
+cái kia còn liên quan tới sở thích cá nhân. Nếu cảm thấy rắc rối với
+`startx` bạn nên bắt đầu tìm hiểu chẳng hạn `gdm` :)
