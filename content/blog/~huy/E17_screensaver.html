@@ -13,18 +13,11 @@ Suy nghĩ lung tung mình viết một kịch bản nhỏ để làm cái màn h
 
 Đầu tiên ta viết một tập tin bằng `ngôn ngữ C` để đếm thời gian máy ở trạng thái không nhận được sự kiện từ bàn phím và chuột. Mình đã có sẵn trên [github] [].
 
-Sau đó bạn viết một đoạn kịch bản `bash` như sau
+Lưu ý nếu bạn muốn tăng thời gian chờ lên, bạn có thể chỉnh số ở dòng 
 
-    #!/bin/bash
-    while [[ 1 ]]
-      do
-        idle=$(/home/user_name/./idle)
-        if [ $idle -eq 300 ] ; then
-          enlightenment_remote -desktop-lock
-          xset dpms force off
-          continue
-        fi
-      done   
+    seconds == 300
+
+thành số bạn muốn (Lưu ý đơn vị này tính bằng giây).
 
 Bạn để kịch bản này chạy khi khởi động `E17`, hãy tìm hiểu điều này. Như vậy bạn đã có một kịch bản chạy màn hình chờ mà không cần cài bất cứ một chương trình hỗ trợ nào rồi. 
 Chúc các bạn vui cùng Arch.
