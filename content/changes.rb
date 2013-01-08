@@ -1,16 +1,16 @@
 ---
-title: Những bài viết mới nhất
+title: Thay đổi gần đây
 virtual: true
 ---
 
 1. ToC
 {:toc}
 
-## Những bài viết mới nhất
+## Bài viết mới nhất
 
 <%= recent_posts %>
 
-# Những xác nhận gần nhất
+## Xác nhận gần nhất
 
 Dưới đây là những thay đổi gần đây của trang chủ _(trên nhánh `master`)_
 ở dạng danh sách những xác nhận vào kho `git` ở `Github`.
