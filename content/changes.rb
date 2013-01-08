@@ -3,6 +3,11 @@ title: Những bài viết mới nhất
 virtual: true
 ---
 
+1. ToC
+{:toc}
+
+## Những bài viết mới nhất
+
 <%= recent_posts %>
 
 # Những xác nhận gần nhất
