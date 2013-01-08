@@ -119,6 +119,22 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
    đã có**. Tốt nhất, nếu có điều gì phân vân, hãy hội ý với các bạn khác
    trước khi quyết định!
 
+8. _(Nếu bạn có tài khoản ở Github)_ Các thay đổi trên nhánh `master` sẽ
+   được gửi lên `mirror` ở [github mirror] [github]. Nhờ đó các thay
+   đổi có thể theo dõi được nhờ giao diện web của Github, như
+   [github example] [ví dụ này]. Nếu bạn có tài khoản ở Github, bạn có
+   thể yêu cầu quyền ghi vào kho của trang chủ ở github, rồi sau đó từ dòng
+   lênh thêm vào `remote` mới
+
+         $ cd /path/to/your/archlinux/clone/
+         $ git remote add github git@github.com:archlinuxvn/home.git
+         $ # git fetch github        # có thể bỏ qua bước này
+         $ # git push github master  # tạo mirror trên github
+
+   Lưu ý là hiện tại, phần sau của trang [thay đổi](/changes/) sử dụng
+   các liên kết tới trang Github, nên nếu có liên kết nào trả về lỗi 404
+   bạn chỉ việc gõ lệnh cuối cùng ở trên là ổn.
+
 ## Nhóm E: Quy tắc cần nhớ
 
 Nếu không có kỷ luật, mọi thứ sẽ ngày càng rắc rối! Vì thế, bạn cố gắng
@@ -295,3 +311,5 @@ mã nguồn của các bài viết tại [github] [].
 [n0b0dy_arch_install]: /blog/~n0b0dy/install_archlinux_newbie/
 [Vim-Python3]: /blog/~redlotus/vim_and_python3/
 [smilies]: /i/sm/
+[github mirror]: https://github.com/archlinuxvn/home/
+[github example]: https://github.com/archlinuxvn/home/commit/025daa7
