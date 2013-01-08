@@ -3,6 +3,9 @@ title: Thay đổi gần đây
 virtual: true
 ---
 
+1. ToC
+{:toc}
+
 ## Những bài viết mới nhất
 
 <%= recent_posts %>
