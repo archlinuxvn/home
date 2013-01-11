@@ -111,6 +111,7 @@ Nội dung của `hook` chỉa là một kịch bản viết bằng `ash`, thậ
     # Author : Anh K. Huynh
     # Date   : 2012 Jan 11th
     # License: Fair license
+    # Origin : system hook /usr/lib/initcpio/hooks/icy
 
     run_latehook() {
       local realtab=/new_root/etc/fstab
@@ -155,6 +156,7 @@ Phần còn lại còn đơn giản hơn: `hook` của ta sẽ cần tới công
     # Author : Anh K. Huynh
     # Date   : 2012 Jan 11th
     # License: Fair license
+    # Origin : system hook /usr/lib/initcpio/install/icy
 
     build() {
       add_binary findmnt
@@ -166,6 +168,8 @@ Phần còn lại còn đơn giản hơn: `hook` của ta sẽ cần tới công
     Add my own hook to mount /usr on /fast/usr
     HELPEOF
     }
+
+Kịch bản này đơn giản quá nhỉ :D
 
 ## Nhắc lại tí thôi
 
