@@ -3,3 +3,179 @@ title: Viết hook cho mkinitcpio
 tags: ['mkinitcpio', 'hacker', 'archlinux', 'boottime']
 allow_comment: yes
 ---
+
+Bài này giới thiệu cách viết một `hook` nhỏ để can thiệp vào quá trình
+khởi động của hệ thống, ngay trước khi tiến trình số 1 (`init`) bắt đầu.
+
+> Để đọc và làm theo bài này bạn cần cẩn thận vì có thể máy của bạn không
+> thể nào khởi động lại được. Tác giả không chịu trách nhiệm nếu hệ thống
+> của bạn bị hỏng khi bạn thực hiện theo chỉ dẫn bên dưới.
+> Tốt nhất, hãy sao lưu thư mục `/boot/` trước khi tiếp tục nhé.
+
+* TOC
+{:toc}
+
+## Bài toán
+
+Đối với các hệ thống thông thường, thư `/usr` thường nằm ngay trên
+phân vùng dành cho `/`.
+
+Tuy nhiên, một số hệ thống khác vì các lý do bảo mật, tiện lợi, ổ cứng hạn chế,...
+lại đặt `/usr` nằm trên một phân vùng khác. Để có thể đảm bảo hệ thống tiếp
+tục khởi động ngay sau khi phân vùng `/` được kết nối, phân vùng `/usr`
+phải được kết nối ngay tức thì. Điều này diễn ra ngay trước khi `systemd`
+_(hoặc `init` trong hệ thống cũ)_ nạp vào. Do đó, khó có thể dùng `systemd`
+để thực hiện kết nối `/usr`. Cách làm đơn giản là *can thiệp vào quá trình
+khởi động bằng cách `hook` để  `/usr` được kết nối ngay sau khi `/` được kết nối.*
+Cách chính quy chính là nạp vào các `hook` gồm có `usr`, `fsck`, `shutdown`
+và tạo lại ảnh cho nhân. Bạn sẽ thấy ghi chú trong tập tin
+`/etc/mkinitcpio.conf`.
+
+Bài toán trên coi xong. Bây giờ bài toán phức tạp hơn một tí: Làm thế nào
+nếu `/usr` không này ở thư mục gốc của phân vùng, mà nằm bên trong nó?
+So sánh như sau, giả định rằng ta đang nói tới phân vùng `/fast`:
+
+    Bài toán dễ                       Bài toán khó
+      /fast/                /fast/
+        lib/                  /usr/
+        bin/                    lib/
+                                bin/
+
+Nếu với bài toán sau, nếu bạn cứ dùng cách cũ với các `hook` như `usr`,
+thì hệ thống sẽ báo lỗi khi bắt đầu tìm kiếm `systemd`. Lý do là đuờng
+dẫn tới `systemd` mặc định là `[/fast]/lib/systemd/systemd` trở thành
+`[/fast/usr/]lib/systemd/systemd`. Việc sai khác về đường dấn thư viện
+và tập tin thi hành sẽ khiến hệ thống treo ngay.
+
+Để giải quyết ta sẽ viết một `hook` tương tự như `usr`!
+
+## Cấu hình cho /etc/fstab
+
+Tập tin này sẽ lưu thông tin về phân vùng `/fast` mà *bên trong* nó
+có chứa thư mục `/usr/`
+
+    $ grep /fast /etc/fstab
+    /dev/sda4        /fast reiserfs noatime,notail,rw,exec,auto 0 0
+
+Việc điều chỉnh này là cần thiết vì `hook` sẽ kiểm tra nếu có thông tin
+tương ứng thì mới thực hiện kết nối.
+
+## Cấu hình cho mkinitcpio
+
+Giả sử rằng ta sẽ viết `hook` với tên `icy`. Có hai tập tin cần chỉnh
+để tạo ra `hook` này, là:
+
+1. `/usr/lib/initcpio/hooks/icy`
+2. `/usr/lib/initcpio/install/icy`
+
+Kịch bản sau sẽ nạp vào các thứ cấn thiết để kết nối `hook` vào ảnh nhân.
+Ngoài ra ta cũng phải đảm bảo rằng nhân mới sẽ dùng `hook` `icy`
+bằng cách chỉnh như sau:
+
+    $ grep ^HOOKS /etc/mkinitcpio.conf
+    HOOKS="base udev block filesystems usbinput icy fsck shutdown"
+
+Như bạn thấy, ta vẫn đi kèm theo `fsck` và `shutdown`, vì `icy` cũng
+tương tự như `usr` sẽ cần tới các công cụ riêng để kết nối.
+
+Bây giờ, để tạo ảnh của nhân, ta phải điều chỉnh `/etc/mkinitcpio.d/linux.preset`
+
+    $ cat /etc/mkinitcpio.d/linux.preset
+    # mkinitcpio preset file for the 'linux' package
+
+    ALL_config="/etc/mkinitcpio.conf"
+    ALL_kver="/boot/vmlinuz-linux"
+
+    PRESETS=('default')
+
+    default_config="/etc/mkinitcpio.conf"
+    default_image="/boot/initramfs-linux.img"
+    default_options=""
+
+Với cấu hình này bạn sẽ thấy hệ thống sẽ tạo ra hai ảnh cho nhân gọi là
+`default` với các tập tin được tạo ra trong `/boot/`. Mỗi khi thay đổi
+nội dung của `hook` thì bạn chạy lệnh
+
+    $ mkinicpio -p linux
+
+để hệ thống nạp `hook` bạn viết vào ảnh nhân.
+
+## Nội dung của hooks
+
+Nội dung của `hook` chỉa là một kịch bản viết bằng `ash`, thật đơn giản:
+
+    $ cat /usr/lib/initcpio/hooks/icy
+    #!/usr/bin/ash
+
+    # Purpose: Specially mount my /usr at boot time
+    # Author : Anh K. Huynh
+    # Date   : 2012 Jan 11th
+    # License: Fair license
+
+    run_latehook() {
+      local realtab=/new_root/etc/fstab
+
+      if [ -f "$realtab" ]; then
+        if usr_source=$(findmnt -snero source --tab-file="$realtab" /fast); then
+          mountopts=$(findmnt -snero options --tab-file="$realtab" /fast)
+          fsck_device "$usr_source"
+          msg ":: mounting '$usr_source' on /fast"
+          mkdir -p /new_root/fast
+          mount "$usr_source" /new_root/fast -o "$mountopts"
+          #if [ -d /new_root/fast/usr ]; then
+            msg ":: mounting bind device /fast/usr to /usr on new root"
+            mount -o bind /new_root/fast/usr /new_root/usr
+          #else
+          #  msg ":: unable to find /usr inside /fast/ on new root"
+          #fi
+        fi
+      fi
+    }
+
+Nếu bạn chưa quên với `Bash/Ash`, thì ý nghĩa đoạn mã trên như sau đây
+
+1. TÌm kiếm xem có thông tin về phân vùng `/fast` trong `/etc/fstab` không
+2. Nếu có, sẽ thực hiện kiểm tra đĩa cho phân vùng tương ứng
+3. Sau đó, kết nối phân vào này vào `/fast`
+4. Vì `/usr` của ta nằm trong `/fast`, nên để tiếp tục ta phải kết nối
+   theo dạng `bind` thư mục `/new_root/fast/usr` vào `/new_root/usr`.
+
+So sánh với `hook` đi kèm với hệ thống mặc định `usr`, thì bạn sẽ thấy
+sự khác biệt chủ yếu nằm ở dòng kết nối `bind`  mà thôi.
+
+## Kịch bản cài đặt hooks
+
+Phần còn lại còn đơn giản hơn: `hook` của ta sẽ cần tới công cụ `findmnt`
+để tìm kiếm các tùy chọn từ `/etc/fstab`.
+
+    $ cat /usr/lib/initcpio/install/icy
+    #!/bin/bash
+
+    # Purpose: install script to add my hook
+    # Author : Anh K. Huynh
+    # Date   : 2012 Jan 11th
+    # License: Fair license
+
+    build() {
+      add_binary findmnt
+      add_runscript
+    }
+
+    help() {
+      cat <<HELPEOF
+    Add my own hook to mount /usr on /fast/usr
+    HELPEOF
+    }
+
+## Nhắc lại tí thôi
+
+Với các thay đổi trên, mỗi khi bạn thay đổi nội dung của `hook`
+_(gồm hai tập tin)_ thì bạn chạy lại lệnh để tạo ảnh nhân
+với `mkinitcpio -p linux`. Bạn thử khởi động lại hệ thống xem thiết lập
+mới có họat động không!
+
+Còn nhiều thứ để điều chỉnh, `tuning`, nhưng có lẽ bạn sẽ tự tìm thấy
+câu trả lời nếu bạn đã đọc tới đây và làm theo thành công.
+
+Nếu có trục trặc, hãy nhớ lời đầu tiên: lấy lại các bộ sao lưu cho
+`/boot` và chép đè lên các tập tin mới của bạn trong `/boot/`
