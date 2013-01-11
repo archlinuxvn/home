@@ -44,7 +44,7 @@ So sánh như sau, giả định rằng ta đang nói tới phân vùng `/fast`:
 Nếu với bài toán sau, nếu bạn cứ dùng cách cũ với các `hook` như `usr`,
 thì hệ thống sẽ báo lỗi khi bắt đầu tìm kiếm `systemd`. Lý do là đuờng
 dẫn tới `systemd` mặc định là `[/fast]/lib/systemd/systemd` trở thành
-`[/fast/usr]/lib/systemd/systemd`. Việc sai khác về đường dấn thư viện
+`[/fast/usr]/lib/systemd/systemd`. Việc sai khác về đường dẫn thư viện
 và tập tin thi hành sẽ khiến hệ thống treo ngay.
 
 Để giải quyết ta sẽ viết một `hook` tương tự như `usr`!
