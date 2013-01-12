@@ -68,7 +68,7 @@ Giả sử rằng ta sẽ viết `hook` với tên `icy`. Có hai tập tin cầ
 1. `/usr/lib/initcpio/hooks/icy`
 2. `/usr/lib/initcpio/install/icy`
 
-Kịch bản sau sẽ nạp vào các thứ cấn thiết để kết nối `hook` vào ảnh nhân.
+Kịch bản sau sẽ nạp vào các thứ cấn thiết để kết nối `hook` vào ảnh `init`.
 Ngoài ra ta cũng phải đảm bảo rằng nhân mới sẽ dùng `hook` `icy`
 bằng cách chỉnh như sau:
 
@@ -98,7 +98,7 @@ nội dung của `hook` thì bạn chạy lệnh
 
     $ mkinicpio -p linux
 
-để hệ thống nạp `hook` bạn viết vào ảnh nhân.
+để hệ thống nạp `hook` bạn viết vào ảnh `init`.
 
 ## Nội dung của hooks
 
@@ -174,7 +174,7 @@ Kịch bản này đơn giản quá nhỉ :D
 ## Nhắc lại tí thôi
 
 Với các thay đổi trên, mỗi khi bạn thay đổi nội dung của `hook`
-_(gồm hai tập tin)_ thì bạn chạy lại lệnh để tạo ảnh nhân
+_(gồm hai tập tin)_ thì bạn chạy lại lệnh để tạo ảnh `init`
 với `mkinitcpio -p linux`. Bạn thử khởi động lại hệ thống xem thiết lập
 mới có họat động không!
 
