@@ -8,6 +8,22 @@ Viết để quên, mấy cái mẹo lặt vặt vài hôm sẽ không còn dùn
 * TOC
 {:toc}
 
+## Cài Virtualbox
+
+Nếu không dùng nhân mặc định `linux` hoặc `linux-lts`, thì khi cài `virtualbox`
+chương trình cài đặt vẫn máy móc tải về nhân mặc định `linux`. Lui cui đi
+biên dịch `virtualbox` từ mã nguồn mãi không được _(thật ra là được, nhưng dẫu
+có sửa tập tin `PKGBUILD` thì lúc cài `pacman` vẫn đòi hỏi nhân tươi `linux`)_
+
+Cuối cùng cũng mò ra
+
+    $ pacman -S virtualbox-host-dkms
+    $ dmks install  vboxhost/4.2.6
+    $ pacman -S virtualbox
+
+Như vậy là chỉ việc cài và tạo ra các mô-đun cho `virtualbox` trước. Trình cài
+sẽ đủ thông minh để bỏ qua việc cài đặt nhân tươi từ gói `linux`.
+
 ## Console-Kit
 
 Chả hiểu anh chàng này là gì. Ngó qua tài liệu thì thấy dùng để xử lý các
