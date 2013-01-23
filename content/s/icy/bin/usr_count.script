@@ -1,0 +1,9 @@
+#!/bin/bash
+
+_D_ROOT="${D_ROOT:-/usr/}"
+for k in 2 4 8 10 12 14 16 18 20 \
+         22 24 26 28 30 32 34 36 38 40 \
+         42 44 46 48 50 52 54 56 58 60; do
+  echo -n "$k : "; echo -n "$(find $_D_ROOT/ 2>/dev/null -size -${k}k | wc -l)"
+  echo -n   " : "; find $_D_ROOT/ 2>/dev/null -size +${k}k | wc -l
+done
