@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Purpose: Calculate the number of files of some size in /usr/
+# Author : Anh K. Huynh
+# Date   : 2013 Jan 23rd
+# License: Fair license
+# Ref.   : https://groups.google.com/group/archlinuxvn/browse_thread/thread/365b167cc079b4b3
+# Output :
+#   <size> : <smaller than size(k)> : <bigger than size(k)>
+# Input  : Run without any arguments
 _D_ROOT="${D_ROOT:-/usr/}"
 for k in 2 4 8 10 12 14 16 18 20 \
          22 24 26 28 30 32 34 36 38 40 \
