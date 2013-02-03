@@ -54,8 +54,12 @@ khỏi nhóm điều khiển của dịch vụ vẫn có thể còn đâu đó.)
 ## Các lệnh trợ giúp
 
 Phần tiếp theo trình bày hai lệnh giúp bạn xem được quan hệ cha - con
-giữa các tiến trình trong hệ thống. Đầu tiên là lệnh `ps` phiên bản mới
-nhất đã hỗ trợ thông tin về nhóm điều khiển, như ví dụ sau
+giữa các tiến trình trong hệ thống.
+
+### ps
+
+Đầu tiên là lệnh `ps` phiên bản mới nhất đã hỗ trợ thông tin về nhóm điều
+khiển, như ví dụ sau
 
     $ ps xawf -eo pid,user,cgroup,args
       PID USER     CGROUP                              COMMAND
@@ -81,12 +85,17 @@ cho lệnh dài ở trên
 
     alias psc='ps xawf -eo pid,user,cgroup,args'
 
+Bạn nhớ đặt dòng trên trong tập tin `~/.bashrc` để khỏi mất công cho lần sau.
+
+### systemd-cgls
+
 Một cách khác đẹp hơn là dùng lệnh `systemd-cgls` có trong gói `systemd`.
 Kết quả lệnh này tương tự như sau
 
     $ systemd-cgls
     +    2 [kthreadd]
-    [...]
+    .
+    .
     + user
     | \ lennart
     |   \ 1
