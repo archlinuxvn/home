@@ -71,8 +71,9 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
    `git commit` và sau đó gửi thay đổi trên máy phục vụ bằng lệnh
    `git push`.
 
-   * Nếu xảy ra xung đột, bạn dùng lệnh `git pull` trước khi thử `git push`
-   thêm lần nữa. Nếu vẫn có lỗi, hãy liên lạc với bạn khác để được giúp đỡ.
+   * Nếu xảy ra xung đột, bạn dùng lệnh `git pull --rebase` trước khi
+   thử `git push` thêm lần nữa. Nếu vẫn có lỗi, hãy liên lạc với bạn khác
+   để được giúp đỡ.
 
    * **Lưu ý:** Thư mục _output_ là nơi chứa các trang được sinh ra. Do đó,
    không bao giờ thêm thư mục này vào khi bạn dùng `git commit`.
@@ -182,7 +183,7 @@ bài viết của bạn.
 
 1. `Pull` trước khi `push`. Điều này có nghĩa là, nếu bạn không có xác nhận
    vào kho `git` của trang chủ trong một thời gian tương đối dài _(một ngày chẳng hạn)_,
-   bạn nên chạy `git pull` để lấy về các thay đổi mới nhất từ kho trước khi
+   bạn nên chạy `git pull --rebase` để lấy về các thay đổi mới nhất từ kho trước khi
    bạn bắt đầu soạn hay chỉnh bài. Lý do cho việc này rất đơn giản: Vì kho
    do nhiều người tham gia chỉnh sửa, nên có khi điều bạn muốn thay đổi
    đã có người khác làm rồi, và bạn không cần gây thêm rắc rối :big_smile:
