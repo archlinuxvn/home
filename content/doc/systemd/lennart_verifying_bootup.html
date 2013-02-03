@@ -7,14 +7,16 @@ tags: ['systemd', 'sysadmin', 'boottime']
 allow_comments: yes
 ---
 
-As many of you know, systemd is the new Fedora init system, starting with F14, and it is also on its way to being adopted in a number of other distributions as well (for example, OpenSUSE). For administrators systemd provides a variety of new features and changes and enhances the administrative process substantially. This blog story is the first part of a series of articles I plan to post roughly every week for the next months. In every post I will try to explain one new feature of systemd. Many of these features are small and simple, so these stories should be interesting to a broader audience. However, from time to time we'll dive a little bit deeper into the great new features systemd provides you with.
+Như nhiều bạn đã biết, systemd là trình quản lý khởi động mới của Fedora, bắt đầu áp dụng từ phiên bản F14, và hiện tại đang được triển khai vào một số bản phân phối khác (ví dụ như OpenSUSE). Với các quản trị viên, systemd hỗ trợ rất nhiều những tính năng mới, với những thay đổi, giúp cho việc quản lý các tiến trình một cách hiệu quả hơn. Câu chuyện này là đoạn mở đầu của một loạt các bài viết mà tôi dự tính sẽ đăng mỗi tuần trong thời gian sắp tới. Trong mỗi bài, tôi sẽ cố gắng giải thích một trong những tính năng mới của systemd. Rất nhiều trong số các tính năng này nhỏ gọn và đơn giản, nên chắc rằng những bài viết này cũng bao quát với nhiều người đọc hơn. Tuy nhiên, về sau chúng tôi sẽ tìm hiểu sâu và kỹ hơn những tính năng tuyệt vời mới của systemd để phổ biến cho mọi người.
 
 * TOC
 {:toc}
 
-## Verifying Bootup
+## Kiểm tra quá trình khởi động
 
-Traditionally, when booting up a Linux system, you see a lot of little messages passing by on your screen. As we work on speeding up and parallelizing the boot process these messages are becoming visible for a shorter and shorter time only and be less and less readable -- if they are shown at all, given we use graphical boot splash technology like Plymouth these days. Nonetheless the information of the boot screens was and still is very relevant, because it shows you for each service that is being started as part of bootup, wether it managed to start up successfully or failed (with those green or red [ OK ] or [ FAILED ] indicators). To improve the situation for machines that boot up fast and parallelized and to make this information more nicely available during runtime, we added a feature to systemd that tracks and remembers for each service whether it started up successfully, whether it exited with a non-zero exit code, whether it timed out, or whether it terminated abnormally (by segfaulting or similar), both during start-up and runtime. By simply typing systemctl in your shell you can query the state of all services, both systemd native and SysV/LSB services:
+Theo cách cũ, khi khởi động một hệ thống Linux, ta sẽ thấy những dòng thông điệp (message) ngắn chạy trên màn hình. Với việc ta muốn tăng tốc và đồng bộ hóa quá trình khởi động, các thông điệp này được hiển thị chỉ trong khoảng thời gian ngắn và càng lúc càng ít thấy hơn – nếu chúng được hiển thị hết, và thế là ta dùng giao diện khởi động đồ họa như Plymouth bây giờ. Tuy nhiên, các thông tin này vẫn rất hữu dụng, vì chúng giúp ta biết được các dịch vụ (service) nào sẽ được bật lên trong quá trình khởi động, cho ta thấy được các service này được khởi động thành công hay thất bại (với những thông số màu xanh lá cây [ OK ] hoặc màu đỏ [ FAILED ] ). Để cải thiện khả năng khởi động nhanh, đồng bộ của máy và làm các thông tin trông dễ nhìn hơn khi đang vận hành, chúng tôi đã thêm một tính năng mới cho systemd là theo dõi và ghi nhớ quá trình khi các dịch vụ đã được khởi động thành công, khi bị thoát vì lỗi 'giá trị trả về khác 0' (non-zero exit code - tham khảo http://tldp.org/LDP/abs/html/exitcodes.html), khi time out, hay cả khi chúng bị chấm dứt bất thường (lỗi tràn bộ nhớ đệm hay gì đó tương tự), trong suốt quá trình khởi động và thời gian chạy. Chỉ đơn giản là gõ lệnh systemctl trong shell, ta có thể liệt kê ra trạng thái tất cả các dịch vụ của systemd thuần túy và các dịch vụ SysV/LSB:
+
+ As we work on speeding up and parallelizing the boot process these messages are becoming visible for a shorter and shorter time only and be less and less readable -- if they are shown at all, given we use graphical boot splash technology like Plymouth these days. Nonetheless the information of the boot screens was and still is very relevant, because it shows you for each service that is being started as part of bootup, wether it managed to start up successfully or failed (with those green or red [ OK ] or [ FAILED ] indicators). To improve the situation for machines that boot up fast and parallelized and to make this information more nicely available during runtime, we added a feature to systemd that tracks and remembers for each service whether it started up successfully, whether it exited with a non-zero exit code, whether it timed out, or whether it terminated abnormally (by segfaulting or similar), both during start-up and runtime. By simply typing systemctl in your shell you can query the state of all services, both systemd native and SysV/LSB services:
 
     [root@lambda] ~# systemctl
     UNIT                                          LOAD   ACTIVE       SUB          JOB             DESCRIPTION
@@ -105,9 +107,9 @@ Traditionally, when booting up a Linux system, you see a lot of little messages 
 
     221 units listed. Pass --all to see inactive units, too.
 
-(I have shortened the output above a little, and removed a few lines not relevant for this blog post.)
+(Tôi đã rút gọn và xóa những dòng không liên quan đến bài viết này.)
 
-Look at the ACTIVE column, which shows you the high-level state of a service (or in fact of any kind of unit systemd maintains, which can be more than just services, but we'll have a look on this in a later blog posting), whether it is active (i.e. running), inactive (i.e. not running) or in any other state. If you look closely you'll see one item in the list that is marked maintenance and highlighted in red. This informs you about a service that failed to run or otherwise encountered a problem. In this case this is ntpd. Now, let's find out what actually happened to ntpd, with the systemctl status command:
+Nhìn vào cột ACTIVE, cột này sẽ cho bạn thấy trạng thái ở mức cao (high-level) của một dịch vụ (hay là những thứ khác mà systemd quản lý, không chỉ đơn giản là những dịch vụ, ta sẽ xem xét điều này sau ở một bài viết khác), khi nào nó đang active (hoạt động), inactive (không hoạt động) hay trong những trạng thái khác. Nếu nhìn kỹ hơn bạn sẽ thấy có một dòng trong danh sách được đánh dấu màu đỏ và ghi là maintenance. Thông tin này cho bạn biết về một dịch vụ không chạy được hoặc là đã gặp vấn đề gì đó. Trong trường hợp này là ntpd. Bây giờ ta sẽ thử tìm hiểu xem thực sự điều gì đã xảy ra với ntpd bằng lệnh systemctl status:
 
     [root@lambda] ~# systemctl status ntpd.service
     ntpd.service - Network Time Service
@@ -116,7 +118,7 @@ Look at the ACTIVE column, which shows you the high-level state of a service (or
           Main: 953 (code=exited, status=255)
         CGroup: name=systemd:/systemd-1/ntpd.service
 
-This shows us that NTP terminated during runtime (when it ran as PID 953), and tells us exactly the error condition: the process exited with an exit status of 255.
+Kết quả cho ta thấy NTP đã bị tắt trong quá trình vận hành (khi nó đang chạy với PID là 953), và cho ta biết chính xác nguyên nhân lỗi: tiến trình đã bị thoát với giá trị trả về là 255.
 
 In a later systemd version, we plan to hook this up to ABRT, as soon as this enhancement request is fixed. Then, if systemctl status shows you information about a service that crashed it will direct you right-away to the appropriate crash dump in ABRT.
 
