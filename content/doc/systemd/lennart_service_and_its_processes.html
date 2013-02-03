@@ -1,307 +1,121 @@
 ---
-title: systemd - Which Service Owns Which Processes?
+title: "systemd: tiến trình của dịch vụ"
 author: Lennart Poettering
 origin: http://0pointer.de/blog/projects/systemd-for-admins-2.html
 date: 2010-sep-08
 tags: ['systemd', 'sysadmin', 'boottime', 'process']
+translators: z1y
 allow_comments: yes
 ---
 
-On most Linux systems the number of processes that are running by default is substantial. Knowing which process does what and where it belongs to becomes increasingly difficult. Some services even maintain a couple of worker processes which clutter the "ps" output with many additional processes that are often not easy to recognize. This is further complicated if daemons spawn arbitrary 3rd-party processes, as Apache does with CGI processes, or cron does with user jobs.
+> Trong bài dịch này, từ `dịch vụ` được dùng cho từ gốc `service`.
+> Ở một số nơi, dùng từ `ứng dụng` sẽ thích hợp hơn. Việc dùng từ
+> `dịch vụ` có thể do tác giả Lennart muốn mô tả kỹ về `systemd` -- z1y
 
-A slight remedy for this is often the process inheritance tree, as shown by "ps xaf". However this is usually not reliable, as processes whose parents die get reparented to PID 1, and hence all information about inheritance gets lost. If a process "double forks" it hence loses its relationships to the processes that started it. (This actually is supposed to be a feature and is relied on for the traditional Unix daemonizing logic.) Furthermore processes can freely change their names with PR_SETNAME or by patching argv[0], thus making it harder to recognize them. In fact they can play hide-and-seek with the administrator pretty nicely this way.
+* TOC
+{:toc}
 
-In systemd we place every process that is spawned in a control group named after its service. Control groups (or cgroups) at their most basic are simply groups of processes that can be arranged in a hierarchy and labelled individually. When processes spawn other processes these children are automatically made members of the parents cgroup. Leaving a cgroup is not possible for unprivileged processes. Thus, cgroups can be used as an effective way to label processes after the service they belong to and be sure that the service cannot escape from the label, regardless how often it forks or renames itself. Furthermore this can be used to safely kill a service and all processes it created, again with no chance of escaping.
+## Vấn đề. Cách giải quyết truyền thống
 
-In today's installment I want to introduce you to two commands you may use to relate systemd services and processes. The first one, is the well known ps command which has been updated to show cgroup information along the other process details. And this is how it looks:
+Trong hầu hết hệ thống Linux, rất khó biết một tiến trình làm gì và thuộc về
+dịch vụ nào. Trường hợp tiêu biểu là khi dịch vụ đặt ra nhiều tiến
+trình ong thợ (`worker procces`) làm cho kết quả xuất của lệnh `ps` rối tung lên,
+rất khó thấy cái nào ở đâu. Hoặc ứng dụng bật lên các tiến trình thứ ba,
+ví dụ khi `cron` thi hành các nhiệm vụ (`job`) của nó, hoặc khi `Apache`
+mở các tiến trình `CGI`.
+
+Để tìm kiếm tiến trình dễ dàng hơn, có thể dùng công cụ như `htop`, `pstree`,
+hoặc lệnh `ps xaf`. Tuy nhiên, cách này không đáng tin cậy trong các trường hợp sau
+
+* khi một tiến trình bị mất cha sẽ có cha mới là tiến trình `PID 1`, dẫn tới thông
+  tin về quan hệ cha - con giữa các tiến trình bị thay đổi;
+* khi tiến trình tự nhân đôi hai lần (`double fork`) làm mất hoàn thông tin
+  về mối quan hệ với tiến trình ban đầu _(đây thực tế là cách làm việc truyền
+  thống của các tiến trình nền trong hệ thống Unix;)_
+* tiến trình thay đổi tên của chúng bằng `PR_SETNAME` hoặc điều chỉnh lại
+  tham số `argv[0]`, làm cho việc tìm kiếm theo tên trở  nên khó khăn,
+  thậm chí buộc người quản lý hệ thống chơi trò trốn - tìm bất đắc dĩ!
+
+## Cách giải quyết trong systemd
+
+Trái lại với các tiếp cận truyền thống, `systemd` đặt mỗi tiến trình vào
+nhóm điều khiển (`control group` hay `cgroup`) riêng có tên trùng với tên dịch vụ.
+Giải thích ngắn gọn, `nhóm điều khiển` là nhóm các tiến trình có quan hệ
+họ hàng với nhau và cùng được đánh dấu riêng, độc lập với các nhóm khác.
+Khi tiến trong nhóm phát sinh ra tiến trình mới thì tiến trình mới không
+thoát ra ngoài nhóm điều khiển ban đầu, trừ khi có các chỉ định đặc
+biệt với quyền của tài khoản `root`; nhờ đó, khi một dịch vụ bắt đầu,
+tất cả các tiến trình phát sinh của dịch vụ sẽ luôn được đánh cùng một
+nhãn, bất kể các tiến trình thực hiện nhân đôi, đổi tên,... như thế nào
+đi nữa. Nhờ cách nhóm này mà ta có thể dễ dàng hủy dịch vụ cùng với tất
+cả tiến trình mà nó tạo ra _(tất nhiên, các tiến trình được chỉ định thoát
+khỏi nhóm điều khiển của dịch vụ vẫn có thể còn đâu đó.)_
+
+## Các lệnh trợ giúp
+
+Phần tiếp theo trình bày hai lệnh giúp bạn xem được quan hệ cha - con
+giữa các tiến trình trong hệ thống. Đầu tiên là lệnh `ps` phiên bản mới
+nhất đã hỗ trợ thông tin về nhóm điều khiển, như ví dụ sau
 
     $ ps xawf -eo pid,user,cgroup,args
       PID USER     CGROUP                              COMMAND
         2 root     -                                   [kthreadd]
         3 root     -                                    \_ [ksoftirqd/0]
-    [...]
+    ...
      4281 root     -                                    \_ [flush-8:0]
         1 root     name=systemd:/systemd-1             /sbin/init
       455 root     name=systemd:/systemd-1/sysinit.service /sbin/udevd -d
     28188 root     name=systemd:/systemd-1/sysinit.service  \_ /sbin/udevd -d
-    28191 root     name=systemd:/systemd-1/sysinit.service  \_ /sbin/udevd -d
-     1096 dbus     name=systemd:/systemd-1/dbus.service /bin/dbus-daemon --system --address=systemd: --nofork --systemd-activation
-     1131 root     name=systemd:/systemd-1/auditd.service auditd
-     1133 root     name=systemd:/systemd-1/auditd.service  \_ /sbin/audispd
-     1135 root     name=systemd:/systemd-1/auditd.service      \_ /usr/sbin/sedispatch
-     1171 root     name=systemd:/systemd-1/NetworkManager.service /usr/sbin/NetworkManager --no-daemon
-     4028 root     name=systemd:/systemd-1/NetworkManager.service  \_ /sbin/dhclient -d -4 -sf /usr/libexec/nm-dhcp-client.action -pf /var/run/dhclient-wlan0.pid -lf /var/lib/dhclient/dhclient-7d32a784-ede9-4cf6-9ee3-60edc0bce5ff-wlan0.lease -
-     1175 avahi    name=systemd:/systemd-1/avahi-daemon.service avahi-daemon: running [epsilon.local]
-     1194 avahi    name=systemd:/systemd-1/avahi-daemon.service  \_ avahi-daemon: chroot helper
-     1193 root     name=systemd:/systemd-1/rsyslog.service /sbin/rsyslogd -c 4
-     1195 root     name=systemd:/systemd-1/cups.service cupsd -C /etc/cups/cupsd.conf
-     1207 root     name=systemd:/systemd-1/mdmonitor.service mdadm --monitor --scan -f --pid-file=/var/run/mdadm/mdadm.pid
-     1210 root     name=systemd:/systemd-1/irqbalance.service irqbalance
-     1216 root     name=systemd:/systemd-1/dbus.service /usr/sbin/modem-manager
-     1219 root     name=systemd:/systemd-1/dbus.service /usr/libexec/polkit-1/polkitd
-     1242 root     name=systemd:/systemd-1/dbus.service /usr/sbin/wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant.conf -B -u -f /var/log/wpa_supplicant.log -P /var/run/wpa_supplicant.pid
-     1249 68       name=systemd:/systemd-1/haldaemon.service hald
-     1250 root     name=systemd:/systemd-1/haldaemon.service  \_ hald-runner
-     1273 root     name=systemd:/systemd-1/haldaemon.service      \_ hald-addon-input: Listening on /dev/input/event3 /dev/input/event9 /dev/input/event1 /dev/input/event7 /dev/input/event2 /dev/input/event0 /dev/input/event8
-     1275 root     name=systemd:/systemd-1/haldaemon.service      \_ /usr/libexec/hald-addon-rfkill-killswitch
-     1284 root     name=systemd:/systemd-1/haldaemon.service      \_ /usr/libexec/hald-addon-leds
-     1285 root     name=systemd:/systemd-1/haldaemon.service      \_ /usr/libexec/hald-addon-generic-backlight
-     1287 68       name=systemd:/systemd-1/haldaemon.service      \_ /usr/libexec/hald-addon-acpi
-     1317 root     name=systemd:/systemd-1/abrtd.service /usr/sbin/abrtd -d -s
-     1332 root     name=systemd:/systemd-1/getty@.service/tty2 /sbin/mingetty tty2
-     1339 root     name=systemd:/systemd-1/getty@.service/tty3 /sbin/mingetty tty3
-     1342 root     name=systemd:/systemd-1/getty@.service/tty5 /sbin/mingetty tty5
-     1343 root     name=systemd:/systemd-1/getty@.service/tty4 /sbin/mingetty tty4
-     1344 root     name=systemd:/systemd-1/crond.service crond
-     1346 root     name=systemd:/systemd-1/getty@.service/tty6 /sbin/mingetty tty6
-     1362 root     name=systemd:/systemd-1/sshd.service /usr/sbin/sshd
-     1376 root     name=systemd:/systemd-1/prefdm.service /usr/sbin/gdm-binary -nodaemon
-     1391 root     name=systemd:/systemd-1/prefdm.service  \_ /usr/libexec/gdm-simple-slave --display-id /org/gnome/DisplayManager/Display1 --force-active-vt
-     1394 root     name=systemd:/systemd-1/prefdm.service      \_ /usr/bin/Xorg :0 -nr -verbose -auth /var/run/gdm/auth-for-gdm-f2KUOh/database -nolisten tcp vt1
-     1495 root     name=systemd:/user/lennart/1             \_ pam: gdm-password
-     1521 lennart  name=systemd:/user/lennart/1                 \_ gnome-session
-     1621 lennart  name=systemd:/user/lennart/1                     \_ metacity
-     1635 lennart  name=systemd:/user/lennart/1                     \_ gnome-panel
-     1638 lennart  name=systemd:/user/lennart/1                     \_ nautilus
-     1640 lennart  name=systemd:/user/lennart/1                     \_ /usr/libexec/polkit-gnome-authentication-agent-1
-     1641 lennart  name=systemd:/user/lennart/1                     \_ /usr/bin/seapplet
-     1644 lennart  name=systemd:/user/lennart/1                     \_ gnome-volume-control-applet
-     1646 lennart  name=systemd:/user/lennart/1                     \_ /usr/sbin/restorecond -u
-     1652 lennart  name=systemd:/user/lennart/1                     \_ /usr/bin/devilspie
-     1662 lennart  name=systemd:/user/lennart/1                     \_ nm-applet --sm-disable
-     1664 lennart  name=systemd:/user/lennart/1                     \_ gnome-power-manager
-     1665 lennart  name=systemd:/user/lennart/1                     \_ /usr/libexec/gdu-notification-daemon
-     1670 lennart  name=systemd:/user/lennart/1                     \_ /usr/libexec/evolution/2.32/evolution-alarm-notify
-     1672 lennart  name=systemd:/user/lennart/1                     \_ /usr/bin/python /usr/share/system-config-printer/applet.py
-     1674 lennart  name=systemd:/user/lennart/1                     \_ /usr/lib64/deja-dup/deja-dup-monitor
-     1675 lennart  name=systemd:/user/lennart/1                     \_ abrt-applet
-     1677 lennart  name=systemd:/user/lennart/1                     \_ bluetooth-applet
-     1678 lennart  name=systemd:/user/lennart/1                     \_ gpk-update-icon
-     1408 root     name=systemd:/systemd-1/console-kit-daemon.service /usr/sbin/console-kit-daemon --no-daemon
-     1419 gdm      name=systemd:/systemd-1/prefdm.service /usr/bin/dbus-launch --exit-with-session
-     1453 root     name=systemd:/systemd-1/dbus.service /usr/libexec/upowerd
-     1473 rtkit    name=systemd:/systemd-1/rtkit-daemon.service /usr/libexec/rtkit-daemon
-     1496 root     name=systemd:/systemd-1/accounts-daemon.service /usr/libexec/accounts-daemon
-     1499 root     name=systemd:/systemd-1/systemd-logger.service /lib/systemd/systemd-logger
-     1511 lennart  name=systemd:/systemd-1/prefdm.service /usr/bin/gnome-keyring-daemon --daemonize --login
-     1534 lennart  name=systemd:/user/lennart/1        dbus-launch --sh-syntax --exit-with-session
-     1535 lennart  name=systemd:/user/lennart/1        /bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
-     1603 lennart  name=systemd:/user/lennart/1        /usr/libexec/gconfd-2
-     1612 lennart  name=systemd:/user/lennart/1        /usr/libexec/gnome-settings-daemon
-     1615 lennart  name=systemd:/user/lennart/1        /usr/libexec/gvfsd
-     1626 lennart  name=systemd:/user/lennart/1        /usr/libexec//gvfs-fuse-daemon /home/lennart/.gvfs
-     1634 lennart  name=systemd:/user/lennart/1        /usr/bin/pulseaudio --start --log-target=syslog
-     1649 lennart  name=systemd:/user/lennart/1         \_ /usr/libexec/pulse/gconf-helper
-     1645 lennart  name=systemd:/user/lennart/1        /usr/libexec/bonobo-activation-server --ac-activate --ior-output-fd=24
-     1668 lennart  name=systemd:/user/lennart/1        /usr/libexec/im-settings-daemon
-     1701 lennart  name=systemd:/user/lennart/1        /usr/libexec/gvfs-gdu-volume-monitor
-     1707 lennart  name=systemd:/user/lennart/1        /usr/bin/gnote --panel-applet --oaf-activate-iid=OAFIID:GnoteApplet_Factory --oaf-ior-fd=22
-     1725 lennart  name=systemd:/user/lennart/1        /usr/libexec/clock-applet
-     1727 lennart  name=systemd:/user/lennart/1        /usr/libexec/wnck-applet
-     1729 lennart  name=systemd:/user/lennart/1        /usr/libexec/notification-area-applet
-     1733 root     name=systemd:/systemd-1/dbus.service /usr/libexec/udisks-daemon
-     1747 root     name=systemd:/systemd-1/dbus.service  \_ udisks-daemon: polling /dev/sr0
-     1759 lennart  name=systemd:/user/lennart/1        gnome-screensaver
-     1780 lennart  name=systemd:/user/lennart/1        /usr/libexec/gvfsd-trash --spawner :1.9 /org/gtk/gvfs/exec_spaw/0
-     1864 lennart  name=systemd:/user/lennart/1        /usr/libexec/gvfs-afc-volume-monitor
-     1874 lennart  name=systemd:/user/lennart/1        /usr/libexec/gconf-im-settings-daemon
-     1903 lennart  name=systemd:/user/lennart/1        /usr/libexec/gvfsd-burn --spawner :1.9 /org/gtk/gvfs/exec_spaw/1
-     1909 lennart  name=systemd:/user/lennart/1        gnome-terminal
-     1913 lennart  name=systemd:/user/lennart/1         \_ gnome-pty-helper
-     1914 lennart  name=systemd:/user/lennart/1         \_ bash
-    29231 lennart  name=systemd:/user/lennart/1         |   \_ ssh tango
-     2221 lennart  name=systemd:/user/lennart/1         \_ bash
-     4193 lennart  name=systemd:/user/lennart/1         |   \_ ssh tango
-     2461 lennart  name=systemd:/user/lennart/1         \_ bash
-    29219 lennart  name=systemd:/user/lennart/1         |   \_ emacs systemd-for-admins-1.txt
-    15113 lennart  name=systemd:/user/lennart/1         \_ bash
-    27251 lennart  name=systemd:/user/lennart/1             \_ empathy
-    29504 lennart  name=systemd:/user/lennart/1             \_ ps xawf -eo pid,user,cgroup,args
-     1968 lennart  name=systemd:/user/lennart/1        ssh-agent
-     1994 lennart  name=systemd:/user/lennart/1        gpg-agent --daemon --write-env-file
-    18679 lennart  name=systemd:/user/lennart/1        /bin/sh /usr/lib64/firefox-3.6/run-mozilla.sh /usr/lib64/firefox-3.6/firefox
-    18741 lennart  name=systemd:/user/lennart/1         \_ /usr/lib64/firefox-3.6/firefox
-    28900 lennart  name=systemd:/user/lennart/1             \_ /usr/lib64/nspluginwrapper/npviewer.bin --plugin /usr/lib64/mozilla/plugins/libflashplayer.so --connection /org/wrapper/NSPlugins/libflashplayer.so/18741-6
-     4016 root     name=systemd:/systemd-1/sysinit.service /usr/sbin/bluetoothd --udev
-     4094 smmsp    name=systemd:/systemd-1/sendmail.service sendmail: Queue runner@01:00:00 for /var/spool/clientmqueue
-     4096 root     name=systemd:/systemd-1/sendmail.service sendmail: accepting connections
-     4112 ntp      name=systemd:/systemd-1/ntpd.service /usr/sbin/ntpd -n -u ntp:ntp -g
-    27262 lennart  name=systemd:/user/lennart/1        /usr/libexec/mission-control-5
-    27265 lennart  name=systemd:/user/lennart/1        /usr/libexec/telepathy-haze
-    27268 lennart  name=systemd:/user/lennart/1        /usr/libexec/telepathy-logger
-    27270 lennart  name=systemd:/user/lennart/1        /usr/libexec/dconf-service
-    27280 lennart  name=systemd:/user/lennart/1        /usr/libexec/notification-daemon
-    27284 lennart  name=systemd:/user/lennart/1        /usr/libexec/telepathy-gabble
-    27285 lennart  name=systemd:/user/lennart/1        /usr/libexec/telepathy-salut
-    27297 lennart  name=systemd:/user/lennart/1        /usr/libexec/geoclue-yahoo
+    ...
 
-(Note that this output is shortened, I have removed most of the kernel threads here, since they are not relevant in the context of this blog story)
+_(Kết quả ở trên được cắt bớt để minh họa cho ý tưởng. Bạn nên thử thi hành
+lệnh trên máy tính đang dùng để dễ hình dung hơn.)_
 
-In the third column you see the cgroup systemd assigned to each process. You'll find that the udev processes are in the name=systemd:/systemd-1/sysinit.service cgroup, which is where systemd places all processes started by the sysinit.service service, which covers early boot.
+Ở cột thứ ba xuất hiện thông tin về nhóm điều khiển của từn tiến trình.
+Ví dụ, `udev` nằm trong nhóm `name=systemd: / systemd-1 / sysinit.service`,
+là nhóm gồm các tiến trình bật lên bởi dịch vụ `sysinit.service` trong
+quá trình ban đầu của việc khởi động máy.
 
-My personal recommendation is to set the shell alias psc to the ps command line shown above:
+Bạn có thể đặt lệnh tắt trong `shell` như sau đây, rồi chỉ cần gõ `psc` thay
+cho lệnh dài ở trên
 
     alias psc='ps xawf -eo pid,user,cgroup,args'
 
-With this service information of processes is just four keypresses away!
-
-A different way to present the same information is the systemd-cgls tool we ship with systemd. It shows the cgroup hierarchy in a pretty tree. Its output looks like this:
+Một cách khác đẹp hơn là dùng lệnh `systemd-cgls` có trong gói `systemd`.
+Kết quả lệnh này tương tự như sau
 
     $ systemd-cgls
     +    2 [kthreadd]
     [...]
-    + 4281 [flush-8:0]
     + user
     | \ lennart
     |   \ 1
     |     +  1495 pam: gdm-password
     |     +  1521 gnome-session
-    |     +  1534 dbus-launch --sh-syntax --exit-with-session
-    |     +  1535 /bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
-    |     +  1603 /usr/libexec/gconfd-2
-    |     +  1612 /usr/libexec/gnome-settings-daemon
-    |     +  1615 /ushr/libexec/gvfsd
-    |     +  1621 metacity
-    |     +  1626 /usr/libexec//gvfs-fuse-daemon /home/lennart/.gvfs
-    |     +  1634 /usr/bin/pulseaudio --start --log-target=syslog
-    |     +  1635 gnome-panel
-    |     +  1638 nautilus
-    |     +  1640 /usr/libexec/polkit-gnome-authentication-agent-1
-    |     +  1641 /usr/bin/seapplet
-    |     +  1644 gnome-volume-control-applet
-    |     +  1645 /usr/libexec/bonobo-activation-server --ac-activate --ior-output-fd=24
-    |     +  1646 /usr/sbin/restorecond -u
-    |     +  1649 /usr/libexec/pulse/gconf-helper
-    |     +  1652 /usr/bin/devilspie
-    |     +  1662 nm-applet --sm-disable
-    |     +  1664 gnome-power-manager
-    |     +  1665 /usr/libexec/gdu-notification-daemon
-    |     +  1668 /usr/libexec/im-settings-daemon
-    |     +  1670 /usr/libexec/evolution/2.32/evolution-alarm-notify
-    |     +  1672 /usr/bin/python /usr/share/system-config-printer/applet.py
-    |     +  1674 /usr/lib64/deja-dup/deja-dup-monitor
-    |     +  1675 abrt-applet
-    |     +  1677 bluetooth-applet
-    |     +  1678 gpk-update-icon
-    |     +  1701 /usr/libexec/gvfs-gdu-volume-monitor
-    |     +  1707 /usr/bin/gnote --panel-applet --oaf-activate-iid=OAFIID:GnoteApplet_Factory --oaf-ior-fd=22
-    |     +  1725 /usr/libexec/clock-applet
-    |     +  1727 /usr/libexec/wnck-applet
-    |     +  1729 /usr/libexec/notification-area-applet
-    |     +  1759 gnome-screensaver
-    |     +  1780 /usr/libexec/gvfsd-trash --spawner :1.9 /org/gtk/gvfs/exec_spaw/0
-    |     +  1864 /usr/libexec/gvfs-afc-volume-monitor
-    |     +  1874 /usr/libexec/gconf-im-settings-daemon
-    |     +  1882 /usr/libexec/gvfs-gphoto2-volume-monitor
-    |     +  1903 /usr/libexec/gvfsd-burn --spawner :1.9 /org/gtk/gvfs/exec_spaw/1
-    |     +  1909 gnome-terminal
-    |     +  1913 gnome-pty-helper
-    |     +  1914 bash
-    |     +  1968 ssh-agent
-    |     +  1994 gpg-agent --daemon --write-env-file
-    |     +  2221 bash
-    |     +  2461 bash
-    |     +  4193 ssh tango
-    |     + 15113 bash
-    |     + 18679 /bin/sh /usr/lib64/firefox-3.6/run-mozilla.sh /usr/lib64/firefox-3.6/firefox
-    |     + 18741 /usr/lib64/firefox-3.6/firefox
-    |     + 27251 empathy
-    |     + 27262 /usr/libexec/mission-control-5
-    |     + 27265 /usr/libexec/telepathy-haze
-    |     + 27268 /usr/libexec/telepathy-logger
-    |     + 27270 /usr/libexec/dconf-service
-    |     + 27280 /usr/libexec/notification-daemon
-    |     + 27284 /usr/libexec/telepathy-gabble
-    |     + 27285 /usr/libexec/telepathy-salut
-    |     + 27297 /usr/libexec/geoclue-yahoo
-    |     + 28900 /usr/lib64/nspluginwrapper/npviewer.bin --plugin /usr/lib64/mozilla/plugins/libflashplayer.so --connection /org/wrapper/NSPlugins/libflashplayer.so/18741-6
-    |     + 29219 emacs systemd-for-admins-1.txt
-    |     + 29231 ssh tango
-    |     \ 29519 systemd-cgls
+    .
+    .
     \ systemd-1
       + 1 /sbin/init
       + ntpd.service
       | \ 4112 /usr/sbin/ntpd -n -u ntp:ntp -g
-      + systemd-logger.service
-      | \ 1499 /lib/systemd/systemd-logger
-      + accounts-daemon.service
-      | \ 1496 /usr/libexec/accounts-daemon
-      + rtkit-daemon.service
-      | \ 1473 /usr/libexec/rtkit-daemon
-      + console-kit-daemon.service
-      | \ 1408 /usr/sbin/console-kit-daemon --no-daemon
-      + prefdm.service
-      | + 1376 /usr/sbin/gdm-binary -nodaemon
-      | + 1391 /usr/libexec/gdm-simple-slave --display-id /org/gnome/DisplayManager/Display1 --force-active-vt
-      | + 1394 /usr/bin/Xorg :0 -nr -verbose -auth /var/run/gdm/auth-for-gdm-f2KUOh/database -nolisten tcp vt1
-      | + 1419 /usr/bin/dbus-launch --exit-with-session
-      | \ 1511 /usr/bin/gnome-keyring-daemon --daemonize --login
-      + getty@.service
-      | + tty6
-      | | \ 1346 /sbin/mingetty tty6
-      | + tty4
-      | | \ 1343 /sbin/mingetty tty4
-      | + tty5
-      | | \ 1342 /sbin/mingetty tty5
-      | + tty3
-      | | \ 1339 /sbin/mingetty tty3
-      | \ tty2
-      |   \ 1332 /sbin/mingetty tty2
-      + abrtd.service
-      | \ 1317 /usr/sbin/abrtd -d -s
-      + crond.service
-      | \ 1344 crond
-      + sshd.service
-      | \ 1362 /usr/sbin/sshd
-      + sendmail.service
-      | + 4094 sendmail: Queue runner@01:00:00 for /var/spool/clientmqueue
-      | \ 4096 sendmail: accepting connections
-      + haldaemon.service
-      | + 1249 hald
-      | + 1250 hald-runner
-      | + 1273 hald-addon-input: Listening on /dev/input/event3 /dev/input/event9 /dev/input/event1 /dev/input/event7 /dev/input/event2 /dev/input/event0 /dev/input/event8
-      | + 1275 /usr/libexec/hald-addon-rfkill-killswitch
-      | + 1284 /usr/libexec/hald-addon-leds
-      | + 1285 /usr/libexec/hald-addon-generic-backlight
-      | \ 1287 /usr/libexec/hald-addon-acpi
-      + irqbalance.service
-      | \ 1210 irqbalance
-      + avahi-daemon.service
-      | + 1175 avahi-daemon: running [epsilon.local]
-      + NetworkManager.service
-      | + 1171 /usr/sbin/NetworkManager --no-daemon
-      | \ 4028 /sbin/dhclient -d -4 -sf /usr/libexec/nm-dhcp-client.action -pf /var/run/dhclient-wlan0.pid -lf /var/lib/dhclient/dhclient-7d32a784-ede9-4cf6-9ee3-60edc0bce5ff-wlan0.lease -cf /var/run/nm-dhclient-wlan0.conf wlan0
-      + rsyslog.service
-      | \ 1193 /sbin/rsyslogd -c 4
-      + mdmonitor.service
-      | \ 1207 mdadm --monitor --scan -f --pid-file=/var/run/mdadm/mdadm.pid
-      + cups.service
-      | \ 1195 cupsd -C /etc/cups/cupsd.conf
-      + auditd.service
-      | + 1131 auditd
-      | + 1133 /sbin/audispd
-      | \ 1135 /usr/sbin/sedispatch
+      .
+      .
       + dbus.service
-      | +  1096 /bin/dbus-daemon --system --address=systemd: --nofork --systemd-activation
-      | +  1216 /usr/sbin/modem-manager
-      | +  1219 /usr/libexec/polkit-1/polkitd
-      | +  1242 /usr/sbin/wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant.conf -B -u -f /var/log/wpa_supplicant.log -P /var/run/wpa_supplicant.pid
-      | +  1453 /usr/libexec/upowerd
-      | +  1733 /usr/libexec/udisks-daemon
-      | +  1747 udisks-daemon: polling /dev/sr0
-      | \ 29509 /usr/libexec/packagekitd
+      | +  1096 /bin/dbus-daemon --system ...
+      | ...
+      |
       + dev-mqueue.mount
       + dev-hugepages.mount
       \ sysinit.service
         +   455 /sbin/udevd -d
-        +  4016 /usr/sbin/bluetoothd --udev
-        + 28188 /sbin/udevd -d
-        \ 28191 /sbin/udevd -d
+        ...
 
-(This too is shortened, the same way)
+_(Kết quả ở trên được cắt bớt để minh họa cho ý tưởng. Bạn nên thử thi hành
+lệnh `systemd-cgls` trực tiếp trên máy để  biết chi tiết.)_
 
-As you can see, this command shows the processes by their cgroup and hence service, as systemd labels the cgroups after the services. For example, you can easily see that the auditing service auditd.service spawns three individual processes, auditd, audisp and sedispatch.
-
-If you look closely you will notice that a number of processes have been assigned to the cgroup /user/1. At this point let's simply leave it at that systemd not only maintains services in cgroups, but user session processes as well. In a later installment we'll discuss in more detail what this about.
-
-So much for now, come back soon for the next installment!
+Lệnh `systemd-cgls` sắp xếp tiến trình theo nhóm điều khiển _(cũng là theo dịch vụ)_,
+với cấu trúc hình cây rất dễ tìm và phân loại các tiến trình. Nếu nhìn kỹ
+bạn sẽ thấy nhóm điều khiển `user / lennart / 1` bao gồm tất cả các tiến
+trình do người dùng `lennart` bật. Như vậy, `systemd` còn giúp quản lý
+các tiến trình của người dùng bên cạnh việc quản lý các dịch vụ hệ thống.
+Ta sẽ nói kỹ hơn về điều này trong các bài sau.
