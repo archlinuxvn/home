@@ -1,104 +1,55 @@
 ---
-title: systemd - verifying bootup
+title: systemd - kiểm tra quá trình khởi động
 author: Lennart Poettering
 origin: http://0pointer.de/blog/projects/systemd-for-admins-1.html
 date: 2010-aug-23
 tags: ['systemd', 'sysadmin', 'bootup']
+translators: miyo, z1y
 allow_comments: yes
 ---
 
-Như nhiều bạn đã biết, `systemd` là trình quản lý khởi động mới của `Fedora`, bắt đầu áp dụng từ phiên bản F14, và hiện tại đang được triển khai vào một số bản phân phối khác (ví dụ như OpenSUSE). Với các quản trị viên, `systemd` hỗ trợ rất nhiều những tính năng, thay đổi mới giúp cho việc quản lý các tiến trình một cách hiệu quả hơn.
+Như nhiều bạn đã biết, `systemd` là trình quản lý khởi động mới của `Fedora`,
+bắt đầu áp dụng từ phiên bản `F14`, và đang được triển khai vào một số bản
+phân phối khác (như `OpenSUSE`). Với các quản trị viên, `systemd` hỗ trợ
+rất nhiều những tính năng, thay đổi mới giúp cho việc quản lý
+các tiến trình cách hiệu quả hơn.
 
 * TOC
 {:toc}
 
-## Kiểm tra quá trình khởi động
+## Cách truyền thống
 
-Theo cách truyền thống, khi khởi động một hệ thống Linux, ta sẽ thấy những dòng  message (thông điệp) chạy trên màn hình. Với việc ta muốn tăng tốc và đồng bộ hóa quá trình khởi động, các message này được hiển thị chỉ trong khoảng thời gian ngắn và gần như là không đọc kịp, dẫn đến là bây giờ đa phần dùng giao diện khởi động đồ họa như Plymouth. Tuy nhiên, các thông tin này vẫn rất hữu dụng, vì chúng giúp ta biết được các service nào sẽ được bật lên trong quá trình khởi động, chỉ ra các service được khởi động thành công hay thất bại (với những thông số màu xanh lá cây [ OK ] hoặc màu đỏ [ FAILED ] ). Để cải thiện khả năng khởi động nhanh, đồng bộ của máy và làm các thông tin trông dễ nhìn hơn khi đang vận hành, chúng tôi đã thêm một tính năng mới cho systemd là theo dõi và ghi nhớ quá trình khi các service đã được khởi động thành công, khi bị thoát vì lỗi [non-zero exit code](http://tldp.org/LDP/abs/html/exitcodes.html) (giá trị trả về khác 0), khi `time-out`, hay cả khi chúng bị chấm dứt bất thường (do tràn bộ nhớ đệm hay lỗi gì đó tương tự), trong suốt quá trình khởi động và thời gian chạy. Chỉ đơn giản là gõ lệnh `systemctl` trong `shell`, ta có thể liệt kê ra trạng thái tất cả các dịch vụ của `systemd` thuần túy và các dịch vụ `SysV/LSB`:
+Theo cách truyền thống, khi khởi động hệ thống Linux, ta sẽ thấy rất nhiều
+dòng thông báo ngắn chạy trên màn hình. Nếu sử dụng giao diện khởi động đồ
+họa như Plymouth với một quá trình khởi động được tăng tốc và đồng bộ hóa,
+việc cho phép hiện tất cả các thông báo khiến mỗi thông báo chỉ xuất hiện
+trong thời gian rất ngắn, hầu như bạn không theo dõi kịp, trong khi chúng
+vẫn có ích, giúp biết được dịch vụ nào sẽ được bật lên, chỉ ra lỗi _(nếu có)_
+của các dịch vụ _(màu đỏ `[FAILED]` để chỉ lỗi)._
 
- 
+## Cách của systemd
+
+Để có thể xem lại được các thông báo xuất hiện trong quá trình khởi động,
+`systemd` có tính năng theo dõi và ghi nhớ thông tin và trạng thái của dịch vụ,
+ví dụ: mã trả về của tiến trình, lỗi thi hành quá thời gian cho phép, dịch vụ
+bị ngắt bất thường do tràn bộ nhớ,...
+
+Lệnh để xem trạng thái của các dịch vụ là `systemctl` như ví dụ sau.
+Lưu ý là lệnh này còn liệt kê cả trạng thái của các dịch vụ kiểu `SysV/LSB`
+chưa được chuyển qua `systemd`.
 
     [root@lambda] ~# systemctl
-    UNIT                                          LOAD   ACTIVE       SUB          JOB             DESCRIPTION
-    dev-hugepages.automount                       loaded active       running                      Huge Pages File System Automount Point
-    dev-mqueue.automount                          loaded active       running                      POSIX Message Queue File System Automount Point
-    proc-sys-fs-binfmt_misc.automount             loaded active       waiting                      Arbitrary Executable File Formats File System Automount Point
-    sys-kernel-debug.automount                    loaded active       waiting                      Debug File System Automount Point
-    sys-kernel-security.automount                 loaded active       waiting                      Security File System Automount Point
-    sys-devices-pc...0000:02:00.0-net-eth0.device loaded active       plugged                      82573L Gigabit Ethernet Controller
-    [...]
-    sys-devices-virtual-tty-tty9.device           loaded active       plugged                      /sys/devices/virtual/tty/tty9
-    -.mount                                       loaded active       mounted                      /
-    boot.mount                                    loaded active       mounted                      /boot
-    dev-hugepages.mount                           loaded active       mounted                      Huge Pages File System
-    dev-mqueue.mount                              loaded active       mounted                      POSIX Message Queue File System
-    home.mount                                    loaded active       mounted                      /home
-    proc-sys-fs-binfmt_misc.mount                 loaded active       mounted                      Arbitrary Executable File Formats File System
-    abrtd.service                                 loaded active       running                      ABRT Automated Bug Reporting Tool
-    accounts-daemon.service                       loaded active       running                      Accounts Service
-    acpid.service                                 loaded active       running                      ACPI Event Daemon
-    atd.service                                   loaded active       running                      Execution Queue Daemon
-    auditd.service                                loaded active       running                      Security Auditing Service
-    avahi-daemon.service                          loaded active       running                      Avahi mDNS/DNS-SD Stack
-    bluetooth.service                             loaded active       running                      Bluetooth Manager
-    console-kit-daemon.service                    loaded active       running                      Console Manager
-    cpuspeed.service                              loaded active       exited                       LSB: processor frequency scaling support
-    crond.service                                 loaded active       running                      Command Scheduler
-    cups.service                                  loaded active       running                      CUPS Printing Service
-    dbus.service                                  loaded active       running                      D-Bus System Message Bus
-    getty@tty2.service                            loaded active       running                      Getty on tty2
-    getty@tty3.service                            loaded active       running                      Getty on tty3
-    getty@tty4.service                            loaded active       running                      Getty on tty4
-    getty@tty5.service                            loaded active       running                      Getty on tty5
-    getty@tty6.service                            loaded active       running                      Getty on tty6
-    haldaemon.service                             loaded active       running                      Hardware Manager
-    hdapsd@sda.service                            loaded active       running                      sda shock protection daemon
-    irqbalance.service                            loaded active       running                      LSB: start and stop irqbalance daemon
-    iscsi.service                                 loaded active       exited                       LSB: Starts and stops login and scanning of iSCSI devices.
-    iscsid.service                                loaded active       exited                       LSB: Starts and stops login iSCSI daemon.
-    livesys-late.service                          loaded active       exited                       LSB: Late init script for live image.
-    livesys.service                               loaded active       exited                       LSB: Init script for live image.
-    lvm2-monitor.service                          loaded active       exited                       LSB: Monitoring of LVM2 mirrors, snapshots etc. using dmeventd or progress polling
-    mdmonitor.service                             loaded active       running                      LSB: Start and stop the MD software RAID monitor
-    modem-manager.service                         loaded active       running                      Modem Manager
-    netfs.service                                 loaded active       exited                       LSB: Mount and unmount network filesystems.
-    NetworkManager.service                        loaded active       running                      Network Manager
-    ntpd.service                                  loaded maintenance  maintenance                  Network Time Service
-    polkitd.service                               loaded active       running                      Policy Manager
-    prefdm.service                                loaded active       running                      Display Manager
-    rc-local.service                              loaded active       exited                       /etc/rc.local Compatibility
-    rpcbind.service                               loaded active       running                      RPC Portmapper Service
-    rsyslog.service                               loaded active       running                      System Logging Service
-    rtkit-daemon.service                          loaded active       running                      RealtimeKit Scheduling Policy Service
-    sendmail.service                              loaded active       running                      LSB: start and stop sendmail
-    sshd@172.31.0.53:22-172.31.0.4:36368.service  loaded active       running                      SSH Per-Connection Server
-    sysinit.service                               loaded active       running                      System Initialization
-    systemd-logger.service                        loaded active       running                      systemd Logging Daemon
-    udev-post.service                             loaded active       exited                       LSB: Moves the generated persistent udev rules to /etc/udev/rules.d
-    udisks.service                                loaded active       running                      Disk Manager
-    upowerd.service                               loaded active       running                      Power Manager
-    wpa_supplicant.service                        loaded active       running                      Wi-Fi Security Service
-    avahi-daemon.socket                           loaded active       listening                    Avahi mDNS/DNS-SD Stack Activation Socket
-    cups.socket                                   loaded active       listening                    CUPS Printing Service Sockets
-    dbus.socket                                   loaded active       running                      dbus.socket
-    rpcbind.socket                                loaded active       listening                    RPC Portmapper Socket
-    sshd.socket                                   loaded active       listening                    sshd.socket
-    systemd-initctl.socket                        loaded active       listening                    systemd /dev/initctl Compatibility Socket
-    systemd-logger.socket                         loaded active       running                      systemd Logging Socket
-    systemd-shutdownd.socket                      loaded active       listening                    systemd Delayed Shutdown Socket
-    dev-disk-by\x1...x1db22a\x1d870f1adf2732.swap loaded active       active                       /dev/disk/by-uuid/fd626ef7-34a4-4958-b22a-870f1adf2732
-    basic.target                                  loaded active       active                       Basic System
-    bluetooth.target                              loaded active       active                       Bluetooth
-    dbus.target                                   loaded active       active                       D-Bus
-    getty.target                                  loaded active       active                       Login Prompts
-    graphical.target                              loaded active       active                       Graphical Interface
-    local-fs.target                               loaded active       active                       Local File Systems
-    multi-user.target                             loaded active       active                       Multi-User
-    network.target                                loaded active       active                       Network
-    remote-fs.target                              loaded active       active                       Remote File Systems
-    sockets.target                                loaded active       active                       Sockets
-    swap.target                                   loaded active       active                       Swap
-    sysinit.target                                loaded active       active                       System Initialization
+    UNIT                                 LOAD   ACTIVE       SUB          JOB DESCRIPTION
+    dev-hugepages.automount              loaded active       running          Huge Pages File System Automount Point
+    ...
+    sys-devices-virtual-tty-tty9.device  loaded active       plugged          /sys/devices/virtual/tty/tty9
+    -.mount                              loaded active       mounted          /
+    ...
+    ntpd.service                         loaded maintenance  maintenance      Network Time Service
+    ...
+    udev-post.service                    loaded active       exited           LSB: ...
+    ...
+    sysinit.target                       loaded active       active           System Initialization
 
     LOAD   = Reflects whether the unit definition was properly loaded.
     ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
@@ -107,7 +58,13 @@ Theo cách truyền thống, khi khởi động một hệ thống Linux, ta s�
 
     221 units listed. Pass --all to see inactive units, too.
 
-Nhìn vào cột ACTIVE, cột này cho thấy trạng thái ở high-level (mức cao) của một service, khi nào đang active (hoạt động), inactive (không hoạt động) hay trong những trạng thái khác. Nếu nhìn kỹ hơn bạn sẽ thấy có một dòng trong danh sách ghi là maintenance. Thông tin này cho ta biết về một dịch vụ không chạy được hoặc là đã gặp vấn đề nào đấy. Trong trường hợp này là ntpd. Bây giờ, ta sẽ thử tìm hiểu xem thực sự điều gì đã xảy ra với ntpd bằng lệnh `systemctl status`:
+_(Kết quả trên đã được thu gọn. Bạn nên thi hành lệnh `systemctl` trực tiếp
+để thấy nhiều chi tiết hơn.)_
+
+Cột `ACTIVE` cho thấy trạng thái của dịch vụ, ví dụ `active` (bật),
+`inactive` (tắt),... Trong danh sách trên còn có trạng thái `maintenance`
+cho thấy dịch vụ `ntpd` đã gặp trục trặc không thể bật được lúc máy khởi động.
+Ta xem điều gì xảy ra với ntpd bằng lệnh `systemctl status`:
 
     [root@lambda] ~# systemctl status ntpd.service
     ntpd.service - Network Time Service
@@ -116,10 +73,20 @@ Nhìn vào cột ACTIVE, cột này cho thấy trạng thái ở high-level (m�
           Main: 953 (code=exited, status=255)
         CGroup: name=systemd:/systemd-1/ntpd.service
 
-Kết quả cho thấy NTP đã bị tắt trong quá trình vận hành (khi nó đang chạy với PID là 953), và cho biết chính xác nguyên nhân lỗi là: tiến trình đã bị thoát với giá trị trả về là 255.
+Như vậy, trong quá trình khởi động, dịch vụ `ntpd` đã bật tiến trình có
+`PID 953`, tiến trình này kết thúc bất thường với lỗi 255 và dịch vụ `ntpd`
+bị đặt vào trạng thái `bảo trì`. Lưu ý rằng trong kiểu khởi động cũ như `sysV`
+chẳng hạn bạn hầu như không thể biết được mã lỗi trả về của tiến trình `ntpd`.
 
-Trong bản systemd sau này, chúng tôi dự định sẽ kết hợp với `ABRT` (Automatic Bug Reporting Tool), ngay khi đề nghị cải tiến [ở đây](https://bugzilla.redhat.com/show_bug.cgi?id=622773) được thực hiện. Kết quả khi dùng lệnh `systemctl status` với service bị crashed (ngưng đột ngột) sẽ được hướng đến `crash dump` tương ứng trong ABRT. 
+Trong tương lai, `systemd` có thể kết hợp với `ABRT` (công cụ báo lỗi tự động,
+`Automatic Bug Reporting Tool`), như đề nghị [ở đây] [abrt-request].
+Nhờw đó `systemctl status` có thể cung cấp thông tin _(bao gồm cả `crash dump`)_
+của các dịch vụ bị ngưng bất thường (`crash`).
 
 ## Tóm lại
 
-Dùng `systemctl` và `systemctl status` là một lựa chọn thay thế hoàn hảo cho hệ thống quản lý các message lúc khởi động cũ của các service SysV. systemctl status không chỉ thu thập các thông tin chi tiết về tình trạng lỗi mà còn cho thấy lỗi khi các service đang vận hành cũng như lúc mới khởi động.
+`systemctl` và `systemctl status` rất tiện lợi so với hệ thống cũ `SysV`.
+Chẳng hạn, `systemctl status` không chỉ thu thập các thông tin về điều kiện
+lỗi mà còn về lỗi thi hành (`run-time error`), lỗi khởi động (`start-up error`), ...
+
+[abrt-request]: https://bugzilla.redhat.com/show_bug.cgi?id=622773
