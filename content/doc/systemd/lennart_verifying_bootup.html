@@ -7,7 +7,7 @@ tags: ['systemd', 'sysadmin', 'boottime']
 allow_comments: yes
 ---
 
-Như nhiều bạn đã biết, `systemd` là trình quản lý khởi động mới của `Fedora`, bắt đầu áp dụng từ phiên bản F14, và hiện tại đang được triển khai vào một số bản phân phối khác (ví dụ như `OpenSUSE`). Với các quản trị viên, `systemd` hỗ trợ rất nhiều những tính năng mới, với những thay đổi, giúp cho việc quản lý các tiến trình một cách hiệu quả hơn. Câu chuyện này là đoạn mở đầu của một loạt các bài viết mà tôi dự tính sẽ đăng mỗi tuần trong thời gian sắp tới. Trong mỗi bài, tôi sẽ cố gắng giải thích một trong những tính năng mới của `systemd`. Rất nhiều trong số các tính năng này nhỏ gọn và đơn giản, nên chắc rằng những bài viết này cũng bao quát với nhiều người đọc hơn. Tuy nhiên, về sau chúng tôi sẽ tìm hiểu sâu và kỹ hơn những tính năng tuyệt vời mới của `systemd` để phổ biến cho mọi người.
+Như nhiều bạn đã biết, `systemd` là trình quản lý khởi động mới của `Fedora`, bắt đầu áp dụng từ phiên bản F14, và hiện tại đang được triển khai vào một số bản phân phối khác (ví dụ như [OpenSUSE] (http://en.opensuse.org/SDB:Systemd)). Với các quản trị viên, `systemd` hỗ trợ rất nhiều những tính năng mới, với những thay đổi, giúp cho việc quản lý các tiến trình một cách hiệu quả hơn. Câu chuyện này là đoạn mở đầu của một loạt các bài viết mà tôi dự tính sẽ đăng mỗi tuần trong thời gian sắp tới. Trong mỗi bài, tôi sẽ cố gắng giải thích một trong những tính năng mới của `systemd`. Rất nhiều trong số các tính năng này nhỏ gọn và đơn giản, nên chắc rằng những bài viết này cũng bao quát với nhiều người đọc hơn. Tuy nhiên, về sau chúng tôi sẽ tìm hiểu sâu và kỹ hơn những tính năng tuyệt vời mới của `systemd` để phổ biến cho mọi người.
 
 * TOC
 {:toc}
@@ -120,8 +120,8 @@ Nhìn vào cột ACTIVE, cột này sẽ cho bạn thấy trạng thái ở high
 
 Kết quả cho ta thấy NTP đã bị tắt trong quá trình vận hành (khi nó đang chạy với PID là 953), và cho ta biết chính xác nguyên nhân lỗi: tiến trình đã bị thoát với giá trị trả về là 255.
 
-Trong bản systemd sau này, chúng tôi dự định sẽ kết hợp với `ABRT` (Automatic Bug Reporting Tool), ngay khi đề nghị cải tiến ở đây được thực hiện. Khi đó, nếu lệnh `systemctl status` cho bạn thông tin về dịch vụ bị crashed (ngưng đột ngột) thì nó sẽ hướng bạn thẳng đến `crash dump` tương ứng trong ABRT. 
+Trong bản systemd sau này, chúng tôi dự định sẽ kết hợp với `ABRT` (Automatic Bug Reporting Tool), ngay khi đề nghị cải tiến [ở đây] (https://bugzilla.redhat.com/show_bug.cgi?id=622773) được thực hiện. Khi đó, nếu lệnh `systemctl status` cho bạn thông tin về dịch vụ bị crashed (ngưng đột ngột) thì nó sẽ hướng bạn thẳng đến `crash dump` tương ứng trong ABRT. 
 
 ## Tóm lại
 
-Dùng `systemctl` và `systemctl status` là một lựa chọn thay thế hoàn hảo cho hệ thống quản lý các message lúc khởi động cũ của các service SysV. systemctl status không chỉ thu thập các thông tin chi tiết về tình trạng lỗi mà còn cho thấy lỗi khi các service đang vận hành cũng như khi khởi động bị lỗi.
+Dùng `systemctl` và `systemctl status` là một lựa chọn thay thế hoàn hảo cho hệ thống quản lý các message lúc khởi động cũ của các service SysV. systemctl status không chỉ thu thập các thông tin chi tiết về tình trạng lỗi mà còn cho thấy lỗi khi các service đang vận hành cũng như lúc mới khởi động.
