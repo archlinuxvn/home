@@ -51,7 +51,7 @@ _update() {
   git reset --hard
   git fetch --all
   git checkout master || die "Can't switch to the branch :master"
-  git pull || die "Can't update local source tree. Please ask your sysadmin for details"
+  git pull --rebase || die "Can't update local source tree. Please ask your sysadmin for details"
 
   msg "Removing erb files"
   rm -r lib/* layouts/* _i/*
