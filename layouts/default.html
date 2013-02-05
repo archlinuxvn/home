@@ -10,26 +10,23 @@
       <% if @item[:title] %>
       <h1><%= @item[:title] %></h1>
         <%
-          has_tag =  (@item[:tags] || []).select{|tag| tag.match(/^[a-z0-9]+$/)}.empty? ? false : true
-          has_origin = @item[:origin]
-          if has_tag or has_origin
+          metas = []
+          if not (@item[:tags] || []).select{|tag| tag.match(/^[a-z0-9]+$/)}.empty?
+            metas << "<strong>Tags:</strong> " \
+                      + @item[:tags].map{|tag|
+                          tag.match(/^[a-z0-9]+$/) ? link_for_tag(tag, "/tags/") : nil
+                        }.compact.join(", ")
+          end
+          if @item[:origin]
+            metas << "<strong>Origin:</strong> <a href=\"#{@item[:origin]}\">#{@item[:origin]}</a>"
+          end
+          if @item[:license]
+            metas << "<strong>License:</strong> #{@item[:license]}"
+          end
         %>
+        <% if not metas.empty? %>
         <p>
-          <% if has_tag %>
-          <strong>Tags:</strong>
-          <%= @item[:tags].map{|tag|
-            tag.match(/^[a-z0-9]+$/) \
-              ? link_for_tag(tag, "/tags/") \
-              : nil
-            }.compact.join(", ") %>
-            <% if has_origin %>
-            <br />
-            <% end %>
-          <% end %>
-          <% if has_origin %>
-          <strong>Origin:</strong>
-            <a href="<%= @item[:origin] %>"><%= @item[:origin] %></a>
-          <% end %>
+          <%= metas.join("\n<br />\n")%>
         </p>
         <% end %>
       <% end %>
