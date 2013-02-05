@@ -40,17 +40,14 @@ Lưu ý là lệnh này còn liệt kê cả trạng thái của các dịch v�
 chưa được chuyển qua `systemd`.
 
     [root@lambda] ~# systemctl
-    UNIT                                 LOAD   ACTIVE       SUB          JOB DESCRIPTION
-    dev-hugepages.automount              loaded active       running          Huge Pages File System Automount Point
+    UNIT                     LOAD   ACTIVE       SUB          JOB DESCRIPTION
+    dev-hugepages.automount  loaded active       running      Huge Pages File System Automount Point
     ...
-    sys-devices-virtual-tty-tty9.device  loaded active       plugged          /sys/devices/virtual/tty/tty9
-    -.mount                              loaded active       mounted          /
+    ntpd.service             loaded maintenance  maintenance  Network Time Service
     ...
-    ntpd.service                         loaded maintenance  maintenance      Network Time Service
+    udev-post.service        loaded active       exited       LSB: ...
     ...
-    udev-post.service                    loaded active       exited           LSB: ...
-    ...
-    sysinit.target                       loaded active       active           System Initialization
+    sysinit.target           loaded active       active       System Initialization
 
     LOAD   = Reflects whether the unit definition was properly loaded.
     ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
