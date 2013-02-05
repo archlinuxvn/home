@@ -19,7 +19,7 @@
                 }.compact.join(", ") %>
             </p>
           <% end %>
-          <% unless @item[:origin] %>
+          <% if @item[:origin] %>
             <p>
               <strong>Origin:</strong>
                 <a href="<%= @item[:origin] %>"><%= @item[:origin] %></a>
@@ -27,7 +27,7 @@
           <% end %>
       <% end %>
       <%= yield %>
-      <% unless @item[:virtual] %>
+      <% if not @item[:virtual] %>
         <p>
           ----
           <br />
