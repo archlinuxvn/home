@@ -8,34 +8,41 @@
   <body>
     <div id="main">
       <% if @item[:title] %>
-        <h1><%= @item[:title] %></h1>
-          <% unless (@item[:tags] || []).select{|tag| tag.match(/^[a-z0-9]+$/)}.empty? %>
-            <p>
-              <strong>Tags:</strong>
-              <%= @item[:tags].map{|tag|
-                tag.match(/^[a-z0-9]+$/) \
-                  ? link_for_tag(tag, "/tags/") \
-                  : nil
-                }.compact.join(", ") %>
-            </p>
-          <% end %>
-          <% if @item[:origin] %>
-            <p>
-              <strong>Origin:</strong>
-                <a href="<%= @item[:origin] %>"><%= @item[:origin] %></a>
-            </p>
-          <% end %>
-      <% end %>
-      <%= yield %>
-      <% if not @item[:virtual] %>
+      <h1><%= @item[:title] %></h1>
+        <%
+          has_tag =  (@item[:tags] || []).select{|tag| tag.match(/^[a-z0-9]+$/)}.empty? ? false : true
+          has_origin = @item[:origin]
+          if has_tag or has_origin
+        %>
         <p>
-          ----
-          <br />
-          <em><%= git(:stat, @item) %>;</em>
-          <br />
-          <em><%= git(:last_update, @item) %></em>
+          <% if has_tag %>
+          <strong>Tags:</strong>
+          <%= @item[:tags].map{|tag|
+            tag.match(/^[a-z0-9]+$/) \
+              ? link_for_tag(tag, "/tags/") \
+              : nil
+            }.compact.join(", ") %>
+            <% if has_origin %>
+            <br />
+            <% end %>
+          <% end %>
+          <% if has_origin %>
+          <strong>Origin:</strong>
+            <a href="<%= @item[:origin] %>"><%= @item[:origin] %></a>
+          <% end %>
         </p>
-      <% end %>
+        <% end %>
+    <% end %>
+    <%= yield %>
+    <% if not @item[:virtual] %>
+      <p>
+        ----
+        <br />
+        <em><%= git(:stat, @item) %>;</em>
+        <br />
+        <em><%= git(:last_update, @item) %></em>
+      </p>
+    <% end %>
 <pre class="license">
 This page is published under the license <a href="http://creativecommons.org/licenses/by-nc-nd/3.0/">CC BY-NC-ND 3.0</a>.
   (1) Attribution — You must attribute the work in the manner
