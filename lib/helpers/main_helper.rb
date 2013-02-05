@@ -166,4 +166,48 @@ EOF
 
     ret.join("\n")
   end
+
+  # @purpose: print license text
+  # @author : Anh K. Huynh
+  # @date   : 2013 Feb 05
+  def license_text(name = "CC BY-ND")
+    texts = case name
+      when "CC BY-SA"
+        ["This page is published under the license <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC BY-SA 2.0</a>.",
+         "",
+         "You are free:",
+         "",
+         "  (1) to Share — to copy, distribute and transmit the work,",
+         "  (2) to Remix — to adapt the work,",
+         "  (3) sto make commercial use of the work",
+         "",
+         "under the following conditions:",
+         "",
+         "  (1) Attribution — You must attribute the work in the manner",
+         "      specified by the author or licensor <em>(but not in any way",
+         "      that suggests that they endorse you or your use of the work)</em>",
+         "  (2) Share Alike — If you alter, transform, or build upon this work,",
+         "      you may distribute the resulting work only under the same",
+         "      or similar license to this one."
+        ]
+      when false
+        []
+      else # "CC BY-ND 3.0"
+        ["This page is published under the license <a href=\"http://creativecommons.org/licenses/by-nc-nd/3.0/\">CC BY-NC-ND 3.0</a>.",
+         "",
+         "You are free to",
+         "",
+         "  Share — to copy, distribute and transmit the work",
+         "",
+         "under the following conditions:",
+         "",
+         "  (1) Attribution — You must attribute the work in the manner",
+         "      specified by the author or licensor <em>(but not in any way",
+         "      that suggests that they endorse you or your use of the work)</em>",
+         "  (2) Noncommercial — You may not use this work for commercial purposes;",
+         "  (3) No Derivative Works — You may not alter, transform, or build upon this work."
+        ]
+    end
+    texts.join("\n")
+  end
 end

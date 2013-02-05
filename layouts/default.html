@@ -32,25 +32,16 @@
           <% end %>
         </p>
         <% end %>
-    <% end %>
-    <%= yield %>
-    <% if not @item[:virtual] %>
+      <% end %>
+      <%= yield %>
+      <% if not @item[:virtual] %>
       <p>
         ----
-        <br />
-        <em><%= git(:stat, @item) %>;</em>
-        <br />
-        <em><%= git(:last_update, @item) %></em>
+        <br /><em><%= git(:stat, @item) %>;</em>
+        <br /><em><%= git(:last_update, @item) %></em>
       </p>
-    <% end %>
-<pre class="license">
-This page is published under the license <a href="http://creativecommons.org/licenses/by-nc-nd/3.0/">CC BY-NC-ND 3.0</a>.
-  (1) Attribution — You must attribute the work in the manner
-        specified by the author or licensor <em>(but not in any way
-        that suggests that they endorse you or your use of the work)</em>;
-  (2) Noncommercial — You may not use this work for commercial purposes;
-  (3) No Derivative Works — You may not alter, transform, or build upon this work.
-</pre>
+      <% end %>
+      <pre class="license"><%= license_text(@item[:license]) %></pre>
       <%= @item[:allow_comment] ? disqus_show : "" %>
     </div>
     <div id="sidebar">
@@ -63,12 +54,10 @@ This page is published under the license <a href="http://creativecommons.org/lic
       </ul>
       <h2><a href="/blog/">Blog</a></h2>
       <ul>
-        <li>
-            <a href="/blog/~redlotus/">redlotus</a>,
+        <li><a href="/blog/~redlotus/">redlotus</a>,
             <a href="/blog/~n0b0dy/">n0b0dy</a>
         </li>
-        <li>
-            <a href="/blog/~huy/">huy</a>,
+        <li><a href="/blog/~huy/">huy</a>,
             <a href="/blog/~icy/">icy</a>
         </li>
       </ul>
@@ -81,12 +70,10 @@ This page is published under the license <a href="http://creativecommons.org/lic
       <h2>Liên kết</h2>
       <ul>
         <li><a href="/vn/irc/">irc</a> (<a href="/vn/bot/">bot</a>, <a href="/irclogs/"><s>log</s></a>)</li>
-        <li>
-          <a href="/vn/lists/">nhóm thư</a>,
-          <a href="http://github.com/archlinuxvn/">mã nguồn</a></li>
-        <li>
-          <a href="https://facebook.com/archlinuxvn/">Facebook</a>,
-          <a href="https://twitter.com/archlinuxvn/">Twitter</a></li>
+        <li><a href="/vn/lists/">nhóm thư</a>,
+            <a href="http://github.com/archlinuxvn/">mã nguồn</a></li>
+        <li><a href="https://facebook.com/archlinuxvn/">Facebook</a>,
+            <a href="https://twitter.com/archlinuxvn/">Twitter</a></li>
         <li><a href="http://stats.tuxfamily.org/archlinuxvn.tuxfamily.org/">thống kê</a></li>
       </ul>
       <h2>Tìm kiếm</h2>
