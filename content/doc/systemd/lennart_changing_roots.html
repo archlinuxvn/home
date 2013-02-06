@@ -9,21 +9,108 @@ license: CC BY-SA
 allow_comments: yes
 ---
 
+> Trong bài viết này, `kết nối mù` được dùng để chỉ cho `bind mount`.
+> Nếu bạn có cách dịch khác tốt hơn, hãy đề nghị nhé -- z1y
 
-As administrator or developer sooner or later you'll ecounter `chroot()` environments. The chroot() system call simply shifts what a process and all its children consider the root directory /, thus limiting what the process can see of the file hierarchy to a subtree of it. Primarily chroot() environments have two uses:
+> Đây là một bài tương đối khó dịch và chính vấn đề kỹ thuật `chroot`
+> cũng không phải đơn giản. Nếu bạn chưa bao giờ nghe qua và triển khai
+> kỹ thuật đổi gốc, bạn nên dừng lại, không tiếp tục đọc bài này -- z1y
 
-1. For security purposes: In this use a specific isolated daemon is chroot()ed into a private subdirectory, so that when exploited the attacker can see only the subdirectory instead of the full OS hierarchy: he is trapped inside the chroot() jail.
-2. To set up and control a debugging, testing, building, installation or recovery image of an OS: For this a whole guest operating system hierarchy is mounted or bootstraped into a subdirectory of the host OS, and then a shell (or some other application) is started inside it, with this subdirectory turned into its /. To the shell it appears as if it was running inside a system that can differ greatly from the host OS. For example, it might run a different distribution or even a different architecture (Example: host x86_64, guest i386). The full hierarchy of the host OS it cannot see.
+Làm việc với hệ thống Linux với tư cách là người quản trị hay lập trình viên
+thì trước sau gì bạn cũng tiếp xúc với môi trường `chroot()`, mà trong bài
+này ta gọi là `đổi gốc`. Ở mức sâu bên dưới hệ thống, lệnh gọi `chroot()`
+làm cho ứng dụng và các tiến trình con của nó bị `mờ mắt`, thấy một thư
+mục con `/foobar/` trên hệ thống tập tin thật sự như là thư mục gốc `/`.
 
-On a classic System-V-based operating system it is relatively easy to use chroot() environments. For example, to start a specific daemon for test or other reasons inside a chroot()-based guest OS tree, mount /proc, /sys and a few other API file systems into the tree, and then use chroot(1) to enter the chroot, and finally run the SysV init script via /sbin/service from inside the chroot.
+* TOC
+{:toc}
 
-On a systemd-based OS things are not that easy anymore. One of the big advantages of systemd is that all daemons are guaranteed to be invoked in a completely clean and independent context which is in no way related to the context of the user asking for the service to be started. While in sysvinit-based systems a large part of the execution context (like resource limits, environment variables and suchlike) is inherited from the user shell invoking the init skript, in systemd the user just notifies the init daemon, and the init daemon will then fork off the daemon in a sane, well-defined and pristine execution context and no inheritance of the user context parameters takes place. While this is a formidable feature it actually breaks traditional approaches to invoke a service inside a chroot() environment: since the actual daemon is always spawned off PID 1 and thus inherits the chroot() settings from it, it is irrelevant whether the client which asked for the daemon to start is chroot()ed or not. On top of that, since systemd actually places its local communications sockets in /run/systemd a process in a chroot() environment will not even be able to talk to the init system (which however is probably a good thing, and the daring can work around this of course by making use of bind mounts.)
+## Mục đích của việc đổi gốc
 
-This of course opens the question how to use chroot()s properly in a systemd environment. And here's what we came up with for you, which hopefully answers this question thoroughly and comprehensively:
+Môi trường `chroot()` chủ yếu được dùng vào hai mục đích:
 
-Let's cover the first usecase first: locking a daemon into a chroot() jail for security purposes. To begin with, chroot() as a security tool is actually quite dubious, since chroot() is not a one-way street. It is relatively easy to escape a chroot() environment, as even the man page points out. Only in combination with a few other techniques it can be made somewhat secure. Due to that it usually requires specific support in the applications to chroot() themselves in a tamper-proof way. On top of that it usually requires a deep understanding of the chroot()ed service to set up the chroot() environment properly, for example to know which directories to bind mount from the host tree, in order to make available all communication channels in the chroot() the service actually needs. Putting this together, chroot()ing software for security purposes is almost always done best in the C code of the daemon itself. The developer knows best (or at least should know best) how to properly secure down the chroot(), and what the minimal set of files, file systems and directories is the daemon will need inside the chroot(). These days a number of daemons are capable of doing this, unfortunately however of those running by default on a normal Fedora installation only two are doing this: Avahi and RealtimeKit. Both apparently written by the same really smart dude. Chapeau! ;-) (Verify this easily by running ls -l /proc/*/root on your system.)
+1. *Mục đích an toàn:* Do ứng dụng bị `mờ mắt`, nó chỉ có thể truy cập vào
+  các tập tin bên trong thư mục `/foobar/` nào đó được chỉ định làm thư mục
+  gốc của môi trường `chroot()`. Nếu `hacker` kiểm soát được tiến trình này
+  thì hắn ta cũng không thể thoát ra được nhà tù `/foobar/` để tìm kiếm
+  thông tin hoặc phá hoại.
+2. *Chạy hệ thống (`khách`) bên trong hệ thống (`chủ`):*
+  Để kiểm tra, tìm kiếm lỗi, cài đặt, xây dựng, khôi phục,... một hệ thống.
+  Ví dụ khi bạn cần biên dịch các phần mềm để tạo ra một phiên bản Linux.
+  Nhưng thường gặp nhất là khi máy của bạn không khởi động được,
+  bạn phải dùng `livecd` hoặc `usb` để khởi động
+  máy rồi chuyển gốc vào hệ thống bị lỗi:
+    * sau khi khởi động máy bằng `usb`hoặc `livecd`, bạn kết nối phân
+      vùng gốc[^root-partition] của máy bị lỗi lên thư mục bất kỳ `/foobar/`,
+    * rồi dùng lệnh `chroot()` để bắt đầu một `shell` đổi gốc; `shell` này
+      `mờ mắt` và mặc dù nó cũng thấy được thư mục, ví dụ `/abc/`, nhưng
+      thực tế đó là `/foobar/abc/` trên hệ thống tập tin thật sự.
+      Sử dụng `shell` mới này bạn có thể làm nhiều việc để chỉnh sử hệ thống
+      bị hỏng; gần như là bạn chạy hệ thống cũ bên trong hệ thống
+      bắt đầu bằng `livecd`.
 
-That all said, systemd of course does offer you a way to chroot() specific daemons and manage them like any other with the usual tools. This is supported via the RootDirectory= option in systemd service files. Here's an example:
+Trong hệ thống dùng `SysV`, việc đổi gốc có thể thực hiện được dễ dàng,
+như đã nêu ví dụ ở phần 2. Khi người dùng yêu cầu bật một dịch vụ
+thì dịch vụ này sẽ chia sẻ nhiều thông tin thuộc về môi trường của người dùng;
+các thông tin đó có thể là giới hạn về tài nguyên _(số tập tin tối đa được mở,
+giới hạn bộ nhớ được dùng,...)_, các biến môi trường, ...
+
+## Đổi gốc trong systemd
+
+Khi dùng `systemd` thì chuyện đổi gốc khác đi, khó khăn hơn.
+Với `systemd`, tiến trình được bắt đầu trong một môi trường sạch sẽ, đơn
+giản nhất và độc lập với môi trường của người yêu cầu bắt đầu tiến trình[^context-systemd]:
+khi người dùng muốn bật một dịch vụ, người dùng sẽ _yêu cầu tiến trình
+`init` (`PID 1`) thực hiện giúp_. Khi có yêu cầu, tiến trình `PID 1` sẽ
+tạo ra mới không liên quan gì tới môi truờng của người dùng, và sau đó
+bắt đầu dịch vụ trong môi trường này.
+
+Nghe có vẻ hay, nhưng cách này khác xa cách tiếp cận truyền thống để bắt
+đầu một dịch vụ bên trong môi trường đổi gốc:
+ở `systemd`, môi trường cho dịch vụ tạo ra bởi `PID 1`, nên mặc
+kệ người dùng yêu cầu dịch vụ có đang ở môi truờng đổi gốc hay không thì
+cũng không ảnh hưởng gì tới dịch vụ mới.
+Một vấn đề khác là `systemd` cho phép giao tiếp giữa các dịch vụ thông qua
+các kênh `socket` nằm trong `/run/systemd`, nên bên trong môi trường đổi
+gốc _(ở đó, thư mục `/run/systemd/` có thể không còn truy cập được)_,
+tiến trình không thể giao tiếp với tiến trình `PID 1`
+_(mặc dù vậy bạn có thể chữa cháy bằng cách dùng kết nối mù hay `bind mount`.)_
+
+Câu hỏi đặt ra là làm thế nào để đổi gốc đúng đắn khi dùng `systemd`.
+Thật may mắn là câu trả lời lại đơn giản như sau đây.
+
+### Mục đích an toàn
+
+Ta xem xét cách đổi gốc với `systemd` để đạt mục đích đầu tiên về an toàn,
+đó là đảm bảo một tiến trình nằm hoàn toàn bên trong môi trường đổi gốc.
+
+Lưu ý đầu tiên phải nói tới, rằng việc đổi gốc với lệnh gọi hệ thống `chroot()`
+tuy hướng tới mục đích an toàn, nhưng đạt sự an tòan không phải là điều dễ dàng.
+Bởi vì có nhiều cách, thậm chí đơn giản, để thoát khỏi môi trường đổi gốc,
+như trong tài liệu chính thức của `chroot()` đề cập. Chỉ khi nào bạn triển
+khai việc đổi gốc cùng với một số kỹ thuật khác thì bạn mới có thể _an toàn_
+được. Thường thì kỹ thuật hiệu quả nhất là điều chỉnh ngay từ úng dụng
+_(điều này có nghĩa là mã nguồn ứng dụng phải thay đổi)_; và việc này đòi
+hỏi sự am hiểu sâu sắc về bản thân ứng dụng: ví dụ cần biết ứng dụng cần
+kết nối mù nào để việc giao tiếp với các tiến trình khác hiệu quả, biết
+danh sách _(tối thiểu)_ các tập tin hay thư mục nào sẽ được dùng trong
+môi trường đổi gốc, v.v...
+Chính người lập trình viên biết hoặc nên biết những thứ này.
+
+Hiện nay nhiều ứng dụng đã được điều chỉnh mã nguồn để có thể làm việc trong
+môi trường đổi gốc. Nhưng trong các cài đặt mặc định thì chúng lại không
+chuyển gốc khi chạy. Lấy ví dụ trong `Fedora` _(cài đặt mặc định)_ chỉ có
+hai ứng dụng là `Avahi` và `ReadtimeKit` chạy trong môi trường đổi gốc.
+Trên máy của bạn, có thể gõ lệnh sau để biết; có thể bạn thấy một danh
+sách rất dài ứng dụng có thể truy cập trực tiếp vào thư mục gốc `/` thực tế:
+
+    ls -l /proc/*/root
+    # đừng đặt dấu / vào cuối lệnh trên nhé
+
+Vấn đề đặt ra là `systemd` có hỗ trợ gì cho việc đổi gốc cho các dịch vụ
+_(bất kỳ; không nhất ứng dụng phải được điều chỉnh mã nguồn để có thể
+tự bắt đầu môi trường đổi gốc của nó)_.
+Có cách! Chỉ cần chỉ ra `RootDirectory` khi cấu hình dịch vụ. Ví dụ
 
     [Unit]
     Description=A chroot()ed Service
@@ -34,22 +121,59 @@ That all said, systemd of course does offer you a way to chroot() specific daemo
     ExecStart=/usr/bin/foobard
     RootDirectoryStartOnly=yes
 
-In this example, RootDirectory= configures where to chroot() to before invoking the daemon binary specified with ExecStart=. Note that the path specified in ExecStart= needs to refer to the binary inside the chroot(), it is not a path to the binary in the host tree (i.e. in this example the binary executed is seen as /srv/chroot/foobar/usr/bin/foobard from the host OS). Before the daemon is started a shell script setup-foobar-chroot.sh is invoked, whose purpose it is to set up the chroot environment as necessary, i.e. mount /proc and similar file systems into it, depending on what the service might need. With the RootDirectoryStartOnly= switch we ensure that only the daemon as specified in ExecStart= is chrooted, but not the ExecStartPre= script which needs to have access to the full OS hierarchy so that it can bind mount directories from there. (For more information on these switches see the respective man pages.) If you place a unit file like this in /etc/systemd/system/foobar.service you can start your chroot()ed service by typing systemctl start foobar.service. You may then introspect it with systemctl status foobar.service. It is accessible to the administrator like any other service, the fact that it is chroot()ed does -- unlike on SysV -- not alter how your monitoring and control tools interact with it.
+Ở đây, `RootDirectory=` chỉ ra thư mục gốc của dịch vụ, là thư mục mà ứng
+dụng sẽ thấy như là `/` kể từ khi nó bắt đầu _(bởi lệnh cho trong `ExecStart`)_.
+Do ứng dụng mờ mắt khi nhìn thư mục gốc _ngay từ khi bắt đầu_, nên bạn phải
+chú ý rằng đường dẫn `/usr/bin/foobard` ở đây thật sự là tập tin
+`/srv/chroot/foobar/usr/bin/foobard` ở hệ thống ban đầu.
 
-Newer Linux kernels support file system namespaces. These are similar to chroot() but a lot more powerful, and they do not suffer by the same security problems as chroot(). systemd exposes a subset of what you can do with file system namespaces right in the unit files themselves. Often these are a useful and simpler alternative to setting up full chroot() environment in a subdirectory. With the switches ReadOnlyDirectories= and InaccessibleDirectories= you may setup a file system namespace jail for your service. Initially, it will be identical to your host OS' file system namespace. By listing directories in these directives you may then mark certain directories or mount points of the host OS as read-only or even completely inaccessible to the daemon. Example:
+Cấu hình cũng cho thấy kịch bản `setup-foobar-chroot.sh` được thi hành
+**ngay trước**  khi việc đổi gốc và bật ứng dụng diễn ra. Kịch bản phụ
+này đóng vai trò mồi, ví dụ thực hiện kết nối mù, kết nối `/proc/`
+vào `/srv/chroot/foobar/proc` hoặc kết nối `/dev/` vào `/srv/chroot/foobar/dev`
+_(ví dụ sau là để giúp dịch vụ có được thông tin về các thiết bị trên máy),...
+Lưu ý rằng nhờ thiết lập `RootDirectoryStartOnly=yes` mà kịch bản mồi có
+thể truy cập vào vào thư mục gốc thật sự của hệ thống; đó là vì việc đổi
+gốc được chỉ định chỉ xảy ra với lệnh `foobard`. Nếu thiết lập ngược lại,
+kịch bản mồi sẽ bắt đầu bên trong môi trường đổi gốc, và khi đó bạn
+sẽ không thể thực hiện kết nối mù khi cần thiết.
+
+Để sử dụng cấu hình ở trên, bạn lưu nó vào tập tin `/etc/systemd/systemd/foobar.service`
+và sử dụng `systemctl start foobar` để bật dịch vụ: ứng dụng của bạn sẽ
+chắc chắn nằm bên trong môi trường đổi gốc. Nhưng cách bạn điều khiển ứng
+dụng này, như bật, tắt, ... chẳng có gì khác so với những dịch vụ thường.
+Chính đây là ý khác biệt với các dịch vụ đổigốc trong hệ thống `SysV`
+
+Nếu dùng các nhân Linux mới, bạn có cách khác nhờ vào hỗ trợ không gian
+tên trong hệ thống tập tin _(`file system namespace`)_. Hỗ trợ này tương
+tự `chroot()`, nhưng mạnh mẽ hơn nhiều và không gặp phải vấn đề  an tòan
+như của `chroot()`. Bạn sẽ thấy cách này trong ví dụ sau đây, và sẽ thấy
+nó có thể thay thể  hòan tòan cho cho việc đổi gốc thông thường.
+Ý tưởng là `systemd` cho phép bạn liệt kê những đường dẫn mà ứng dụng có thể
+truy cập được hoặc không, bằng các cài đặt `ReadOnlyDirectories`
+và `InaccessibleDirectories`. Lưu ý là `systemd` bắt đầu ứng dụng với
+toàn bộ không gian tên của hệ thống, và bạn sẽ cần thiết lập để hạn chế
+các truy cập:
 
     [Unit]
     Description=A Service With No Access to /home
 
     [Service]
     ExecStart=/usr/bin/foobard
-    InaccessibleDirectories=/home
+    InaccessibleDirectories=/home/
+    ReadOnlyDirectories=/etc/
 
-This service will have access to the entire file system tree of the host OS with one exception: /home will not be visible to it, thus protecting the user's data from potential exploiters. (See the man page for details on these options.)
+Thật rõ ràng và dễ hiểu: ứng dụng `foobard` đọc được `/etc/` nhưng không
+thể ghi vào đấy; nó cũng không có bất kỳ quyền đọc, ghi nào vào `/home/`.
 
-File system namespaces are in fact a better replacement for chroot()s in many many ways. Eventually Avahi and RealtimeKit should probably be updated to make use of namespaces replacing chroot()s.
+Sử dụng không gian tên là cách đơn giản và hiệu quả  hơn nhiều so với cài
+đặt đổi gốc `truyền thống`. Thậm chí, hai ứng dụng `Avahi` và `RealtimeKit`
+đã đề cập ở trên có thể nên được viết lại để có thể dùng hỗ trợ này.
 
-So much about the security usecase. Now, let's look at the other use case: setting up and controlling OS images for debugging, testing, building, installing or recovering.
+### Chạy hệ thống bên trong hệ thống
+
+Bây giờ ta xét cách `systemd` đổi gốc để chạy hệ thống khách bên trong
+hệ thống hiện tại _(hệ thống chủ)_.
 
 chroot() environments are relatively simple things: they only virtualize the file system hierarchy. By chroot()ing into a subdirectory a process still has complete access to all system calls, can kill all processes and shares about everything else with the host it is running on. To run an OS (or a small part of an OS) inside a chroot() is hence a dangerous affair: the isolation between host and guest is limited to the file system, everything else can be freely accessed from inside the chroot(). For example, if you upgrade a distribution inside a chroot(), and the package scripts send a SIGTERM to PID 1 to trigger a reexecution of the init system, this will actually take place in the host OS! On top of that, SysV shared memory, abstract namespace sockets and other IPC primitives are shared between host and guest. While a completely secure isolation for testing, debugging, building, installing or recovering an OS is probably not necessary, a basic isolation to avoid accidental modifications of the host OS from inside the chroot() environment is desirable: you never know what code package scripts execute which might interfere with the host OS.
 
@@ -67,7 +191,7 @@ Here's an example how in three commands you can boot a Debian OS on your Fedora 
 
 This will bootstrap the OS directory tree and then simply invoke a shell in it. If you want to boot a full system in the container, use a command like this:
 
-# systemd-nspawn -D debian-tree/ /sbin/init
+    # systemd-nspawn -D debian-tree/ /sbin/init
 
 And after a quick bootup you should have a shell prompt, inside a complete OS, booted in your container. The container will not be able to see any of the processes outside of it. It will share the network configuration, but not be able to modify it. (Expect a couple of EPERMs during boot for that, which however should not be fatal). Directories like /sys and /proc/sys are available in the container, but mounted read-only in order to avoid that the container can modify kernel or hardware configuration. Note however that this protects the host OS only from accidental changes of its parameters. A process in the container can manually remount the file systems read-writeable and then change whatever it wants to change.
 
@@ -91,3 +215,9 @@ So, let's get this finished, this was already long enough. Here's what to take h
 5. chroot()s are lame, file system namespaces are totally l33t.
 
 All of this is readily available on your Fedora 15 system.
+
+## Ghi chú
+
+[^root-partition]: phân vùng gốc là phân vùng được kết nối vào `/` trên máy.
+
+[^context-systemd]: nếu bạn đang ở Sài Gòn, thực hiện cú gọi cho người bạn ở Đà Nẵng yêu cầu bật giúp một máy tính, thì rõ ràng môi trường của bạn _(Sài Gòn)_ khác với môi trường của người bạn _(Đà Nẵng)_
