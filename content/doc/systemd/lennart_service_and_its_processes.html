@@ -43,7 +43,7 @@ Trái lại với các tiếp cận truyền thống, `systemd` đặt mỗi ti�
 nhóm điều khiển (`control group` hay `cgroup`) riêng có tên trùng với tên dịch vụ.
 Giải thích ngắn gọn, `nhóm điều khiển` là nhóm các tiến trình có quan hệ
 họ hàng với nhau và cùng được đánh dấu riêng, độc lập với các nhóm khác.
-Khi tiến trong nhóm phát sinh ra tiến trình mới thì tiến trình mới không
+Khi tiến trình trong nhóm phát sinh ra tiến trình mới thì tiến trình mới không
 thoát ra ngoài nhóm điều khiển ban đầu, trừ khi có các chỉ định đặc
 biệt với quyền của tài khoản `root`; nhờ đó, khi một dịch vụ bắt đầu,
 tất cả các tiến trình phát sinh của dịch vụ sẽ luôn được đánh cùng một
