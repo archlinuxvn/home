@@ -12,16 +12,19 @@
         <%
           metas = []
           if not (@item[:tags] || []).select{|tag| tag.match(/^[a-z0-9]+$/)}.empty?
-            metas << "<strong>Tags:</strong> " \
+            metas << "<strong>Thẻ:</strong> " \
                       + @item[:tags].map{|tag|
                           tag.match(/^[a-z0-9]+$/) ? link_for_tag(tag, "/tags/") : nil
                         }.compact.join(", ")
           end
           if @item[:origin]
-            metas << "<strong>Origin:</strong> <a href=\"#{@item[:origin]}\">#{@item[:origin]}</a>"
+            metas << "<strong>Bài gốc:</strong> <a href=\"#{@item[:origin]}\">#{@item[:origin]}</a>"
           end
           if @item[:license]
-            metas << "<strong>License:</strong> #{@item[:license]}"
+            metas << "<strong>Giấy phép:</strong> #{@item[:license]}"
+          end
+          if @item[:translators] or @item[:translator]
+            metas << "<strong>Người dịch:</strong> #{item[:translators] ||@item[:translator]}"
           end
         %>
         <% if not metas.empty? %>
