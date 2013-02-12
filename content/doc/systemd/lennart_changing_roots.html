@@ -17,8 +17,8 @@ allow_comments: yes
 > kỹ thuật đổi gốc, bạn nên dừng lại, không tiếp tục đọc bài này -- z1y
 
 Làm việc với hệ thống Linux với tư cách là người quản trị hay lập trình viên
-thì trước sau gì bạn cũng tiếp xúc với môi trường `chroot()`, mà trong bài
-này ta gọi là `đổi gốc`. Ở mức sâu bên dưới hệ thống, lệnh gọi `chroot()`
+thì trước sau gì bạn cũng tiếp xúc với môi trường `chroot(1)`, mà trong bài
+này ta gọi là `đổi gốc`. Ở mức sâu bên dưới hệ thống, lệnh gọi `chroot(1)`
 làm cho ứng dụng và các tiến trình con của nó bị `mờ mắt`, thấy một thư
 mục con `/foobar/` trên hệ thống tập tin thật sự như là thư mục gốc `/`.
 
@@ -27,11 +27,11 @@ mục con `/foobar/` trên hệ thống tập tin thật sự như là thư mụ
 
 ## Mục đích của việc đổi gốc
 
-Môi trường `chroot()` chủ yếu được dùng vào hai mục đích:
+Môi trường `chroot(1)` chủ yếu được dùng vào hai mục đích:
 
 1. *Mục đích an toàn:* Do ứng dụng bị `mờ mắt`, nó chỉ có thể truy cập vào
   các tập tin bên trong thư mục `/foobar/` nào đó được chỉ định làm thư mục
-  gốc của môi trường `chroot()`. Nếu `hacker` kiểm soát được tiến trình này
+  gốc của môi trường `chroot(1)`. Nếu `hacker` kiểm soát được tiến trình này
   thì hắn ta cũng không thể thoát ra được nhà tù `/foobar/` để tìm kiếm
   thông tin hoặc phá hoại.
 2. *Chạy hệ thống (`khách`) bên trong hệ thống (`chủ`):*
@@ -42,18 +42,20 @@ Môi trường `chroot()` chủ yếu được dùng vào hai mục đích:
   máy rồi chuyển gốc vào hệ thống bị lỗi:
     * sau khi khởi động máy bằng `usb`hoặc `livecd`, bạn kết nối phân
       vùng gốc[^root-partition] của máy bị lỗi lên thư mục bất kỳ `/foobar/`,
-    * rồi dùng lệnh `chroot()` để bắt đầu một `shell` đổi gốc; `shell` này
+    * rồi dùng lệnh `chroot(1)` để bắt đầu một `shell` đổi gốc; `shell` này
       `mờ mắt` và mặc dù nó cũng thấy được thư mục, ví dụ `/abc/`, nhưng
       thực tế đó là `/foobar/abc/` trên hệ thống tập tin thật sự.
       Sử dụng `shell` mới này bạn có thể làm nhiều việc để chỉnh sử hệ thống
       bị hỏng; gần như là bạn chạy hệ thống cũ bên trong hệ thống
       bắt đầu bằng `livecd`.
 
-Trong hệ thống dùng `SysV`, việc đổi gốc có thể thực hiện được dễ dàng,
+Trong hệ thống `SysV`, việc đổi gốc có thể thực hiện được dễ dàng,
 như đã nêu ví dụ ở phần 2. Khi người dùng yêu cầu bật một dịch vụ
-thì dịch vụ này sẽ chia sẻ nhiều thông tin thuộc về môi trường của người dùng;
+thì nó sẽ chia sẻ nhiều thông tin thuộc về môi trường của người dùng;
 các thông tin đó có thể là giới hạn về tài nguyên _(số tập tin tối đa được mở,
-giới hạn bộ nhớ được dùng,...)_, các biến môi trường, ...
+giới hạn bộ nhớ được dùng,...)_, các biến môi trường, ... Đây có thể xem
+là một điểm không hay. Trong bài này vài nơi cũng đề cập đến các vấn đề khi
+dùng cách đổi gốc quen thuộc trong hệ thống `SysV`.
 
 ## Đổi gốc trong systemd
 
@@ -82,12 +84,13 @@ Thật may mắn là câu trả lời lại đơn giản như sau đây.
 ### Mục đích an toàn
 
 Ta xem xét cách đổi gốc với `systemd` để đạt mục đích đầu tiên về an toàn,
-đó là đảm bảo một tiến trình nằm hoàn toàn bên trong môi trường đổi gốc.
+đó là đảm bảo một tiến trình nằm hoàn toàn bên trong môi trường đổi gốc
+không chia sẻ các biến môi trường với môi trường ngoài.
 
-Lưu ý đầu tiên phải nói tới, rằng việc đổi gốc với lệnh gọi hệ thống `chroot()`
-tuy hướng tới mục đích an toàn, nhưng đạt sự an tòan không phải là điều dễ dàng.
+Lưu ý đầu tiên phải nói tới, rằng việc đổi gốc với lệnh gọi hệ thống `chroot(1)`
+tuy hướng tới mục đích an toàn, nhưng đạt sự an toàn không phải là điều dễ dàng.
 Bởi vì có nhiều cách, thậm chí đơn giản, để thoát khỏi môi trường đổi gốc,
-như trong tài liệu chính thức của `chroot()` đề cập. Chỉ khi nào bạn triển
+như trong tài liệu chính thức của `chroot(1)` đề cập. Chỉ khi nào bạn triển
 khai việc đổi gốc cùng với một số kỹ thuật khác thì bạn mới có thể _an toàn_
 được. Thường thì kỹ thuật hiệu quả nhất là điều chỉnh ngay từ úng dụng
 _(điều này có nghĩa là mã nguồn ứng dụng phải thay đổi)_; và việc này đòi
@@ -113,7 +116,7 @@ tự bắt đầu môi trường đổi gốc của nó)_.
 Có cách! Chỉ cần chỉ ra `RootDirectory` khi cấu hình dịch vụ. Ví dụ
 
     [Unit]
-    Description=A chroot()ed Service
+    Description=A chroot(1)ed Service
 
     [Service]
     RootDirectory=/srv/chroot/foobar
@@ -144,11 +147,11 @@ chắc chắn nằm bên trong môi trường đổi gốc. Nhưng cách bạn �
 dụng này, như bật, tắt, ... chẳng có gì khác so với những dịch vụ thường.
 Chính đây là ý khác biệt với các dịch vụ đổigốc trong hệ thống `SysV`
 
-Nếu dùng các nhân Linux mới, bạn có cách khác nhờ vào hỗ trợ không gian
+**Nếu dùng các nhân Linux mới**, bạn có cách khác nhờ vào hỗ trợ không gian
 tên trong hệ thống tập tin _(`file system namespace`)_. Hỗ trợ này tương
-tự `chroot()`, nhưng mạnh mẽ hơn nhiều và không gặp phải vấn đề  an tòan
-như của `chroot()`. Bạn sẽ thấy cách này trong ví dụ sau đây, và sẽ thấy
-nó có thể thay thể  hòan tòan cho cho việc đổi gốc thông thường.
+tự `chroot(1)`, nhưng mạnh mẽ hơn nhiều và không gặp phải vấn đề  an toàn
+như của `chroot(1)`. Bạn sẽ thấy cách này trong ví dụ sau đây, và sẽ thấy
+nó có thể thay thể  hoàn toàn cho cho việc đổi gốc thông thường.
 Ý tưởng là `systemd` cho phép bạn liệt kê những đường dẫn mà ứng dụng có thể
 truy cập được hoặc không, bằng các cài đặt `ReadOnlyDirectories`
 và `InaccessibleDirectories`. Lưu ý là `systemd` bắt đầu ứng dụng với
@@ -172,49 +175,94 @@ Sử dụng không gian tên là cách đơn giản và hiệu quả  hơn nhi�
 
 ### Chạy hệ thống bên trong hệ thống
 
-Bây giờ ta xét cách `systemd` đổi gốc để chạy hệ thống khách bên trong
+Trong cách truyền thống, lệnh gọi `chroot(1)` chỉ `ảo hóa` các đường dẫn tập
+tin. Các tiến trình có thể không truy cập được vào hệ thống tập tin thật,
+nhưng vẫn có thể thực hiện các lệnh gọi hệ thống _(như lệnh gọi để hủy
+tiến trình khác)_ và chia sẻ mọi thứ khác ngoài đường dẫn tập tin với
+hệ thống chủ, ví dụ như bộ nhớ, các `socket`, các lệnh gọi `IPC` để trao
+đổi thông tin giữa các tiến trình với nhau.
+Cách tiếp cận này làm cho việc chạy một phần hay toàn bộ hệ thống khách
+trở nên nguy hiểm. Ví dụ, khi hệ thống khách được nâng cấp, một số gói có
+thể gửi tín hiệu `SIGTERM` tới tiến trình `PID 1` để hoàn tất việc cài đặt;
+vì tiến trình `PID 1` lại nằm trên hệ thống chủ, gói đó có thể làm hỏng
+hệ thống này. Trong một số trường hợp khác, ta chỉ làm những việc giản.
+Tuy nhiên, đề phòng truờng hợp lỗi ngoài dự kiến xảy ra trong hệ thống khách,
+ta cần cơ chế tối thiểu để chia tách sự giao tiếp giữa hai hệ thống chủ -- khách.
+
+Bây giờ ta bàn tới cách `systemd` đổi gốc để chạy hệ thống khách bên trong
 hệ thống hiện tại _(hệ thống chủ)_.
 
-chroot() environments are relatively simple things: they only virtualize the file system hierarchy. By chroot()ing into a subdirectory a process still has complete access to all system calls, can kill all processes and shares about everything else with the host it is running on. To run an OS (or a small part of an OS) inside a chroot() is hence a dangerous affair: the isolation between host and guest is limited to the file system, everything else can be freely accessed from inside the chroot(). For example, if you upgrade a distribution inside a chroot(), and the package scripts send a SIGTERM to PID 1 to trigger a reexecution of the init system, this will actually take place in the host OS! On top of that, SysV shared memory, abstract namespace sockets and other IPC primitives are shared between host and guest. While a completely secure isolation for testing, debugging, building, installing or recovering an OS is probably not necessary, a basic isolation to avoid accidental modifications of the host OS from inside the chroot() environment is desirable: you never know what code package scripts execute which might interfere with the host OS.
+**Khi hệ thống khách dùng `systemd`**, lệnh `systemctl` của nó tự xác định được
+nó có đang ở bên trông môi trường đổi gốc hay không. Nếu có, hầu hết các
+khả năng của nó bị vô hiệu, trừ `systemctl enable` và `systemctl disable`
+dùng để thêm bớt dịch vụ trong máy khách. Lệnh `systemctl restart` để khởi
+động lại dịch vụ sẽ không có tác dụng. Một số lệnh khác được điều chỉnh
+để `giả lập` chức năng, ví dụ khi gọi tới lệnh tắt máy bên trong hệ thống
+khách, lệnh thực sự được gọi sẽ là `exit()` chứ không phải `reboot()`
+như trên các máy thật.
 
-To deal with chroot() setups for this use systemd offers you a couple of features:
+**Đối với hệ thống chủ dùng `systemd`**, có thể dùng `systemd-spawn`
+thay cho `chroot(1)` truyền thống. Khả năng của `systemd-spawn` không dừng
+lại ở việc `ảo hóa` hệ thống đường dẫn tập tin, mà còn `ảo hóa` cả
+hệ thống `PID` của các tiến trình, và nhờ đó có thể khởi động nguyên một
+máy khách _(dùng `systemd` hay `SysV`)_, và máy khách thậm chí vẫn có được
+tiến trình `PID 1` của riêng nó. Cách chia tách của `systemd-spawn` an
+toàn hơn và hoàn thiện hơn so với việc dùng `chroot(1)` quen thuộc.
+Ngoài ra, nó tự động kết nối `/proc/`, `/sys/` bạn không phải làm bằng
+tay việc kết nối này.
 
-First of all, systemctl detects when it is run in a chroot. If so, most of its operations will become NOPs, with the exception of systemctl enable and systemctl disable. If a package installation script hence calls these two commands, services will be enabled in the guest OS. However, should a package installation script include a command like systemctl restart as part of the package upgrade process this will have no effect at all when run in a chroot() environment.
-
-More importantly however systemd comes out-of-the-box with the systemd-nspawn tool which acts as chroot(1) on steroids: it makes use of file system and PID namespaces to boot a simple lightweight container on a file system tree. It can be used almost like chroot(1), except that the isolation from the host OS is much more complete, a lot more secure and even easier to use. In fact, systemd-nspawn is capable of booting a complete systemd or sysvinit OS in container with a single command. Since it virtualizes PIDs, the init system in the container can act as PID 1 and thus do its job as normal. In contrast to chroot(1) this tool will implicitly mount /proc, /sys for you.
-
-Here's an example how in three commands you can boot a Debian OS on your Fedora machine inside an nspawn container:
+Trong ví dụ dưới đây ta sẽ chạy một máy Debian bên trong một máy Fedora
 
     # yum install debootstrap
     # debootstrap --arch=amd64 unstable debian-tree/
     # systemd-nspawn -D debian-tree/
 
-This will bootstrap the OS directory tree and then simply invoke a shell in it. If you want to boot a full system in the container, use a command like this:
+Lệnh cuối cùng sẽ bật một `shell` và bạn sẽ tương tác trực tiếp ngay với
+hệ thống khác. Nếu muốn khởi động nguyên hệ thống Debian giống như bạn
+đang bật một máy thật, bạn cần chỉ định tiến trình `/sbin/init` ra
 
     # systemd-nspawn -D debian-tree/ /sbin/init
 
-And after a quick bootup you should have a shell prompt, inside a complete OS, booted in your container. The container will not be able to see any of the processes outside of it. It will share the network configuration, but not be able to modify it. (Expect a couple of EPERMs during boot for that, which however should not be fatal). Directories like /sys and /proc/sys are available in the container, but mounted read-only in order to avoid that the container can modify kernel or hardware configuration. Note however that this protects the host OS only from accidental changes of its parameters. A process in the container can manually remount the file systems read-writeable and then change whatever it wants to change.
+Chờ một chút bạn sẽ thấy dấu nhắc `shell` của hệ thống khách. Đăng nhập
+vào hệ thống này bạn sẽ không thấy bất kỳ tiến trình _bên ngoài_ nào của
+hệ thống chủ. Hệ thống khách chia sẻ cấu hình mạng, nhưng `chỉ đọc` chứ
+không thay đổi cấu hình đó được. Các thư mục `/sys/` và `/proc/sys`
+cũng đặt ở  chế độ `chỉ đọc`. Tuy nhiên, đây chỉ là cách bảo vệ tối thiểu,
+vì máy khách có thể  kết nối lại những thư mục này ở chế độ ghi và thực hiện
+các thay đổi có thể nguy hiểm tới hệ thống chủ.
 
-So, what's so great about `systemd-nspawn` again?
+Sự tiện lợi của `systemd-spawn` được tóm tắt nhhư sau
 
-1. It's really easy to use. No need to manually mount `/proc` and `/sys` into your chroot() environment. The tool will do it for you and the kernel automatically cleans it up when the container terminates.
-2. The isolation is much more complete, protecting the host OS from accidental changes from inside the container.
-3. It's so good that you can actually boot a full OS in the container, not just a single lonesome shell.
-4. It's actually tiny and installed everywhere where systemd is installed. No complicated installation or setup.
+  1. Dễ dùng. Không cần phải kết nối `/proc`, `/sys` bằng tay. Các thư mục
+     này cũng được gỡ bỏ tự động khi máy khách hết nhiệm vụ.
+  2. Máy khách và chủ được phân tách rạch ròi hơn, giảm bớt khả năng máy
+     chủ bị phá hoại do các sai sót ngoài dự kiến trên máy khác.
+  3. Có thể giúp khởi động nguyên một hệ thống khách chứ không chỉ là vài
+     tiến trình nhỏ lẻ.
+  4. Nhỏ gọn và đi kèm với `systemd`, không cần thêm cài đặt nào khác.
 
-systemd itself has been modified to work very well in such a container. For example, when shutting down and detecting that it is run in a container, it just calls `exit()`, instead of `reboot()` as last step.
+Bạn cần chú ý rằng `systemd-spawn` không `ảo hóa` các cấu hình mạng, nên
+dùng `systemd-spawn` không phải là giải pháp `ảo hóa` toàn diện. Nếu cần
+`ảo hóa` mạng, bạn có thể dùng `LXC`. Cả `LXC` và `systemd-spawn`
+đều có cùng cơ sở kỹ thuật giống nhau, nhưng mục đích ban đầu của
+`systemd-spawn` là để kiểm tra, gỡ rối, cài đặt, khôi phục hệ thống;
+và nếu chỉ dừng lại ở đó thì nó tốt hơn nhiều so với `chroot(1)`.
 
-Note that systemd-nspawn is not a full container solution. If you need that LXC is the better choice for you. It uses the same underlying kernel technology but offers a lot more, including network virtualization. If you so will, systemd-nspawn is the GNOME 3 of container solutions: slick and trivially easy to use -- but with few configuration options. LXC OTOH is more like KDE: more configuration options than lines of code. I wrote systemd-nspawn specifically to cover testing, debugging, building, installing, recovering. That's what you should use it for and what it is really good at, and where it is a much much nicer alternative to `chroot(1)`.
+## Tóm tắt
 
-So, let's get this finished, this was already long enough. Here's what to take home from this little blog story:
+Bài này khá dài và có nhiều vấn đề  kỹ thuật khó. Các ý chính dưới đây
+bạn cần nắm khi đọc bài này:
 
-1. Secure chroot()s are best done natively in the C sources of your program.
-2. ReadOnlyDirectories=, InaccessibleDirectories= might be suitable alternatives to a full chroot() environment.
-3. RootDirectory= is your friend if you want to chroot() a specific service.
-4. systemd-nspawn is made of awesome.
-5. chroot()s are lame, file system namespaces are totally l33t.
-
-All of this is readily available on your Fedora 15 system.
+  1. Muốn môi trường đổi gốc với `chroot(1)` an toàn thì cách tối ưu
+     là thay đổi mã nguồn ứng dụng của bạn
+  2. Khi bật dịch vụ trong `systemd` các tham số `ReadOnlyDirectories=`,
+     `InaccessibleDirectories=`, `RootDirectory=`
+     có thể thay thế cho việc dùng `chroot(1)`
+  3. `systemd-spawn` đơn giản và dễ dùng hơn `chroot(1)` để chạy
+     hệ thống khách bên trong hệ thống chủ.
+  4. `chroot(1)` chỉ `ảo hóa` hệ thống đường dẫn tập tin, không phải là
+     cách tuyệt đối an toàn khi hệ thống khách vẫn chia sẻ nhiều thứ
+     với hệ thống chủ.
 
 ## Ghi chú
 
