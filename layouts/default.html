@@ -11,11 +11,10 @@
       <h1><%= @item[:title] %></h1>
         <%
           metas = []
-          if not (@item[:tags] || []).select{|tag| tag.match(/^[a-z0-9]+$/)}.empty?
+          valid_tags = (@item[:tags] || []).select{|tag| tag.match(/^[a-z0-9]+$/)}
+          if not valid_tags.empty?
             metas << "<strong>Thẻ:</strong> " \
-                      + @item[:tags].map{|tag|
-                          tag.match(/^[a-z0-9]+$/) ? link_for_tag(tag, "/tags/") : nil
-                        }.compact.join(", ")
+                      + valid_tags.map{|t| link_for_tag(t, "/tags/") }.join(", ")
           end
           if @item[:origin]
             metas << "<strong>Bài gốc:</strong> <a href=\"#{@item[:origin]}\">#{@item[:origin]}</a>"
