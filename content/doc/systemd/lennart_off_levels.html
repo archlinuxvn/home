@@ -1,5 +1,5 @@
 ---
-title: "systemd: ba mức của off"
+title: "systemd: ba kiểu tắt dịch vụ"
 author: Lennart Poettering
 origin: http://0pointer.de/blog/projects/three-levels-of-off
 date: 2011-mar-02
@@ -9,59 +9,99 @@ license: CC BY-SA
 allow_comments: yes
 ---
 
-In systemd, there are three levels of turning off a service (or other unit). Let's have a look which those are
+> Trong bài này, `bằng tay` hay `thủ công` được dùng như nhau. Trong
+> hệ thống `Linux`, nhiều dịch vụ tự động bật lên khi máy khởi động.
+> Nếu bạn phải đăng nhập vào `shell`, gõ lệnh nào đó để bật dịch vụ,
+> thì cách này gọi là `thủ công` hay `bằng tay`.
+
+Có ba kiểu để tắt các dịch vụ _(hay `unit`)_ trong `systemd`.
 
 * TOC
 {:toc}
 
-## Stop
+## Tạm ngưng (stop)
 
-You can stop a service. That simply terminates the running instance of the service and does little else. If due to some form of activation (such as manual activation, socket activation, bus activation, activation by system boot or activation by hardware plug) the service is requested again afterwards it will be started. Stopping a service is hence a very simple, temporary and superficial operation. Here's an example how to do this for the NTP service:
+Khi dịch vụ đang chạy bạn có thể tạm ngừng nó bằng `systemctl stop`.
+`Tạm ngưng` có nghĩa là sau đó dịch vụ có thể  tiếp tục chạy lại do bạn
+bật lên bằng `systemctl start`, hoặc do các sự kiện trên hệ thống
+_(ví dụ khi có các thiết bị gắn thêm vào máy)_, hoặc chỉ đơn giản là do
+máy khởi động lại. Ví dụ
 
     $ systemctl stop ntpd.service
 
-This is roughly equivalent to the following traditional command which is available on most SysV inspired systems:
+Việc dùng tên dài `ntpd.service` là theo quy ước của `systemd` để phân
+biệt các loại dịch vụ, `unit`. Bạn có thể dùng dạng ngắn như trong `SysV`:
 
     $ service ntpd stop
 
-In fact, on Fedora 15, if you execute the latter command it will be transparently converted to the former.
+hoặc trên ArchLinux _(cũ)_ thì đó là `/etc/rc.d/ntpd stop`.
 
-## Disable
+## Ngưng chạy tự động (disable)
 
-You can disable a service. This unhooks a service from its activation triggers. That means, that depending on your service it will no longer be activated on boot, by socket or bus activation or by hardware plug (or any other trigger that applies to it). However, you can still start it manually if you wish. If there is already a started instance disabling a service will not have the effect of stopping it. Here's an example how to disable a service:
+Khi bạn tạm ngưng dịch vụ với `systemctl stop`, dịch vụ đó vẫn có thể tiếp
+tục chạy khi máy khởi động lại, hoặc do các sự kiện trên hệ thống kích hoạt.
+Để ngăn điều này xảy ra, tức là để dịch vụ không chạy tự động ngay cả khi
+hệ thống khởi động lại, bạn dùng `systemctl disable`.
 
     $ systemctl disable ntpd.service
 
-On traditional Fedora systems, this is roughly equivalent to the following command:
+Đúng như tên gọi, lệnh trên chỉ `ngưng chạy tự động`, chứ không có tác dụng
+ngưng dịch vụ đang chạy. Nghĩa là khi thi hành lệnh trên, nếu dịch vụ `ntpd`
+đang chạy thì nó vẫn tiếp tục chạy. _(Nếu bạn từng biết lệnh `chkconfig`
+trên nhiều hệ thống thì `systemctl disable` có tác dụng như là_
 
     $ chkconfig ntpd off
 
-And here too, on Fedora 15, the latter command will be transparently converted to the former, if necessary.
-
-Often you want to combine stopping and disabling a service, to get rid of the current instance and make sure it is not started again (except when manually triggered):
+_.)_ Vì vậy, muốn một dịch vụ ngưng, và sẽ chỉ có thể bật lên bằng tay thì
+bạn kết hợp hai chức năng `stop` và `disable`:
 
     $ systemctl disable ntpd.service
-    $ systemctl stop ntpd.service
+    $ systemctl stop    ntpd.service
 
-Commands like this are for example used during package deinstallation of systemd services on Fedora.
+Có thể bạn chưa biết rằng tổ hợp trên dùng để gỡ bỏ các gói ra khỏi hệ thống:
+khi một gói được gỡ, trước hết nó cần được `ngưng`, rồi sau đó `vô hiệu`
+để khi hệ thống khởi động lại các dịch vụ liên quan sẽ không tự động bật.
 
-Disabling a service is a permanent change; until you undo it it will be kept, even across reboots.
+Một chú ý nhỏ là trừ khi gói `ntpd` bị gỡ khỏi hệ thống, thì sau khi dùng
+`disable` như trên, bạn luôn có thể bật lại dịch vụ `ntpd` bằng `systemctl start`.
+Xem thêm mục tiếp theo.
 
-## Mask
+## Ngưng hoàn toàn (mask)
 
-You can mask a service. This is like disabling a service, but on steroids. It not only makes sure that service is not started automatically anymore, but even ensures that a service cannot even be started manually anymore. This is a bit of a hidden feature in systemd, since it is not commonly useful and might be confusing the user. But here's how you do it:
+Với hai cách `stop` và `disable` như trên thì bạn luôn có thể bật một
+dịch vụ đã ngưng với `systemctl start` _(tất nhiên, trừ khi gói cung cấp
+dịch vụ đó đã bị gỡ khỏi hệ thống)_. Điều này có thể có ích, nhưng trong
+một số trường hợp, có thể gây rối loạn hệ thống hoặc gây nhầm lẫn _(ví dụ,
+trong hệ thống nhiều người quản lý, nếu `A` tắt dịch vụ `ntpd` để bảo trì,
+nâng cấp mà `B` không biết, bật lên thì sẽ gây rắc rối)_. Vấn đề đặt ra là
+làm thế nào để ngưng hoàn toàn một dịch vụ, không thể bật dịch vụ đó lên
+một cách thủ công. Ngoài cách gỡ các gói cung cấp dịch vụ, có thể làm như sau
 
     $ ln -s /dev/null /etc/systemd/system/ntpd.service
     $ systemctl daemon-reload
 
-By symlinking a service file to /dev/null you tell systemd to never start the service in question and completely block its execution. Unit files stored in /etc/systemd/system override those from /lib/systemd/system that carry the same name. The former directory is administrator territory, the latter terroritory of your package manager. By installing your symlink in /etc/systemd/system/ntpd.service you hence make sure that systemd will never read the upstream shipped service file /lib/systemd/system/ntpd.service.
+Để ý rằng nếu chưa thay đổi gì sau khi cài gói `ntpd` thì chưa có tập tin
 
-systemd will recognize units symlinked to /dev/null and show them as masked. If you try to start such a service manually (via systemctl start for example) this will fail with an error.
+    /etc/systemd/system/ntpd.service                # (1)
 
-A similar trick on SysV systems does not (officially) exist. However, there are a few unofficial hacks, such as editing the init script and placing an exit 0 at the top, or removing its execution bit. However, these solutions have various drawbacks, for example they interfere with the package manager.
+và `systemd` sẽ đọc các thông tin khởi động dịch vụ từ
 
-Masking a service is a permanent change, much like disabling a service.
+    /usr/lib/systemd/system/ntpd.service            # (2)
 
-## Summary
+Bằng cách chỉ ra `/dev/null` bằng liên kết tượng trưng như ở trên, `systemd`
+sẽ bỏ qua thông tin trong `(2)` mà chỉ sử dụng `(1)`, và vì `/dev/null`
+chả có thông tin gì bổ ích, `systemd` hoàn toàn bỏ qua dịch vụ `ntpd`,
+bạn không thể bật dịch vụ này bằng `systemctl start ntpd`. Tất nhiên,
+anh chàng táy máy nào đó có thể chạy trực tiếp lệnh `ntpd` để bật dịch vụ;
+nhưng đó là câu chuyện khác.
 
-Now that we learned how to turn off services on three levels, there's only one question left: how do we turn them on again? Well, it's quite symmetric. use systemctl start to undo systemctl stop. Use systemctl enable to undo systemctl disable and use rm to undo ln.
+Để so sánh xin nhắc lại ở đây cách trong `SysV`: không có cách chính quy
+nào, mà cách `hack` đơn giản nhất là chỉnh lại kịch bản khởi động dịch vụ
+_(đó là các kịch bản `Bourne shell`)_. Cách này thường gây nhầm lẫn cho
+cho trình quản lý gói sau này.
+
+## Phần cuối
+
+Trong ba phần trên bạn biết cách ngưng dịch vụ theo các mục đích khác nhau.
+Để làm ngược lại, bạn có thể dùng `systemctl start`, `systemctl disable`,
+và ở truờng hợp cuối thì gỡ bỏ đi liên kết `(1)`.
