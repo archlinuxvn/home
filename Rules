@@ -23,7 +23,7 @@ preprocess do
     all_tags.each do |tag, count|
       @items << Nanoc::Item.new(
         "<%= render '_tag', {:tag => '#{tag}'} %>",
-        { :title => "Tag #{tag}", :virtual => true },
+        { :title => "Bài viết có thẻ '#{tag}'", :virtual => true },
         "/tags/#{tag}/" )
     end
   end

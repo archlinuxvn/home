@@ -4,3 +4,4 @@
 ########################################################################
 
 include MainHelper
+include TaggingHelper

@@ -8,26 +8,39 @@
   <body>
     <div id="main">
       <% if @item[:title] %>
-        <h1><%= @item[:title] %></h1>
+      <h1><%= @item[:title] %></h1>
+        <%
+          metas = []
+          valid_tags = (@item[:tags] || []).select{|tag| tag.match(/^[a-z0-9]+$/)}
+          if not valid_tags.empty?
+            metas << "<strong>Thẻ:</strong> " \
+                      + valid_tags.map{|t| link_for_tag(t, "/tags/") }.join(", ")
+          end
+          if @item[:origin]
+            metas << "<strong>Bài gốc:</strong> <a href=\"#{@item[:origin]}\">#{@item[:origin]}</a>"
+          end
+          if @item[:license]
+            metas << "<strong>Giấy phép:</strong> #{@item[:license]}"
+          end
+          if @item[:translators] or @item[:translator]
+            metas << "<strong>Người dịch:</strong> #{item[:translators] ||@item[:translator]}"
+          end
+        %>
+        <% if not metas.empty? %>
+        <p>
+          <%= metas.join("\n<br />\n")%>
+        </p>
+        <% end %>
       <% end %>
       <%= yield %>
       <% if not @item[:virtual] %>
-        <p>
-          ----
-          <br />
-          <em><%= git(:stat, @item) %>;</em>
-          <br />
-          <em><%= git(:last_update, @item) %></em>
-        </p>
+      <p>
+        ----
+        <br /><em><%= git(:stat, @item) %>;</em>
+        <br /><em><%= git(:last_update, @item) %></em>
+      </p>
       <% end %>
-<pre class="license">
-This page is published under the license <a href="http://creativecommons.org/licenses/by-nc-nd/3.0/">CC BY-NC-ND 3.0</a>.
-  (1) Attribution — You must attribute the work in the manner
-        specified by the author or licensor <em>(but not in any way
-        that suggests that they endorse you or your use of the work)</em>;
-  (2) Noncommercial — You may not use this work for commercial purposes;
-  (3) No Derivative Works — You may not alter, transform, or build upon this work.
-</pre>
+      <pre class="license"><%= license_text(@item[:license]) %></pre>
       <%= @item[:allow_comment] ? disqus_show : "" %>
     </div>
     <div id="sidebar">
@@ -40,29 +53,31 @@ This page is published under the license <a href="http://creativecommons.org/lic
       </ul>
       <h2><a href="/blog/">Blog</a></h2>
       <ul>
-        <li>
-            <a href="/blog/~redlotus/">~redlotus</a>
+        <li><a href="/blog/~redlotus/">redlotus</a>,
+            <a href="/blog/~n0b0dy/">n0b0dy</a>
         </li>
-        <li>
-            <a href="/blog/~huy/">~huy</a>,
-            <a href="/blog/~icy/">~icy</a>
-        </li>
-        <li>
-            <a href="/blog/~n0b0dy/">~n0b0dy</a>
+        <li><a href="/blog/~huy/">huy</a>,
+            <a href="/blog/~icy/">icy</a>
         </li>
       </ul>
       <h2><a href="/doc/">Tài liệu</a></h2>
       <ul>
         <li><a href="/faq/">FAQ</a></li>
-        <li><a href="/doc/newbie/">cơ bản</a></li>
-        <li><a href="/doc/oldbie/">trung bình</a></li>
+        <li><a href="/doc/newbie/">cơ bản</a>,
+          <a href="/doc/oldbie/">trung bình</a></li>
       </ul>
       <h2>Liên kết</h2>
       <ul>
-        <li><a href="/vn/irc/">irc</a> (<a href="/vn/bot">bot</a>, <a href="/irclogs/">log</a>)</li>
-        <li><a href="http://groups.google.com/group/archlinuxvn/">nhóm thư</a></li>
-        <li><a href="http://github.com/archlinuxvn/">mã nguồn</a></li>
+        <li><a href="/vn/irc/">irc</a> (<a href="/vn/bot/">bot</a>, <a href="/irclogs/"><s>log</s></a>)</li>
+        <li><a href="/vn/lists/">nhóm thư</a>,
+            <a href="http://github.com/archlinuxvn/">mã nguồn</a></li>
+        <li><a href="https://facebook.com/archlinuxvn/">Facebook</a>,
+            <a href="https://twitter.com/archlinuxvn/">Twitter</a></li>
         <li><a href="http://stats.tuxfamily.org/archlinuxvn.tuxfamily.org/">thống kê</a></li>
+      </ul>
+      <h2>Tìm kiếm</h2>
+      <ul>
+        <li><a href="http://www.google.com.vn/?q=site:archlinuxvn.org+YOUR_TEXT">bằng Google</a></li>
       </ul>
     </div>
   </body>
