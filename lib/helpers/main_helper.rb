@@ -56,6 +56,7 @@ EOF
   #   git(:stat, item)
   #   git(:last_update, item)
   # @example: see in layouts/default.html
+  # FIXME: make sure that `file_name` is a good string
   def git(op, item)
     file_name = item_to_file(item)
 
@@ -170,6 +171,8 @@ EOF
   # @purpose: print license text
   # @author : Anh K. Huynh
   # @date   : 2013 Feb 05
+  # TODO    : Add option to provide link to license (to use with
+  #           the metatag `license` in an article)
   def license_text(name = "CC BY-ND")
     texts = case name
       when "CC BY-SA"
