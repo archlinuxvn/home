@@ -30,9 +30,9 @@ EOF
   # @return : File path (real path) or nil
   # @note   : Available extensions: .rb (ERB), .html (other formarts)
   def item_to_file(item)
-    return nil if item.nil? or item[:virtual]
+    return nil if item.is_a?(Nanoc::Item) and item[:virtual]
 
-    path = item.identifier
+    path = item.is_a?(String) ? item : item.identifier
     if path.nil?
       file_name = nil
     elsif File.file?(path)
@@ -81,13 +81,13 @@ EOF
 
   # @purpose: Test if an item age is lessn than `offset` day(s)
   # @author : Anh K. Huynh
-  def item_news?(item, offset = 7)
-    if file_name = item_to_file(item)
-      stdout = %x{git log --date=relative -1 --pretty="format:%cd" \"#{file_name}\"}
+  def item_news?(it, offset = 7)
+    if file_name = item_to_file(it)
+      stdout = %x{git log --date=relative -1 --pretty="format:%cd" \"#{file_name}\"}.strip.gsub("\n", "")
       return true if stdout.match(/(hour|minute)s? ago/)
 
       if gs = stdout.match(/^([0-9]+) dates? ago/)
-        gs[1].to_i <= offset
+        return gs[1].to_i <= offset
       end
     end
     false
