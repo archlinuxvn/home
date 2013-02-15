@@ -9,60 +9,185 @@ license: CC BY-SA
 allow_comments: yes
 ---
 
+Bài này nêu các ý kiến cá nhân của Lennart Poettering về hai thư mục
+`/etc/sysconfig` và `/etc/default` có trên nhiều bản phân phối Linux.
+Tác giải Lennart giải thích tại sao nên bỏ đi hai thư mục này, trong khi
+các tranh luận về việc dùng chúng vẫn xảy ra đâu đó. Tác giả  cố gắng
+trình bày một cách khách quan, bất kể vai trò của ông trong dự án Fedora
+hay trong công việc riêng. Bài viết cũng phản ánh một phần suy nghĩ
+của đội phát triển `systemd` về công dụng của những thư mục này.
+
+> Tác giả bàn về hai thư mục `/etc/sysconfig` và `/etc/default`.
+> Để tránh lặp lại, nhiều nơi chỉ đề cập tới một trong số chúng. Tuy nhiên,
+> bạn có thể hiểu các ý kiến áp là cả hai _(trừ khi có ghi chú đặc biệt)_.
+> Ngay cả tiêu đề bài viết này cũng vậy. -- z1y
+
+> Trong bài này một số ý kiến của tác giả Lennart không thật khách quan
+> hoặc đầy đủ. Người dịch đã lược dịch và tìm cách diễn đạt đơn giản
+> hơn và dễ chấp nhận hơn. Bạn có thể thấy được sự khác biệt này
+> khi so với bản tiếng Anh, nhất là phần bàn về các điểm không hay
+> của `SysV`. -- z1y
+
 * TOC
 {:toc}
 
-So, here's a bit of an opinion piece on the /etc/sysconfig/ and /etc/default directories that exist on the various distributions in one form or another, and why I believe their use should be faded out. Like everything I say on this blog what follows is just my personal opinion, and not the gospel and has nothing to do with the position of the Fedora project or my employer. The topic of /etc/sysconfig has been coming up in discussions over and over again. I hope with this blog story I can explain a bit what we as systemd upstream think about these files.
+## Lịch sử. Vai trò
 
-A few lines about the historical context: I wasn't around when /etc/sysconfig was introduced -- suffice to say it has been around on Red Hat and SUSE distributions since a long long time. Eventually /etc/default was introduced on Debian with very similar semantics. Many other distributions know a directory with similar semantics too, most of them call it either one or the other way. In fact, even other Unix-OSes sported a directory like this. (Such as SCO. If you are interested in the details, I am sure a Unix greybeard of your trust can fill in what I am leaving vague here.) So, even though a directory like this has been known widely on Linuxes and Unixes, it never has been standardized, neither in POSIX nor in LSB/FHS. These directories very much are something where distributions distuingish themselves from each other.
+Thư mục `/etc/sysconfig` có trong `Red Hat` và `SUSE` từ lâu, trong khi
+`/etc/default` có ở hệ thống `Debian` theo cách tương tự. Các bản phân
+phối Linux có thể không có hai thư mục này, nhưng thực tế chúng có một thư
+mục với tên khác đóng vai trò tương tự. Ngay cả trên hệ thống `Unix`
+cũng không thoát khỏi cách điều chỉnh cấu hình hệ thống qua `/etc/foobar`.
+Điều này không có gì sai; điều đáng buồn là mặc dù rất nhiều hệ thống
+chia sẻ cùng cách tiếp cận, họ lại không chuẩn hóa bằng `POSIX` hoặc `LSB/FHS`.
+Có thể nói một cách không ngoa rằng, nhờ có thư mục tương tự như `/etc/sysconfig`
+mà các bản phân phối Linux phân biệt với nhau, hay nói cách khác,
+đó là bản sắc của một bản phân phối!
 
-The semantics of /etc/default and /etc/sysconfig are very losely defined only. What almost all files stored in these directories have in common though is that they are sourcable shell scripts which primarily consist of environment variable assignments. Most of the files in these directories are sourced by the SysV init scripts of the same name. The Debian Policy Manual (9.3.2) and the Fedora Packaging Guidelines suggest this use of the directories, however both distributions also have files in them that do not follow this scheme, i.e. that do not have a matching SysV init script -- or not even are shell scripts at all.
+Cấu trúc của `/etc/default` và `/etc/sysconfig` được định nghĩa rất lỏng lẻo.
+Hầu hết các tập tin trong thư mục này là các kịch bản `shell` dùng để
+gán các biến môi trường. Các tập tin đó thường được dùng bởi các kịch bản
+khởi động dịch vụ cùng tên trong hệ thống `SysV` _(nghĩa là dịch vụ `/etc/init.d/foobar`
+sẽ ứng với tập tin `foobar` nào đó bên trong `/etc/default`). Trong tài liệu
+chuẩn hóa của Debian[^1] hay Fedora[^2] đều khuyến cáo việc dùng thư mục
+`/etc/default` theo cách vừa nói. Tuy nhiên, cả hai bản phân phối này đều
+có những tập tin bên trong `/etc/default` không thuộc quy định đã đặt ra:
+chúng không phải là kịch bản `shell`, hoặc không ứng với bất kỳ kịch bản
+`SysV` nào.
 
-Why have these files been introduced? On SysV systems services are started via init scripts in /etc/rc.d/init.d (or a similar directory). /etc/ is (these days) considered the place where system configuration is stored. Originally these init scripts were subject to customization by the administrator. But as they grew and become complex most distributions no longer considered them true configuration files, but more just a special kind of programs. To make customization easy and guarantee a safe upgrade path the customizable bits hence have been moved to separate configuration files, which the init scripts then source.
+Bạn có thể thắc mắc tại sao phải đặt ra các tập tin cấu hình trong `/etc/default`.
+Trong `SysV` các dịch vụ của hệ thống được bật lên nhờ các kịch bản
+trong `/etc/init.d` _(hoặc thư mục tương tự)_. Trong cách tiếp cận ban đầu
+của `SysV`, các kịch bản trong `/etc/init.d/` sẽ được điều chỉnh bởi người
+quản lý hệ thống để đáp ứng các đặc điểm riêng. Nhưng khi có càng
+nhiều kịch bản phức tạp, các bản phân phối Linux nhận thấy những kịch bản
+này không thể là nơi chưa cấu hình cho ứng dụng, bởi điều đó khiến cho
+việc nâng cấp, điều chỉnh trở nên khó khăn. Từ đó họ thay đổi quan điểm,
+xem rằng các kịch bản trong `/etc/init.d/` là cách chương trình độc lập,
+còn cấu hình cho dịch vụ được tách riêng ra, đặt trong `/etc/sysconfig`
+hoặc `/etc/default` như bạn biết.
 
-Let's have a quick look what kind of configuration you can do with these files. Here's a short incomprehensive list of various things that can be configured via environment settings in these source files I found browsing through the directories on a Fedora and a Debian machine:
+## Công dụng của /etc/default
 
-  * Additional command line parameters for the daemon binaries
-  * Locale settings for a daemon
-  * Shutdown time-out for a daemon
-  * Shutdown mode for a daemon
-  * System configuration like system locale, time zone information, console keyboard
-  * Redundant system configuration, like whether the RTC is in local timezone
-  * Firewall configuration data, not in shell format (!)
-  * CPU affinity for a daemon
-  * Settings unrelated to boot, for example including information how to install a new kernel package, how to configure nspluginwrap or whether to do library prelinking
-  * Whether a specific service should be started or not
-  * Networking configuration
-  * Which kernel modules to statically load
-  * Whether to halt or power-off on shutdown
-  * Access modes for device nodes (!)
-  * A description string for the SysV service (!)
-  * The user/group ID, umask to run specific daemons as
-  * Resource limits to set for a specific daemon
-  * OOM adjustment to set for a specific daemon
+Dưới đây là danh sách không đầy đủ những khả năng của `/etc/default`
+mà tác giả tìm thấy thông qua hai bản phân phối `Debian` và `Fedora`:
 
-Now, let's go where the beef is: what's wrong with /etc/sysconfig (resp. /etc/default)? Why might it make sense to fade out use of these files in a systemd world?
+  * Bổ sung tham số cho các lệnh thi hành của dịch vụ
+  * Thiết lập thông tin vùng ngôn ngữ
+  * Đặt thời gian quá hạn khi kết thúc tiến trình nền
+  * Đặt kiểu kết thúc tiến trình nền
+  * Đặt cấu hình cho toàn hệ thống như vùng ngôn ngữ, múi giờ, kiểu bàn phím
+  * Đặt mức dùng CPU cho tiến trình nền
+  * Cái thiết lập không liên quan tới quá trình khởi động: thông tin về
+    cách cài đặt gói mới cho nhân, cách cấu hình `nspluginwrap`, ...
+  * Cài đặt để dịch vụ bật hay tắt mỗi khi khởi động máy
+  * Cấu hình mạng
+  * Cài đặt danh sách các mô-đun nạp vào nhân lúc khởi động
+  * Đặt trạng thái cuối cùng cho máy (`halt` hay là tắt nguồn)
+  * Đặt nhóm hay người dùng, hay mặt nạ `umask` cho tiến trình
+  * Giới hạn tài nguyên hệ thống cho tiến trình nền
+  * Đặt mức tràn bộ nhớ[^oom] cho tiến trình
+  * Thiết lập quyền truy cập cho các thiết bị (`!`)
+  * Môt tả cho dịch vụ `SysV` (`!`)
+  * Đầu vào cho cấu hình tường lửa _(thường không ở dạng `shell`)_
 
-  * For the majority of these files the reason for having them simply does not exist anymore: systemd unit files are not programs like SysV init scripts were. Unit files are simple, declarative descriptions, that usually do not consist of more than 6 lines or so. They can easily be generated, parsed without a Bourne interpreter and understood by the reader. Also, they are very easy to modify: just copy them from /lib/systemd/system to /etc/systemd/system and edit them there, where they will not be modified by the package manager. The need to separate code and configuration that was the original reason to introduce these files does not exist anymore, as systemd unit files do not include code. These files hence now are a solution looking for a problem that no longer exists.
-  * They are inherently distribution-specific. With systemd we hope to encourage standardization between distributions. Part of this is that we want that unit files are supplied with upstream, and not just added by the packager -- how it has usually been done in the SysV world. Since the location of the directory and the available variables in the files is very different on each distribution, supporting /etc/sysconfig files in upstream unit files is not feasible. Configuration stored in these files works against de-balkanization of the Linux platform.
-  * Many settings are fully redundant in a systemd world. For example, various services support configuration of the process credentials like the user/group ID, resource limits, CPU affinity or the OOM adjustment settings. However, these settings are supported only by some SysV init scripts, and often have different names if supported in multiple of them. OTOH in systemd, all these settings are available equally and uniformly for all services, with the same configuration option in unit files.
-  * Unit files know a large number of easy-to-use process context settings, that are more comprehensive than what most /etc/sysconfig files offer.
-  * A number of these settings are entirely questionnabe. For example, the aforementiond configuration option for the user/group ID a service runs as is primarily something the distributor has to take care of. There is little to win for administrators to change these settings, and only the distributor has the broad overview to make sure that UID/GID and name collisions do not happen.
-  * The file format is not ideal. Since the files are usually sourced as shell scripts, parse errors are very hard to decypher and are not logged along the other configuration problems of the services. Generally, unknown variable assignments simply have no effect but this is not warned about. This makes these files harder to debug than necessary.
-  * Configuration files sources from shell scripts are subject to the execution parameters of the interpreter, and it has many: settings like IFS or LANG tend to modify drastically how shell scripts are parsed and understood. This makes them fragile.
-  * Interpretation of these files is slow, since it requires spawning of a shell, which adds at least one process for each service to be spawned at boot.
-  * Often, files in /etc/sysconfig are used to "fake" configuration files for daemons which do not support configuration files natively. This is done by glueing together command line arguments from these variable assignments that are then passed to the daemon. In general proper, native configuration files in these daemons are the much prettier solution however. Command line options like "-k", "-a" or "-f" are not self-explanatory and have a very cryptic syntax. Moreover the same switches in many daemons have (due to the limited vocabulary) often very much contradicting effects. (On one daemon -f might cause the daemon to daemonize, while on another one this option turns exactly this behaviour off.) Command lines generally cannot include sensible comments which most configuration files however can.
-  * A number of configuration settings in /etc/sysconfig are entirely redundant: for example, on many distributions it can be controlled via /etc/sysconfig files whether the RTC is in UTC or local time. Such an option already exists however in the 3rd line of the /etc/adjtime (which is known on all distributions). Adding a second, redundant, distribution-specific option overriding this is hence needless and complicates things for no benefit.
-  * Many of the configuration settings in /etc/sysconfig allow disabling services. By this they basically become a second level of enabling/disabling over what the init system already offers: when a service is enabled with systemctl enable or chkconfig on these settings override this, and turn the daemon of even though the init system was configured to start it. This of course is very confusing to the user/administrator, and brings virtually no benefit.
-  * For options like the configuration of static kernel modules to load: there are nowadays usually much better ways to load kernel modules at boot. For example, most modules may now be autoloaded by udev when the right hardware is found. This goes very far, and even includes ACPI and other high-level technologies. One of the very few exceptions where we currently do not do kernel module autoloading is CPU feature and model based autoloading which however will be supported soon too. And even if your specific module cannot be auto-loaded there's usually a better way to statically load it, for example by sticking it in /etc/load-modules.d so that the administrator can check a standardized place for all statically loaded modules.
-  * Last but not least, /etc already is intended to be the place for system configuration ("Host-specific system configuration" according to FHS). A subdirectory beneath it called sysconfig to place system configuration in is hence entirely redundant, already on the language level.
+Ba chức năng cuối cùng trông có vẻ lạ lẫm so với ý tưởng ban đầu của `/etc/default` :)
 
-What to use instead? Here are a few recommendations of what to do with these files in the long run in a systemd world:
+## Có gì không hay với /etc/default
 
-  * Just drop them without replacement. If they are fully redundant (like the local/UTC RTC setting) this is should be a relatively easy way out (well, ignoring the need for compatibility). If systemd natively supports an equivalent option in the unit files there is no need to duplicate these settings in sysconfig files. For a list of execution options you may set for a service check out the respective man pages: systemd.exec(5) and systemd.service(5). If your setting simply adds another layer where a service can be disabled, remove it to keep things simple. There's no need to have multiple ways to disable a service.
-  * Find a better place for them. For configuration of the system locale or system timezone we hope to gently push distributions into the right direction, for more details see previous episode of this series.
-  * Turn these settings into native settings of the daemon. If necessary add support for reading native configuration files to the daemon. Thankfully, most of the stuff we run on Linux is Free Software, so this can relatively easily be done.
+Có nhiều, như danh sách dưới đây. Ở một số nơi, ta sẽ so sánh
+cách tiếp cận của `SysV` với `systemd`.
 
-Of course, there's one very good reason for supporting these files for a bit longer: compatibility for upgrades. But that's is really the only one I could come up with. It's reason enough to keep compatibility for a while, but I think it is a good idea to phase out usage of these files at least in new packages.
+  * Để giúp việc điều chỉnh cấu hình dễ hơn và tránh xung đột khi nâng cấp,
+    cài đặt các gói, `SysV` giới thiệu thêm `/etc/sysconfig` để tách
+    phần cấu hình với kịch bản khởi động dịch vụ. Trong `systemd` thì
+    không còn có các kịch bản khởi động nữa, chỉ còn có các mô tả dịch vụ
+    đi kèm với gói trong `/lib/systemd/system` hoặc do người dùng sao
+    chép lại để điều chỉnh theo ý trong `/etc/systemd/`.
+  * `SysV` không chuẩn hóa; mỗi phiên bản Linux triển khai `SysV` theo
+    kiểu riêng, và một kịch bản `SysV` ở hệ thống này khó có thể sử dụng
+    được ở hệ thống khác. Tham vọng của `systemd` là chuẩn hóa được các
+    hệ thống Linux.
+  * Nhiều thiết lập của `SysV` không cần thiết khi đã có `systemd`. Ví dụ,
+    thiết lập về giới hạn tài nguyên cho tiến trình. Thực tế thì chỉ số rất
+    ít kịch bản `SysV` hỗ trợ giới hạn tài nguyên, và mỗi kịch bản theo
+    kiểu riêng. Trong `systemd` thì tất cả các dịch vụ đều có cùng một
+    kiểu thiết lập để đặt ra các giới hạn này.
+  * Một số cài đặt trong `/etc/sysconfig` không thể thay đổi được dễ dàng,
+    ví dụ cài đặt về `UID/GID` cho tiến trình: Lý do là để đổi tham số `GID/UID`
+    cần có cái nhìn bao quát về toàn bộ hệ thống để tránh các xung đột,
+    và thường thì chỉ  có chính nhà phân phối Linux mới nắm được hết.
+  * Do các hạn chế của kịch bản `shell` _(ví dụ các biến có thể dùng mà
+    không cần gán trước giá trị; lỗi xảy ra nhưng kịch bản vấn tiếp tục)_,
+    những sai sót khi cấu hình qua `/etc/sysconfig` dễ bị bỏ qua và cũng
+    khó mà ghi `log` lại, làm cho quá trình xác định lỗi khó khăn hơn.
+  * Các kịch bản `/etc/sysconfig` chịu ảnh hưởng của các biến như `IFS`
+    hay `LANG` của môi trường. Sự thay đổi của các biến này có thể làm
+    hỏng kết quả đọc và nạp cấu hình từ `/etc/sysconfig`
+  * Việc đọc và nạp các kịch bản trong `/etc/sysconfig` yêu cầu mở ra một
+    tiến trình con của `shell`, nên chậm.
+  * Thường các tập tin trong `/etc/sysconfig` được dùng như một cách chữa
+    cháy khi các tiến trình nền không có riêng tập tin cấu hình. Không theo
+    cách đơn giản và đẹp như chương trình `lynx` đọc cấu hình từ `/etc/lynx.cfg`,
+    nhiều tiến trình cần thêm các tham số từ dòng lệnh, kiểu như `-k`, `-u`, `-d`,...
+    trông khá là bí hiểm và khó nhớ. Do mỗi ứng dụng yêu cầu một kiểu
+    cấu hình, kiểu danh sách tham số và môi trường riêng, nên các tập tin
+    trong `/etc/sysconfig` có thể rất khác nhau, không có gì chung.
+  * Vài tham số trong `/etc/default` hoàn toàn không cần thiết. Ví dụ,
+    để điều chỉnh giờ bên trong hệ thống theo `UTC` hoặc giờ địa phương,
+    nhiều bản phân phối Linux cho phép điều chỉnh qua `/etc/sysconfig`.
+    Nhưng thiết lập giờ đó luôn có thể chỉnh trong `/etc/adjtime`
+    _(chú ý tới dòng thứ 3)_, vì tập tin này có ở tất cả các bản Linux.
+    Sự trùng lặp về nơi cấu hình như vậy dễ gây nhầm lẫn, chẳng có lợi
+    ích gì đáng kể.
+  * Nhiều tham số cấu hình trong `/etc/sysconfig` cho phép ngưng dịch vụ,
+    ngăn không cho dịch vụ tự bật lên lúc khởi động. Khả năng này của
+    `/etc/default` thêm một mức để điều chỉnh hệ thống, nhưng lại làm cùng
+    một việc của `systemctl` hay `chkconfig`. Không sớm thì muộn điều này
+    cũng dấn tới nhầm lần, bởi vì cấu hình trong `/etc/default` được ưu tiên,
+    bỏ qua các điều chỉnh do `chkconfig` tạo ra.
+  * Với tùy chọn để nạp mô-đun nhân tĩnh: Ngày nay có nhiều cách tốt hơn để nạp
+    mô-đun tĩnh cho nhân. Ví dụ, lúc khởi động máy hầu hết các mô-đun sẽ được nạp
+    tự động nhờ `udev` tìm các thiết bị phần cứng và nạp `driver` tương ứng.
+    Có vài ngoại lệ như các mô-đun cho các tính năng đặc biệt của CPU
+    chưa đuợc `udev` hỗ trợ, nhưng trong tương lai gần hạn chế này sẽ được
+    khắc phục. Hiện tại thì ngay cả khi có các mô-đun không thể nạp tự động
+    thì luôn có cách để nạp chúng theo cách `tĩnh` _(statically loading)_;
+    ví dụ, cung cấp thông tin về mô-đun đó trong `/etc/load-modules.d/`
+    và để nơi đó thành `chuẩn` cho biết tất cả  các mô-đun nạp tĩnh trên hệ thống.
 
-If compatibility is important, then systemd will still allow you to read these configuration files even if you otherwise use native systemd unit files. If your sysconfig file only knows simple options EnvironmentFile=-/etc/sysconfig/foobar (See systemd.exec(5) for more information about this option.) may be used to import the settings into the environment and use them to put together command lines. If you need a programming language to make sense of these settings, then use a programming language like shell. For example, place an short shell script in /usr/lib/<your package>/ which reads these files for compatibility, and then exec's the actual daemon binary. Then spawn this script instead of the actual daemon binary with ExecStart= in the unit file.
+Lưu ý cuối cùng là, `/etc/` là nơi dùng để đặt cấu hình cho hệ thống[^etc]
+theo mô tả trong `FHS`. Vì vậy đặt ra một thư mục con `/etc/sysconfig`
+để đặt cấu hình là việc hoàn toàn không cần thiết, ngay cả ở mức ngôn ngữ.
+
+## Nếu vẫn muốn dùng /etc/default
+
+Nếu bạn vẫn muốn dùng kiểu cấu hình của `SysV`, dưới đây là vài lời khuyên
+
+  * Mạnh dạn gỡ bỏ những thiết lập lặp lại hoặc không cần thiết, như
+    thiết lập `RTC`. Nhiều thiết lập bạn cần để điều khiển tiến trình
+    được `systemd` hỗ trợ, bạn nên tham khảo các tài liệu `systemd.exec(5)`
+    và `systemd.service(5)` thay vì làm thêm cái mới trong `/etc/sysconfig`.
+  * Tìm nơi tốt hơn để đặt các cấu hình nếu các chương trình hỗ trợ.
+    Ví dụ, các thiết lập của `proftpd` có thể điều chỉnh qua tập tin cấu
+    hình của nó, bạn không cần chỉ ra qua tham số dòng lệnh.
+  * Điều chỉnh mã nguồn các ứng dung để chúng có thể đọc các thiết lập
+    từ các tập tin riêng chứ không cần thông qua tham số dòng lệnh.
+
+Có nhiều lý do để vẫn tiếp tục sử dụng `SysV`, chẳng hạn để đảm bảo sự
+tương thích khi cài đặt, nâp cấp hệ thống. Hy vọng rằng `giai đoạn
+tương thích` này qua sớm, tránh được các hạn chế của `SysV`.
+
+Thật sự thì nếu yêu cầu tưong thích là quan trọng, bạn vẫn có thể dùng
+`systemd`: Sử dụng biến `EnvironmentFile=` như mô tả trong `systemd.exec(5)`,
+bạn có thể đọc các biến môi trường trước khi bật tiến trình. Nhờ thiết
+lập `ExecStart=` của `systemd`, bạn thậm chí có thể đọc cấu hình từ
+`/etc/sysconfig` bằng các tiện ích và ngôn ngữ lập trình bạn quen thuộc
+trước khi bật tiến trình thật sự.
+
+## Ghi chú
+
+[^1]: The Debian Policay Manual (9.3.2)
+[^2]: The Fedora Packaging Guidelines
+[^oom]: OOM killer. Xem thêm ở <http://lwn.net/Articles/317814/>
+[^etc]: Host-specific system configuration
