@@ -46,7 +46,9 @@
     <div id="sidebar">
       <h2><a href="/">ArchLinuxVn</a></h2>
       <ul>
-        <li><a href="/vn/news/">tin tức</a></li>
+        <li><a href="/vn/news/">tin tức
+              <%= item_news?(@item) ? " (mới)" : "" %>
+            </a></li>
         <li><a href="/vn/members/">thành viên</a></li>
         <li><a href="/changes/">thay đổi gần đây</a></li>
         <li><a href="/tags/">thẻ đánh dấu bài viết</a></li>

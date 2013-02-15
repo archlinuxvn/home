@@ -73,9 +73,24 @@ EOF
       else nil
     end
 
+    # FIXME: Why do we need a check `File.file?` here?
     op and file_name and command and File.file?(file_name) \
       ? %x{#{command}}.strip.gsub("\n", "") \
       : "Couldn't fetch information for item '#{path}'"
+  end
+
+  # @purpose: Test if an item age is lessn than `offset` day(s)
+  # @author : Anh K. Huynh
+  def item_news?(item, offset = 7)
+    if file_name = item_to_file(item)
+      stdout = %x{git log --date=relative -1 --pretty="format:%cd" \"#{file_name}\"}
+      return true if stdout.match(/(hour|minute)s? ago/)
+
+      if gs = stdout.match(/^([0-9]+) dates? ago/)
+        gs[1].to_i <= offset
+      end
+    end
+    false
   end
 
   # @purpose: Print last <num> changes in git log
