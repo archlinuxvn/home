@@ -81,16 +81,17 @@ EOF
 
   # @purpose: Test if an item age is lessn than `offset` day(s)
   # @author : Anh K. Huynh
+  # @notes  : offset should less than 30
   def item_news?(it, offset = 7)
-    if file_name = item_to_file(it)
-      stdout = %x{git log --date=relative -1 --pretty="format:%cd" \"#{file_name}\"}.strip.gsub("\n", "")
-      return true if stdout.match(/(hour|minute)s? ago/)
+    file_name = item_to_file(it)
+    return false unless file_name
 
-      if gs = stdout.match(/^([0-9]+) dates? ago/)
-        return gs[1].to_i <= offset
-      end
+    stdout = %x{git log --date=relative -1 --pretty="format:%cd" \"#{file_name}\"}.strip.gsub("\n", "")
+    if stdout.match(/(hour|minute)s? ago/)
+      true
+    elsif gs = stdout.match(/^([0-9]+) days? ago/)
+      gs[1].to_i <= offset
     end
-    false
   end
 
   # @purpose: Print last <num> changes in git log
