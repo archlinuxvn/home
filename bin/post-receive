@@ -16,6 +16,7 @@ export LANG=en_US.UTF-8
 _D_VAR="$HOME/var/archlinuxvn/"
 _F_LOCK="$HOME/var/archlinuxvn.lock"
 _F_ARCHIVE="$HOME/static/www/archlinuxvn.org.tgz"
+_D_WWW="$HOME/static/www/"
 _S_TUXFAMILY="kyanh@ssh.tuxfamily.org"
 
 msg() {
@@ -109,7 +110,15 @@ _fix_perm() {
   find $_D_VAR/output/ -mindepth 1 -type f -exec chmod 644 {} +
 }
 
+# NOTE: all files `*.tgz` are ignored
+_create_www() {
+  msg "Transferring files to directory 'www' on l00s3r (m0)"
+  rsync -rap --delete $_D_VAR/output/ $_D_WWW/ --exclude="*.tgz"
+}
+
+# NOTE: Should be invoked after (create_www)
 _create_archive() {
+  msg "Creating local archive for Tuxfamily"
   tar --transform="s,^output,archlinuxvn.org," -czf $_F_ARCHIVE output/
 }
 
@@ -169,6 +178,7 @@ _main() {
   _update || die "Something wrong happened during updating process"
   _build
   _fix_perm
+  _create_www
   _create_archive
   _sync
 }
