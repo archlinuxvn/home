@@ -15,8 +15,8 @@ export LANG=en_US.UTF-8
 
 _D_VAR="$HOME/var/archlinuxvn/"
 _F_LOCK="$HOME/var/archlinuxvn.lock"
-_F_ARCHIVE="$HOME/static/www/archlinuxvn.org.tgz"
-_D_WWW="$HOME/static/www/"
+_F_ARCHIVE="$HOME/static/www/archlinuxvn/archlinuxvn.org.tgz"
+_D_WWW="$HOME/static/www/archlinuxvn/"
 _S_TUXFAMILY="kyanh@ssh.tuxfamily.org"
 
 msg() {
@@ -120,6 +120,7 @@ _create_www() {
 _create_archive() {
   msg "Creating local archive for Tuxfamily"
   tar --transform="s,^output,archlinuxvn.org," -czf $_F_ARCHIVE output/
+  chmod 644 $_F_ARCHIVE
 }
 
 _sync() {
