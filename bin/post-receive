@@ -82,7 +82,7 @@ _update() {
 _update_myself() {
   local _myself="$HOME/hooks/archlinuxvn/post-receive"
 
-  cd $_D_VAR/ && die "Couldn't switch to directory $_D_VAR/"
+  cd $_D_VAR/ || die "Couldn't switch to directory $_D_VAR/"
 
   msg "Updating the build script"
   git archive --format=tar core --remote=~/repositories/archlinuxvn.git \
@@ -100,7 +100,7 @@ _update_myself() {
 }
 
 _build() {
-  cd $_D_VAR/ && die "Couldn't switch to directory $_D_VAR/"
+  cd $_D_VAR/ | die "Couldn't switch to directory $_D_VAR/"
 
   msg "Cleaning up the old files"
   nanoc prune --yes
@@ -127,7 +127,7 @@ _create_www() {
 
 # NOTE: Should be invoked after (create_www)
 _create_archive() {
-  cd $_D_VAR/ && die "Couldn't switch to $_D_VAR/"
+  cd $_D_VAR/ || die "Couldn't switch to $_D_VAR/"
 
   msg "Creating local archive for Tuxfamily"
   tar --transform="s,^output,archlinuxvn.org," -czf $_F_ARCHIVE output/
@@ -187,7 +187,7 @@ _lock_end() {
 _make_links() {
   local _user
 
-  cd $_D_OUTPUT && die "Oops I couldn't switch to $_D_OUTPUT/"
+  cd $_D_OUTPUT || die "Oops I couldn't switch to $_D_OUTPUT/"
 
   find $_D_OUTPUT/blog/ \
     -mindepth 1 -maxdepth 1 -type d -iname "~*" \
