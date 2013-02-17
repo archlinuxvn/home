@@ -18,6 +18,7 @@ _F_LOCK="$HOME/var/archlinuxvn.lock"
 _F_ARCHIVE="$HOME/static/www/archlinuxvn/archlinuxvn.org.tgz"
 _D_WWW="$HOME/static/www/archlinuxvn/"
 _S_TUXFAMILY="kyanh@ssh.tuxfamily.org"
+_D_OUTPUT="$_D_VAR/output/"
 
 msg() {
   echo ":: $*"
@@ -105,15 +106,15 @@ _build() {
 
 _fix_perm() {
   msg "Updating files permission"
-  cp $_D_VAR/_i/htaccess.root.txt $_D_VAR/output/.htaccess
-  find $_D_VAR/output/ -mindepth 1 -type d -exec chmod 755 {} +
-  find $_D_VAR/output/ -mindepth 1 -type f -exec chmod 644 {} +
+  cp $_D_VAR/_i/htaccess.root.txt $_D_OUTPUT/.htaccess
+  find $_D_OUTPUT/ -mindepth 1 -type d -exec chmod 755 {} +
+  find $_D_OUTPUT/ -mindepth 1 -type f -exec chmod 644 {} +
 }
 
 # NOTE: all files `*.tgz` are ignored
 _create_www() {
   msg "Transferring files to directory 'www' on l00s3r (m0)"
-  rsync -rap --delete $_D_VAR/output/ $_D_WWW/ --exclude="*.tgz"
+  rsync -rap --delete $_D_OUTPUT/ $_D_WWW/ --exclude="*.tgz"
 }
 
 # NOTE: Should be invoked after (create_www)
