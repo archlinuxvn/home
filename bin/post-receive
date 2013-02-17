@@ -193,7 +193,8 @@ _make_links() {
     -mindepth 1 -maxdepth 1 -type d -iname "~*" \
   | while read _du; do
       _user="$(basename $_du)"
-      [[ -f "$_D_OUTPUT/$_user" ]] && continue
+      [[ -f "$_D_OUTPUT/$_user" -o -s "$_D_OUTPUT/$_user" ]] \
+        && continue
       ln -s blog/$_user $_user
     done
 }
