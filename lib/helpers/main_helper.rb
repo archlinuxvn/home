@@ -165,17 +165,22 @@ EOF
 
     ret = ["<ol>"]
     all_items.each do |p|
+      # User blog. We will use top-level link for user by remove `/blog/`
       if gs = p.identifier.match(%r{^/blog/([^/]+)/.+})
-        ret << "<li>%s - %s</li>" % [gs[1], link_to(p[:title], p.identifier)]
-      elsif gs = p.identifier.match(%r{^/faq/.+})
-        ret << "<li>faq - %s</li>" % [link_to(p[:title], p.identifier)]
+        ret << "<li>%s - %s</li>" % [gs[1], link_to(p[:title], p.identifier.sub(%r{/blog/},'/'))]
+      # Any subpage under /vn/
       elsif gs = p.identifier.match(%r{^/vn/([^/]+)/})
         page = gs[1]
         if %w{author-guide members bot irc lists news}.include?(page)
-          ret << "<li>home - %s</li>" % [link_to(p[:title], p.identifier)]
+          ret << "<li>vn - %s</li>" % [link_to(p[:title], p.identifier)]
         end
-      elsif gs = p.identifier.match(%r{^/doc/.+/})
-        ret << "<li>doc - %s</li>" % [link_to(p[:title], p.identifier)]
+      else
+        # Some special pages need a prefix
+        %w{faq ken doc}.each do |t|
+          if gs = p.identifier.match(%r{^/#{t}/.+})
+            ret << "<li>#{t} - %s</li>" % [link_to(p[:title], p.identifier)]
+          end
+        end
       end
     end
     ret << ["</ol>"]
