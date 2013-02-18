@@ -1,0 +1,65 @@
+﻿---
+title: "watchdogs"
+author: Lennart Poettering
+origin: http://0pointer.de/blog/projects/watchdog.html
+date: 2012-jun-28
+tags: ['systemd', 'watchdog']
+translators: tant
+allow_comments: yes
+license: CC BY-SA
+---
+
+Watchdogs 
+
+Có 3 đối tượng systemd phục vụ đó là: hệ thống nhúng/di động, hệ thống để bàn, hệ thống máy chủ. Trong khi hệ thống nhúng và di động hướng tới ít tiêu thụ điện và ít tính năng, hệ hống để bàn thì lại mạnh hơn nhiều -- nhưng vẫn chưa nhiều tài nguyên bằng các hệ thống máy chủ. Vì vậy có nhiều tính năng sẽ ảnh hưởng tới hệ thống nhúng và hệ thống máy chủ nhưng không mấy ảnh hưởng tới hệ thống để bàn. Một trong những tính năng đó là watchdog phần cứng và phần mềm
+
+Các thiết bị nhúng thường xuyên dựa vào watchdog phần cứng để tự động khởi động lại nếu phần mềm bị trục trặc(cụ thể hơn là ngừng ra tín hiệu cho phần cứng trong khoảng thời gian xác định là hệ thống vẫn đang chạy). Điều này làm tăng tính tin cậy của hệ thống và chắc chắn rằng dù chuyện gì xảy ra thì điều này sẽ giúp cho hệ thống có thể chạy trở lại. Tính năng này hơi ít khả thi trên hệ thống để bàn[1]. Tuy nhiên trong hệ thống máy chủ thì tính năng này lại được dùng
+
+Từ phiên bản 183, systemd hỗ trợ đầy đủ watchdog phần cứng (như đã thể hiện trong /dev/watchdog đến userspace) cũng như watchdog phần mềm còn gọi là giám sát  cho những dịch vụ riêng lẻ. Ý tưởng cơ bản như sau: Nếu được bật lên thì systemd sẽ đều đặn ping watchdog phần cứng. Nếu systemd hay kernel bị treo, thì ping không thành công và phần cứng tự động khởi động lại hệ thống. Dùng cách này, systemd và kernel được bảo vệ khỏi bị treo hoài -- (bởi phần cứng). Và để hoàn thành cái dây chuyền này, systemd còn cung cấp giao tiếp watchdog phần mềm cho các dịch vụ riêng lẻ để chúng có thể biết mà được khởi động lại (hoặc có những hành động cần thiết) nếu chúng bắt đầu treo. Từng dịch vụ có thể được cấu hình riêng lẻ về tần suất ping cũng như hành động sẽ chạy. Toàn bộ thiết kế này (watchdog phần cứng giám sát systemd và kernel và systemd thì lại giám sát các dịch vụ khác) cho chúng ta một phương pháp tin cậy để giám sát tất cả thành phần của hệ thống  
+
+Có thể bật tắt watchdog phần cứng trong RuntimeWatchdogSec= option in /etc/systemd/system.conf. Giá trị mặc định là 0 (Tương đương với tắt). Bạn có thể đổi thành giá trị khác 0 ví dụ 20s chẳng hạn để bật watchdog phần cứng. Sau 20s nếu không nhận được tín hiệu ping thì phần cứng sẽ tự khởi động lại. Nhớ chú ý rằng systemd chỉ mất nửa thời gian để ping tới phần cứng, trong ví dụ trên là 10s. Chỉ vậy thôi, bằng cách thay đổi giá trị RuntimeWatchdogSec thành lớn hơn 0, bạn đã bật giám sát phần cứng của systemd và kernel bên dưới nó
+
+Chú ý rằng nội dung thiết bị watchdog phần cứng (/dev/watchdog) là chỉ dùng một người dùng. Có nghĩa là bạn có thể bật tính năng này trong systemd hay là dùng một dịch vụ watchdog , chẳng hạn như aptly tên watchdog.
+
+Có một giá trị khác có thể cấu hình trong /etc/systemd/system.conf đó là ShutdownWatchdogSec. Nó sẽ cấu hình thời gian xảy ra watchdog trong lúc khởi động lại với giá trị mặc định làm 10 phút. ShutdownWatchdogSec cho thêm độ tin cậy vào tiến trình khởi động lại, nếu khởi động lại không thành công và không thể tắt được hệ thống, chúng ta có thể dựa vào cái watchdog này để khởi động lại hệ thống lần nữa như một cái cách dự phòng nữa 
+
+Đã quá đủ cho watchdog phần cứng. Chỉ cần hai thông số này là có thể tận dụng được watchdog phần cứng rồi. Bây giờ hãy cùng xem coi làm thế nào để thêm cái cấu hình watchdog cho dịch vụ riêng lẻ 
+
+Đầu tiên, để làm cho watchdog phần mềm có thể được giám sát, nó phải được độ lại để gửi tín hiệu "Tui đang còn sống đây" trong khoảng thời gian xác định trong vòng lặp sự kiện của nó. Việc này rất đơn giản. Đầu tiên, dịch vụ này cần phải đọc được giá trị của biến môi trường WATCHDOG_USEC. Nếu được cấu hình, đây là khoảng thời gian ping theo đơn bị micro giây (định dạng kiểu chuỗi ASCII) cho dịch vụ đó. Sau đó dịch vụ sẽ gọi sd_notify("WATCHDOG=1") mỗi khoảng nửa thời gian trên. Tóm lại, một dịch vụ độ kiểu này sẽ độc lập hỗ trợ tính năng watchdog bằng cách kiểm tra biến môi trường và thực hiện đúng ping đúng yêu cầu 
+
+Để bật watchdog phần mềm cho một dịch vụ (nhớ là phải độ trước theo như trên) thì chỉ cần gán WatchdogSec giá trị khoảng thời gian chờ được xem là hư. Xem systemd.service(5) để biết chi tiết hơn về giá trị này. Nôm na là trong thời gian WatchdogSec này, nếu không nhận được ping thông báo đang còn sống của dịch vụ thì dịch vụ sẽ được ghi nhận trạng thái là hỏng 
+
+Nếu chỉ xác định một dịch vụ rơi vào trạng thái có sự cố hay không thôi thì không đủ để xây dựng một hệ thống tin cậy. Bước kế tiếp là phải cấu hình có cần phải khởi dộng lại dịch vụ hay không và thường xuyên như thế nào, và làm gì nếu vẫn không được. Để bật tính năng tự động khởi động lại khi gặp sự cố thì chỉ cần gán Restart=on-failure cho dịch vụ đó. Để cấu hình bao nhiêu lần dịch vụ sẽ cố gắng khởi động lại trong khoảng thời gian xác định thì dùng phối hợp hai thông số StartLimitBurst (giá trị số lần) và StartLimitInterval (giá trị khoảng thời gian). Nếu khởi động lại hết số lần hoặc hết thời gian xác định trên thì một hành động đặc biệt có thể được cấu hình với thông số StartLimitAction. Giá trị mặc định là none nghĩa là không có hành động nào sẽ xảy ra nữa, dịch vụ sẽ giữ trạng thái có sự cố và không làm gì nữa. Nếu không thì có ba giá trị khác có thể được gán đó là reboot (khởi động lại bình thường, tắt các dịch vụ khác) reboot-force (khởi động dứt khoát hơn nó không có cố gắng tắt các service bình thường mà giết tất cả dịch vụ, unmount file system khởi động lại(cách này các file system sẽ sạch sẽ), reboot-immediate (đơn giản không có tắt các dịch vụ hay unmount file system gì hết, đây là gần với một khởi động lại được kích hoạt bởi watchdog phần cứng). Tất cả cấu hình này đều có thể hiện trong systemd.service(5)
+
+Với tất cả các thông số cấu hình trên, chúng ta có các lựa chọn linh hoạt để giám sát watchdog của một dịch vụ và cấu hình tự động khởi động dịch vụ nếu nó bị treo hay thêm nữa là làm một hành động đặc biệt nếu không khởi động lại được.
+
+Đây là một file ví dụ
+[Unit]
+Description=My Little Daemon
+Documentation=man:mylittled(8)
+
+[Service]
+ExecStart=/usr/bin/mylittled
+WatchdogSec=30s
+Restart=on-failure
+StartLimitInterval=5min
+StartLimitBurst=4
+StartLimitAction=reboot-force
+
+Dịch vụ này sẽ được tự động khởi động lại nếu nó không ping systemd trong khoảng thời gian lớn hơn 30 giây. Nếu nó khởi động lại như vậy nhiều hơn 5 lần trong 5 phút thì hành động reboot-force sẽ xảy ra và file system sẽ được dọn khi dịch vụ chạy lại
+
+Đây là tất cả những gì tôi muốn nói, với watchdog phần cứng hỗ trợ ngay tại PID 1 cũng như watchdog hỗ trợ cho các dịch vụ chúng tôi đã bao quát hết khả dung của watchdog. Cho dù bạn xây dựng những thiết bị nhúng/di động hay tới máy chủ đáp ứng cao thì hãy thử dùng wathdog
+
+(Nếu bạn tự hỏi tại sao PID 1 cần phải xử lí /dev/watchdog và tại sao nó không thể được giữ trong một dịch vụ tách biệt thì hãy đọc lại lần nữa và cố hiểu điều này để xây dựng một chuỗi giám sát mà chúng tôi đang xây dựng ở đây, nơi mà watchdog phần cứng giám sát systemd, và systemd thì giám sát các dịch vụ. Bên cạnh đó chúng tôi cũng hiểu một dịch vụ bị treo nên được đối xử tương tự với các dịch vụ bị treo khác. Cuối cùng ping /dev/watchdog là một trong nnhững hoạt động chủ chốt của OS(cơ bản là quan trong hơn một lệnh gọi ioctl()) để hỗ trợ cho chuyện này chỉ không nhiều hơn mấy dòng lệnh. Duy trì vụ này bên ngoài với IPC phức tạp giữa PID 1 (và các dịch vụ) và dịch vụ watchdog có thể còn phức tạp hơn nhiều, dễ gây lỗi và chiếm dụng tài nguyên)   
+
+Chú ý rằng mặc định, watchdog phần cứng tích hợp sẵn không có bị đụng độ với watchdog phần mềm. systemd mặc định không dùng /dev/watchdog và bạn hoàn toàn có thể dùng dịch vụ watchdog bên ngoài phối hợp với systemd nếu bạn cho rằng phù hợp với bạn hơn
+
+Điều cuối cùng, nếu bạn thắc mắc là phần cứng của bạn có watchdog chưa thì câu cả lời gần như chắc chắn là có( nếu phần cứng của bạn là trong vòng vài năm đổ lại). Nếu muốn kiểm chứng, bạn có thể thử công cụ wdctl trong util-linux, nó sẽ hiện tất cả những gì bạn cần biết về watchdog phần cứng của bạn
+
+Tôi muốn gửi lời cám ơn tới những người vĩ đại từ Pengutronix vì đã cống hiến phần lớn logic của watchdog. 
+
+
+Chú thích
+
+[1] Giờ phần lớn máy để bàn đều có watchdog phần cứng vì chi phí rẻ và có sẵn trong hầu hết chipset mới
+[2] Đây có một cái mẹo cho bạn nếu bạn hack vào nhân của OS: đừng bật tính năng này lên lúc bạn hack vì nếu không hệ thống của bạn sẽ có thể tự động khởi động lại nếu bạn đang dò tìm thông qua PID 1 với gdb và làm cho nó dừng một lát, điều này có thể làm ping hardward bị thất bại... 
