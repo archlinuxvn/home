@@ -9,30 +9,30 @@ license: CC BY-SA
 allow_comments: yes
 ---
 
-Killing a system daemon is easy, right? Or is it?
+Việc hủy một dịch vụ ngầm (daemon) hệ thống có dễ không?
 
-Sure, as long as your daemon persists only of a single process this might actually be somewhat true. You type killall rsyslogd and the syslog daemon is gone. However it is a bit dirty to do it like that given that this will kill all processes which happen to be called like this, including those an unlucky user might have named that way by accident. A slightly more correct version would be to read the .pid file, i.e. kill `cat /var/run/syslogd.pid`. That already gets us much further, but still, is this really what we want?
+Dịch vụ chạy ngầm tồn tại chỉ như một tiến trình đơn nên việc hủy dịch vụ có thể nói là dễ dàng. Bạn chỉ cần gõ 'killall rsyslogd' thì syslog sẽ bị hủy. Tuy nhiên việc đó là không nên khi mà nó sẽ hủy tất cả các tiến trình được gọi theo cách đó, gồm cả việc nhầm lẫn không mong muốn của người dùng. Chính xác hơn một chút, ta có thể đọc tệp tin .pid, như kill 'cat /var/run/syslog.pid'. Chúng ta đã làm việc đúng đắn hơn, nhưng đó có phải cái chúng ta cần thật sự?
 
-More often than not it actually isn't. Consider a service like Apache, or crond, or atd, which as part of their usual operation spawn child processes. Arbitrary, user configurable child processes, such as cron or at jobs, or CGI scripts, even full application servers. If you kill the main apache/crond/atd process this might or might not pull down the child processes too, and it's up to those processes whether they want to stay around or go down as well. Basically that means that terminating Apache might very well cause its CGI scripts to stay around, reassigned to be children of init, and difficult to track down.
+Không may như thế là không đủ. Các dịch vụ như apache, crond, hay atd thường xuyên kéo theo các dịch vụ con. Kể cả là tiến trình con đã được cấu hình của người dùng, như là cron, kịch bản CGI, hay là cả các máy phục vụ ứng dụng (application servers). Dù cho bạn hủy tiến trình chính apache/crond/atd thì vẫn không chắc chắn rằng các tiến trình con của nó bị hủy theo, và nó quyết định xem chúng có thể tiếp tục hay không. Theo cách dễ hiểu là việc hủy Apache có thể làm cho các kịch bản (script) CGI vẫn tồn tại và trở thành tiến trình con của init. Khi đó, ta khó có thể mà theo dõi được.
 
-systemd to the rescue: With systemctl kill you can easily send a signal to all processes of a service. Example:
-
+systemd giúp ta việc đó dễ dàng: systemctl kill gửi tín hiệu (signal) đến tất cả các tiến trình của dịch vụ. Ví dụ:
+    
     # systemctl kill crond.service
-
-This will ensure that SIGTERM is delivered to all processes of the crond service, not just the main process. Of course, you can also send a different signal if you wish. For example, if you are bad-ass you might want to go for SIGKILL right-away:
+    
+Câu lệnh này thực thi sẽ gửi SIGTERM (tín hiệu dừng) đến tất cả tiến trình của dịch vụ crond, không chỉ riêng tiến trình chính. Tất nhiên, bạn cũng có thể gửi những tín hiệu khác nếu bạn muốn. Ví dụ như là điên một tí bạn muốn gửi SIGKILL (tín hiệu hủy) đến crond:
 
     # systemctl kill -s SIGKILL crond.service
+    
+Và thế là tiến trình đã bị hủy một cách tàn nhẫn, mặc cho nó đã được rẽ nhánh (fork) bao nhiêu lần, hay nó đã cố thoát khỏi sự kiểm soát bằng việc rẽ nhánh nhân đôi (double forking) hay bom rẽ nhánh (forking bombing).
 
-And there you go, the service will be brutally slaughtered in its entirety, regardless how many times it forked, whether it tried to escape supervision by double forking or fork bombing.
-
-Sometimes all you need is to send a specific signal to the main process of a service, maybe because you want to trigger a reload via SIGHUP. Instead of going via the PID file, here's an easier way to do this:
+Đôi khi tất cả những gì bạn muốn là gửi một tín hiệu cụ thể đến tiến trình chính của dịch vụ, có thể do bạn muốn nạp lại tiến trình thông qua SIGUP. Thay vì phải thông qua tệp tin PID, có cách dễ dàng hơn để làm việc đó:
 
     # systemctl kill -s HUP --kill-who=main crond.service
 
-So again, what is so new and fancy about killing services in systemd? Well, for the first time on Linux we can actually properly do that. Previous solutions were always depending on the daemons to actually cooperate to bring down everything they spawned if they themselves terminate. However, usually if you want to use SIGTERM or SIGKILL you are doing that because they actually do not cooperate properly with you.
+Vậy có gì mới và khác trong việc hủy một dịch vụ với systemd? Đó là ngay lần đầu tiếp xúc với Linux ta cũng có thể làm được một cách dễ dàng. Những phương án trước thường xuyên phải dựa trên dịch vụ ngầm để kết nối và hủy tất cả các dịch vụ con phụ thuộc. Tuy nhiên, thường thì khi bạn sử dụng SIGTERM hay SIGKILL, bạn phải làm việc đó vì chúng thật sự không kết nối với nhau.
 
-How does this relate to systemctl stop? kill goes directly and sends a signal to every process in the group, however stop goes through the official configured way to shut down a service, i.e. invokes the stop command configured with ExecStop= in the service file. Usually stop should be sufficient. kill is the tougher version, for cases where you either don't want the official shutdown command of a service to run, or when the service is hosed and hung in other ways.
+systemctl stop và systemctl kill có liên quan với nhau không? 'kill' gửi trực tiếp tín hiệu đến mỗi tiến trình trong nhóm, trong khi đó 'stop' đi theo cách chính thống hơn để có thể hủy một dịch vụ, như là gọi lệnh dừng với 'ExecStop=' trong tệp tin dịch vụ. Bình thường thì sử dụng 'stop' là đủ. 'kill' là phiên bản mạnh hơn, trong trường hợp bạn không muốn hủy một dịch vụ theo cách chính thống hay dịch vụ bị rối trong một số trường hợp.
 
-(It's up to you BTW to specify signal names with or without the SIG prefix on the -s switch. Both works.)
+Ghi chú: tên của tín hiệu có thể bắt đầu hoặc không bắt đầu bằng tiền tố SIG ở tùy chọn -s.
 
-It's a bit surprising that we have come so far on Linux without even being able to properly kill services. systemd for the first time enables you to do this properly.
+Một chút ngạc nhiên khi giờ đây systemd đã cho phép ta có thể hủy tiến trình một cách phù hợp, điều mà trước đây chúng ta không thể làm được.
