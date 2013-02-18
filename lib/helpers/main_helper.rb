@@ -200,7 +200,7 @@ EOF
          "",
          "  (1) to Share — to copy, distribute and transmit the work,",
          "  (2) to Remix — to adapt the work,",
-         "  (3) sto make commercial use of the work",
+         "  (3) to make commercial use of the work",
          "",
          "under the following conditions:",
          "",
