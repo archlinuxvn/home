@@ -15,6 +15,10 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
 
 ----
 
+**Chú ý**: Nếu bạn dùng `Github`, hãy xem trước [hướng dẫn dành riêng](#github).
+
+----
+
 1. ToC
 {:toc}
 
@@ -22,7 +26,7 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
 
 1. Tài khoản để sửa bài. Đây là tài khoản để truy cập vào mã nguồn (git)
    của trang chủ. Mã nguồn để trên máy phục vụ <http://viettug.org>.
-   Bạn cần liên hệ với [Kỳ Anh](/blog/~icy) để có được tài khoản này.
+   Bạn cần liên hệ với [Kỳ Anh](/~icy) để có được tài khoản này.
 
    * Trước khi xin một tài khoản, bạn cần chuẩn bị một cặp `SSH key`; nếu
      chưa có, sử dụng lệnh `ssh-keygen -t dsa`. Nếu có rồi, hãy gửi cho
@@ -47,7 +51,11 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
             kramdown fssm coderay nokogiri
 
 3. Tạo một nhân bản của mã nguồn trang chủ bằng lệnh
-    `git clone git@viettug.org:archlinuxvn`
+
+        git clone git@viettug.org:archlinuxvn
+
+   Nếu dùng `Github`, bạn xem qua tài liệu của `Github` về `forking`,
+   và [xem vài lưu ý ở đây](#github)
 
 4. Chỉnh sửa tập tin `~/.gitconfig` theo hướng dẫn ở [gitconfig] [].
 
@@ -98,7 +106,7 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
    * Tải về các thư viện, quy tắc biên dịch từ nhánh `core`
    * Chạy lệnh `nanoc compile` để biên dịch mã nguồn
    * Tải kết quả lên trang chủ của nhóm <http://archlinuxvn.tuxfamily.org>
-   * Không quá 10 phút sau, thay đổi sẽ xuất hiện ở trang <http://archlinuxvn.org>
+   * Không quá 3 phút sau, thay đổi sẽ xuất hiện ở trang <http://archlinuxvn.org>
 
 5. Bạn không được thay đổi các tập tin `*.rb` và tập tin `layout/*`. Những
    tập tin này chỉ được thay đổi bởi người quản lý cấp cao nhất, bởi chúng
@@ -158,7 +166,7 @@ bài viết của bạn.
    Đặc biệt, không được đặt tên tập tin có nhiều hơn một chấm (`.`)
    _(một dấu chấm đã dùng cho phần mở rộng)_, và không được dùng phần
    mở rộng là `.sh` _(vì `tuxfamily` sẽ sinh ra lỗi `500` khi gặp các tập
-   tin này. Bộ biên dịch sẽ xóa mọi tập tin có đuôi `.sh`.)
+   tin này. Bộ biên dịch sẽ xóa mọi tập tin có đuôi `.sh`.)_
 
 4. Nên chọn tên tập tin ngắn gọn, dễ nhớ. Không nên đổi tên tập tin vì
    hệ thống bình luận Disqus sẽ không biết để chuyển các bình luận _(nếu
@@ -179,7 +187,7 @@ bài viết của bạn.
    _(giống như để tô màu cho đoạn mã nguồn ngắn.)_ Việc này làm bài viết
    dễ đọc hơn, tập trung hơn.
 
-### Dùng git cho tốt
+### Dùng git cho tốt {#git}
 
 1. `Pull` trước khi `push`. Điều này có nghĩa là, nếu bạn không có xác nhận
    vào kho `git` của trang chủ trong một thời gian tương đối dài _(một ngày chẳng hạn)_,
@@ -187,6 +195,24 @@ bài viết của bạn.
    bạn bắt đầu soạn hay chỉnh bài. Lý do cho việc này rất đơn giản: Vì kho
    do nhiều người tham gia chỉnh sửa, nên có khi điều bạn muốn thay đổi
    đã có người khác làm rồi, và bạn không cần gây thêm rắc rối :big_smile:
+
+2. Nếu bạn có địa chỉ hai kho khác nhau, ví dụ khi bạn có tài khoản Github
+   thì thường bạn sẽ cần ít nhất hai kho: [một kho chính] [mirror] và
+   kho là nhân bản do bạn tạo ra, ví dụ <https://github.com/***/home>
+   _(ở đây các dấu sao đại diện cho `nickname` của bạn ở `Github`)_. Trường
+   hợp này bạn cần `rebase` theo kiểu riêng, ví
+
+        $ git remote add main \
+             git@github.com:archlinuxvn/home.git
+        $ git co master
+        $ git rebase main/master master
+
+   Bạn cần xem `git rebase --help` để biết thêm chi tiết. Nếu bạn đã đọc
+   tới đây mà chưa hiểu được ý tưởng của `rebase` thì hãy đọc thêm các
+   tài liệu về `Git` hoặc tham khảo hướng dẫn của những người khác.
+
+   Nhớ rằng, `pull` và `rebase` cần thường xuyên thực hiện để đảm bảo
+   rằng bạn không lệch pha so với người khác.
 
 5. Nếu bạn có ghi vào kho [github] [], bạn hãy thực hiện gửi xác nhận
    tới kho này, để các liên kết trong phần [liệt kê các thay đổi](/changes/)
@@ -292,6 +318,17 @@ bài viết của bạn.
 2. Nếu bài viết có nội dung không tốt, không còn thích hợp, có sai sót,...
    bạn nên thêm các cảnh báo vào phần đầu của bài viết: bằng cách thừa
    nhận và thông tin, bạn sẽ thấy mọi việc đơn giản hơn là xóa bài viết.
+
+## Nhóm F: Dành cho người dùng Github {#github}
+
+Người dùng `github` có thể không tuân theo một số quy định ở trên. Ví dụ,
+cách cấu hình tài khoản `git` sẽ khác đi tí chút. Nhưng hầu hết các nội
+dung trong bài đều cần bạn xem qua.
+
+Ngoài ra, cần phải nhân bản (`fork`) từ [mirror ở Github] [mirror].
+Sau khi điều chỉnh trên nhân bản này, bạn cần tạo yêu cầu ghi ngược vào
+kho chính (`pull request`). Hãy xêm thêm phần [hướng dẫn dùng Git](#git)
+để biết thêm chi tiết.
 
 ## Những ví dụ
 
