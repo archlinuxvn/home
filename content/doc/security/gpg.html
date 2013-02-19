@@ -28,7 +28,7 @@ riêng _(riêng tư, chỉ có bạn là người biết)_, và khóa công cộ
 cho người khác biết. Cặp khóa này là trái tim của quá trình mã hóa
 và giải mãi theo bộ `GPG`, và được lưu trong `~/.gnupg/`.
 
-1. Tạo cặp __(chìa)_ khóa
+1. Tạo cặp _(chìa)_ khóa
 
        $ gpg --gen-key
 
@@ -186,6 +186,14 @@ Tạo chữ ký cho một tập tin như sau
 Sau lệnh trên sẽ có tập tin `foobar.zip.asc`, và bạn sẽ gửi nó kèm với
 tập tin `foobar.zip` đến người khác để họ có thể kiểm tra theo cách trên.
 
+### Câu hỏi khó
+
+Khi nhận được tập tin cùng chữ ký của nó, người nhận sẽ dùng khóa công
+cộng của người gửi để kiểm tra chữ ký. Câu hỏi là làm thế nào để `GPG`
+có thể biết được chữ ký hợp lệ hay không? Nếu chữ ký bị giả thì sao?
+
+Đố bạn trả lời đấy ;) -- z1y
+
 ## Quản lý khóa
 
 Để liệt kê mọi khóa mà máy bạn nhận biết
@@ -216,12 +224,10 @@ sau:
        $ gpg --symmetric big_file
        # bạn nhập vào mật mã
        # kết quả là tập tin `big_file.gpg`
-
 4. Mã hóa bất đối xứng cho tập tin `symkey.txt`
 
        $ gpg --encrypt \
              --recipient "NGƯỜI_NHẬN" symkey.txt
-
 5. Bây giờ bạn có hai tập tin `big_file.gpg` và `symkey.txt.gpg` có thể
    gửi đi. Người nhận đầu tiên giải mã tập tin `symkey.txt.gpg` bằng
    khóa riêng tư của họ, để lấy được mật mã có trong `symkey.txt`, rồi
@@ -230,7 +236,6 @@ sau:
        $ gpg -d big_file.gpg
 
    (Người nhận sẽ phải nhập vào mật mã lấy từ `symkey.txt`.)
-
 6. Để an toàn, bạn cần xóa đi tập tin `symkey.txt` bằng `schred` chằng hạn.
 
 ## Đọc thêm
