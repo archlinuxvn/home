@@ -52,7 +52,7 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
 
 3. Tạo một nhân bản của mã nguồn trang chủ bằng lệnh
 
-        git clone git@viettug.org:archlinuxvn
+       git clone git@viettug.org:archlinuxvn
 
    Nếu dùng `Github`, bạn xem qua tài liệu của `Github` về `forking`,
    và [xem vài lưu ý ở đây](#github)
@@ -202,10 +202,10 @@ bài viết của bạn.
    _(ở đây các dấu sao đại diện cho `nickname` của bạn ở `Github`)_. Trường
    hợp này bạn cần `rebase` theo kiểu riêng, ví
 
-        $ git remote add main \
-             git@github.com:archlinuxvn/home.git
-        $ git co master
-        $ git rebase main/master master
+       $ git remote add main \
+            git@github.com:archlinuxvn/home.git
+       $ git co master
+       $ git rebase main/master master
 
    Bạn cần xem `git rebase --help` để biết thêm chi tiết. Nếu bạn đã đọc
    tới đây mà chưa hiểu được ý tưởng của `rebase` thì hãy đọc thêm các
@@ -230,9 +230,12 @@ bài viết của bạn.
    * Nếu phải chú thích trên nhiều dòng, thì dòng đầu tiên là tóm tắt,
      sau đó là một dòng trắng, và sau đó là các chú thích khác. Ví dụ
 
-         git commit -m'This is a subject or short message
+         git commit -m'Short message
 
-         This is a long description. The above line is a blank link.'
+         Long message goes here
+
+         * description 1
+         * description 2'
 
      Lưu ý rằng đây là những quy ước phổ biến khi làm việc với `git`.
 
