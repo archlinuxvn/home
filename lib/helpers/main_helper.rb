@@ -213,7 +213,7 @@ EOF
         ]
       when false
         []
-      else # "CC BY-ND 3.0"
+      when nil # "CC BY-ND 3.0"
         ["This page is published under the license <a href=\"http://creativecommons.org/licenses/by-nc-nd/3.0/\">CC BY-NC-ND 3.0</a>.",
          "",
          "You are free to",
@@ -228,6 +228,8 @@ EOF
          "  (2) Noncommercial — You may not use this work for commercial purposes;",
          "  (3) No Derivative Works — You may not alter, transform, or build upon this work."
         ]
+      else
+        [name]
     end
     texts.join("\n")
   end
