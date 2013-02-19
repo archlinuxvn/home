@@ -229,7 +229,7 @@ EOF
          "  (3) No Derivative Works — You may not alter, transform, or build upon this work."
         ]
       else
-        [name]
+        ["This page is published under the license <strong>#{name}</strong>"]
     end
     texts.join("\n")
   end
