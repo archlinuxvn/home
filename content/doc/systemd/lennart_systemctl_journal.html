@@ -29,35 +29,26 @@ Nói ngắn gọn: vào lúc chúng tôi tích hợp `journal` vào `systemd` v�
 `Fedora`, chúng tôi cũng nó vào `systemclt`. Và đây là một mẫu `output`
 
     $ systemctl status avahi-daemon.service
+
     avahi-daemon.service - Avahi mDNS/DNS-SD Stack
      Loaded: loaded (/usr/lib/systemd/system/avahi-daemon.service; enabled)
      Active: active (running) since Fri, 18 May 2012 12:27:37 +0200; 14s ago
-    Main PID: 8216 (avahi-daemon)
+   Main PID: 8216 (avahi-daemon)
      Status: "avahi-daemon 0.6.30 starting up."
      CGroup: name=systemd:/system/avahi-daemon.service
      ├ 8216 avahi-daemon: running [omega.local]
      └ 8217 avahi-daemon: chroot helper
 
-    May 18 12:27:37 omega avahi-daemon[8216]: Joining mDNS multicast group
-    on interface eth1.IPv4 with address 172.31.0.52.
-    May 18 12:27:37 omega avahi-daemon[8216]: New relevant interface
-    eth1.IPv4 for mDNS.
-    May 18 12:27:37 omega avahi-daemon[8216]: Network interface
-    enumeration completed.
-    May 18 12:27:37 omega avahi-daemon[8216]: Registering new address
-    record for 192.168.122.1 on virbr0.IPv4.
-    May 18 12:27:37 omega avahi-daemon[8216]: Registering new address
-    record for fd00::e269:95ff:fe87:e282 on eth1.*.
-    May 18 12:27:37 omega avahi-daemon[8216]: Registering new address
-    record for 172.31.0.52 on eth1.IPv4.
-    May 18 12:27:37 omega avahi-daemon[8216]: Registering HINFO record
-    with values 'X86_64'/'LINUX'.
-    May 18 12:27:38 omega avahi-daemon[8216]: Server startup complete.
-    Host name is omega.local. Local service cookie is 3555095952.
-    May 18 12:27:38 omega avahi-daemon[8216]: Service "omega"
-    (/services/ssh.service) successfully established.
-    May 18 12:27:38 omega avahi-daemon[8216]: Service "omega"
-    (/services/sftp-ssh.service) successfully established.
+    May 18 12:27:37 omega avahi-daemon[8216]: Joining mDNS multicast group on interface eth1.IPv4 with address 172.31.0.52.
+    May 18 12:27:37 omega avahi-daemon[8216]: New relevant interface eth1.IPv4 for mDNS.
+    May 18 12:27:37 omega avahi-daemon[8216]: Network interface enumeration completed.
+    May 18 12:27:37 omega avahi-daemon[8216]: Registering new address record for 192.168.122.1 on virbr0.IPv4.
+    May 18 12:27:37 omega avahi-daemon[8216]: Registering new address record for fd00::e269:95ff:fe87:e282 on eth1.*.
+    May 18 12:27:37 omega avahi-daemon[8216]: Registering new address record for 172.31.0.52 on eth1.IPv4.
+    May 18 12:27:37 omega avahi-daemon[8216]: Registering HINFO record with values 'X86_64'/'LINUX'.
+    May 18 12:27:38 omega avahi-daemon[8216]: Server startup complete. Host name is omega.local. Local service cookie is 3555095952.
+    May 18 12:27:38 omega avahi-daemon[8216]: Service "omega" (/services/ssh.service) successfully established.
+    May 18 12:27:38 omega avahi-daemon[8216]: Service "omega" (/services/sftp-ssh.service) successfully established.
 
 Cái này hiện thông tin trạng thái của dịch vụ `mDNS/DNS-SD` mà mọi người
 hay dùng. Trong đó là danh sách các tiến trình của nó và kèm theo _(như
