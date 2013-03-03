@@ -100,7 +100,7 @@ _update_myself() {
 }
 
 _build() {
-  cd $_D_VAR/ | die "Couldn't switch to directory $_D_VAR/"
+  cd $_D_VAR/ || die "Couldn't switch to directory $_D_VAR/"
 
   msg "Cleaning up the old files"
   nanoc prune --yes
