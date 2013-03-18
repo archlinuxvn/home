@@ -8,6 +8,27 @@ Viết để quên, mấy cái mẹo lặt vặt vài hôm sẽ không còn dùn
 * TOC
 {:toc}
 
+## Tốc độ ổ đĩa RAID0
+
+Tốc độ ghi vào ổ đĩa RAID0 được tính thế nào? Còn tùy!
+
+Có ba ổ đĩa như sau đây
+
+* Đĩa `120GB`, tốc độ ghi `32 MB/s`. Đây là đĩa cứng `IDE`
+* Đĩa `320GB`, tốc độ ghi `74 MB/s`. Đây là đĩa cứng `SATA`
+* Đĩa `250GB`, tốc độ ghi `97 MB/s`. Đây là đĩa cứng `SATA`
+
+Các tổ hợp `RAID0` khác nhau của những ổ đĩa này cho tốc độ ghi khác nhau
+
+* `120 + 250`: tốc độ ghi `64 MB/s` _(xấp xỉ trung bình cộng)_
+* `250 + 320`: tốc độ ghi `152 MB/s` _(cao hơn hai đĩa thành phần)_
+
+Tốc độ ghi thấp của ổ `120` đã làm chậm tốc độ của cả dãy `RAID0`. Không rõ
+tốc độ ghi thế nào.
+
+Thông tin ở trên được lấy trong quá trình xây dựng máy biên dịch `phant1m`
+cho `TheSLinux`.
+
 ## Cài đặt SML/NJ
 
 Cần cài đặt phiên bản `110.75` nhưng hiện tại chỉ có `110.72`. Làm sao đây?
