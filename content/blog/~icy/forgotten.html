@@ -8,6 +8,21 @@ Viết để quên, mấy cái mẹo lặt vặt vài hôm sẽ không còn dùn
 * TOC
 {:toc}
 
+## ABS checkout
+
+Thay vì dùng lệnh `abs` để lấy thông tin về các `PKGBUILD`, có thể dùng
+`svn` để lấy về phiên bản mới nhất. Cách này hay hơn vì ta có thể theo
+dõi và sử dụng các phiên bản khác nhau cho gói. Lưu ý cách dùng tham số
+`--depth` rất hay bên dưới đây: Điều này là cần thiết vì một lệnh
+`checkout` trực tiếp sẽ khiến máy chủ của `ArchLinux` chặn bạn ngay!
+
+    # core extra testing
+    svn checkout --depth=empty svn://svn.archlinux.org/packages
+    # community
+    svn checkout --depth=empty svn://svn.archlinux.org/community
+
+Sau đó để lấy thông tin từ gói nào về thì chỉ việc dùng `svn update <pkgname>`.
+
 ## Tốc độ ổ đĩa RAID0
 
 Tốc độ ghi vào ổ đĩa RAID0 được tính thế nào? Còn tùy!
