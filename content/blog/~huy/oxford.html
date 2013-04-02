@@ -60,9 +60,25 @@ Vì không có âm thanh nên cần một thiết bị áp vào, đó là lệnh
 
 Done ! bây giờ bạn chạy file bash trên là OALD8 sẽ chạy tốt mà không cần làm gì với flashplayer của hệ thống.
 
-*Note*: Có vấn đề mà tác giả chưa giải quyết được là phần Resources không dùng được, có vẻ lỗi gì đó nhưng không debug được. Do chung một dữ liệu nên dù cài ở Mc, Windows hay Linux thì cũng chỉ có những file resources ở thư mục oald.data mà thôi, do đó, vấn đề nằm ở Arch.
+## Trình duyệt mặc định và mở file pdf của resources
 
-Nếu không yêu cầu cao thì bạn có thể dùng hầu hết tính năng rồi, còn phần resources, tác giả hẹn update một dịp khác, có nêu rõ nguyên nhân.
++ Trình duyệt mặc định:
+
+`OALD8`  mặc định sử dụng chuỗi sau
+
+    opera->konqueror->galeon->mozilla-> netscape
+
+nếu bạn không dừng một trong các trình duyệt trên thì bạn sẽ không mở được 2 link ở oaldonline. Một vài gợi ý đề nghị, bạn có thể tạo `symlink` tới tên trình duyệt của bạn là 1 trong các ứng dụng trên.
+
+    sudo ln -s /usr/bin/your_browser /usr/bin/[opera/mozilla/...]
+
++ Mở pdf file phần resources
+
+Do OALD8 dùng `Xulrunner hàm .launch()`. Hàm này không chạy trên `unix/linux` nên bạn cần thay dòng 31 trong file `chrome/oald8/content/js/resources.js`
+
+    L_File.launch(); -> pdf_program L_File;
+
+Chân thành cảm ơn `n0bawk` đã giúp đỡ `debug` phần này.
 
 Kind regards,
 
