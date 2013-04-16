@@ -8,6 +8,30 @@ Viết để quên, mấy cái mẹo lặt vặt vài hôm sẽ không còn dùn
 * TOC
 {:toc}
 
+
+## Reduce video file size with Avidemux {#avidemux}
+
+Step by step :) The [original post is here][avidemux.tips]
+
+* Load the first file in Avidemux
+* Append the rest, file by file
+* Set videostream to MPEG-4 AVC
+* Config its settings, the only important option you need to alter is
+  encoding method. Set it to CRF (constant rate factor - for a constant
+  video quality) and play with its value. I use 26 for stuff I want to
+  play on my tv. If I upload something to YouTube I use 20. That creates
+  a much larger file with of course much better quality and I only do
+  that because YT re-compresses any uploaded video which means the quality
+  of video and audio will suffer a second time (or even a third time if
+  you don't record your Frapsvideos lossless).
+  I think BluRay quality would be around 18.
+* Set audiostream to AAC (Faac).
+* Config its settings. 128 kb/s is enough. I think it's even its standard
+  setting, so you can actually skip this step and not bother with the configuration.
+* Set container to MP4, save and you're done.
+
+Để cho nhỏ gọn thì dùng con số kiểm soát chất lượng cao tí, ví dụ 30.
+
 ## ABS checkout
 
 Thay vì dùng lệnh `abs` để lấy thông tin về các `PKGBUILD`, có thể dùng
@@ -156,3 +180,4 @@ việc của họ. Điều này còn thể hiện ở các hướng dẫn cho g�
 [Entrance]: http://trac.enlightenment.org/e/wiki/Entrance
 [startx]: /doc/security/startx/
 [e17]: /blog/~icy/e17/
+[avidemux.tips]: http://frapsforum.com/threads/compressing-with-avidemux.1197/
