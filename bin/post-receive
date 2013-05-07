@@ -76,6 +76,7 @@ _update() {
         'Rules' \
         '*.rb' \
         'layouts/*' \
+        'content/stylesheet.css' \
         'config.yaml'
 }
 
