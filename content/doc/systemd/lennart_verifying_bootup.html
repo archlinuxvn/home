@@ -1,0 +1,90 @@
+---
+title: "systemd: kiểm tra quá trình khởi động"
+author: Lennart Poettering
+origin: http://0pointer.de/blog/projects/systemd-for-admins-1.html
+date: 2010-aug-23
+tags: ['systemd', 'sysadmin', 'bootup']
+translators: miyo, z1y
+allow_comments: yes
+license: CC BY-SA
+---
+
+Như nhiều bạn đã biết, `systemd` là trình quản lý khởi động mới của `Fedora`,
+bắt đầu áp dụng từ phiên bản `F14`, và đang được triển khai vào một số bản
+phân phối khác (như `OpenSUSE`). Với các quản trị viên, `systemd` hỗ trợ
+rất nhiều những tính năng, thay đổi mới giúp cho việc quản lý
+các tiến trình cách hiệu quả hơn.
+
+* TOC
+{:toc}
+
+## Cách truyền thống
+
+Theo cách truyền thống, khi khởi động hệ thống Linux, ta sẽ thấy rất nhiều
+dòng thông báo ngắn chạy trên màn hình. Nếu sử dụng giao diện khởi động đồ
+họa như Plymouth với một quá trình khởi động được tăng tốc và đồng bộ hóa,
+việc cho phép hiện tất cả các thông báo khiến mỗi thông báo chỉ xuất hiện
+trong thời gian rất ngắn, hầu như bạn không theo dõi kịp, trong khi chúng
+vẫn có ích, giúp biết được dịch vụ nào sẽ được bật lên, chỉ ra lỗi _(nếu có)_
+của các dịch vụ _(màu đỏ `[FAILED]` để chỉ lỗi)._
+
+## Cách của systemd
+
+Để có thể xem lại được các thông báo xuất hiện trong quá trình khởi động,
+`systemd` có tính năng theo dõi và ghi nhớ thông tin và trạng thái của dịch vụ,
+ví dụ: mã trả về của tiến trình, lỗi thi hành quá thời gian cho phép, dịch vụ
+bị ngắt bất thường do tràn bộ nhớ,...
+
+Lệnh để xem trạng thái của các dịch vụ là `systemctl` như ví dụ sau.
+Lưu ý là lệnh này còn liệt kê cả trạng thái của các dịch vụ kiểu `SysV/LSB`
+chưa được chuyển qua `systemd`.
+
+    [root@lambda] ~# systemctl
+    UNIT                     LOAD   ACTIVE       SUB          JOB DESCRIPTION
+    dev-hugepages.automount  loaded active       running      Huge Pages File System Automount Point
+    ...
+    ntpd.service             loaded maintenance  maintenance  Network Time Service
+    ...
+    udev-post.service        loaded active       exited       LSB: ...
+    ...
+    sysinit.target           loaded active       active       System Initialization
+
+    LOAD   = Reflects whether the unit definition was properly loaded.
+    ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
+    SUB    = The low-level unit activation state, values depend on unit type.
+    JOB    = Pending job for the unit.
+
+    221 units listed. Pass --all to see inactive units, too.
+
+_(Kết quả trên đã được thu gọn. Bạn nên thi hành lệnh `systemctl` trực tiếp
+để thấy nhiều chi tiết hơn.)_
+
+Cột `ACTIVE` cho thấy trạng thái của dịch vụ, ví dụ `active` (bật),
+`inactive` (tắt),... Trong danh sách trên còn có trạng thái `maintenance`
+cho thấy dịch vụ `ntpd` đã gặp trục trặc không thể bật được lúc máy khởi động.
+Ta xem điều gì xảy ra với ntpd bằng lệnh `systemctl status`:
+
+    [root@lambda] ~# systemctl status ntpd.service
+    ntpd.service - Network Time Service
+        Loaded: loaded (/etc/systemd/system/ntpd.service)
+        Active: maintenance
+          Main: 953 (code=exited, status=255)
+        CGroup: name=systemd:/systemd-1/ntpd.service
+
+Như vậy, trong quá trình khởi động, dịch vụ `ntpd` đã bật tiến trình có
+`PID 953`, tiến trình này kết thúc bất thường với lỗi 255 và dịch vụ `ntpd`
+bị đặt vào trạng thái `bảo trì`. Lưu ý rằng trong kiểu khởi động cũ như `sysV`
+chẳng hạn bạn hầu như không thể biết được mã lỗi trả về của tiến trình `ntpd`.
+
+Trong tương lai, `systemd` có thể kết hợp với `ABRT` (công cụ báo lỗi tự động,
+`Automatic Bug Reporting Tool`), như đề nghị [ở đây] [abrt-request].
+Nhờ đó `systemctl status` có thể cung cấp thông tin _(bao gồm cả `crash dump`)_
+của các dịch vụ bị ngưng bất thường (`crash`).
+
+## Tóm lại
+
+`systemctl` và `systemctl status` rất tiện lợi so với hệ thống cũ `SysV`.
+Chẳng hạn, `systemctl status` không chỉ thu thập các thông tin về điều kiện
+lỗi mà còn về lỗi thi hành (`run-time error`), lỗi khởi động (`start-up error`), ...
+
+[abrt-request]: https://bugzilla.redhat.com/show_bug.cgi?id=622773

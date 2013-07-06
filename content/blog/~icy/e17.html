@@ -1,0 +1,260 @@
+---
+title: e17 - Quê mờ cho gà mờ
+tags: ['e17', 'wm', 'draft', 'ibus']
+allow_comment: yes
+---
+
+Bài này điểm lại vài `wm` tác giả đã dùng, và giới thiệu khá chi tiết
+về `e17` (`enlightenment`.) Đây là tài liệu dài, sẽ được cập nhật
+thường xuyên cho tới khi tác giả hài lòng.
+
+`wm` là viết tắt của `window manager`. Đọc là `vê-kép-mờ`, nhưng tác
+giả hay nói ngọng `w` thành `quê` nên bài viết này có tiêu đề như bạn thấy.
+Đôi chỗ trong bài sẽ dùng `wm` cho cả `wm/dm`.
+
+* TOC
+{:toc}
+
+## Chiến tranh wm
+
+Các tranh cãi về `wm` chưa bao giờ kết thúc, ngay cả với mỗi người.
+Hãy xem tác giả  `chiến` như thế nào.
+
+### wm/dm đã đùng
+
+Cũng khá là nhiều: `kde` (2001), `gnome` (200?),
+`blackbox` (2005), `fluxbox` (2005-2006), `openbox` (2008),
+`e17` (2010), `windows maker`, `xfce`, ...
+
+
+### e17 là gì
+
+Khoan nói `e17` là gì. Hãy nói là `mình cần gì`.
+
+### wm là vấn đề cá nhân
+
+Ngoài chuyện `wm` là vấn đề cá nhân, cần hiểu thêm là không có `wm` nào
+số một. Nếu thấy bạn bè dùng tốt thì có thể bạn dùng theo được. Nhưng bằng
+cách chuyển đổi giữa các môi trường làm việc khác nhau bạn sẽ thấy các nhu
+cầu thật sự của bản thân, các điểm hay dở của từng `wm`.
+
+Ví dụ,
+
+* `kde` thì quá đầy đủ tiện ích, đẹp, nhưng lại nặng nề, chậm chạp
+  và sẽ ngốn nhiều bin; Hoặc
+* `openbox` thì nhanh, gọn, nhẹ, đen thui trông rất là `geek`,
+  nhưng thử hỏi bạn gái của bạn có dùng được không? hoặc
+* `window maker` màu sắc và cách `decoration` rất đẹp, nhưng lại có nhiều
+  lỗi; hay
+* `xmonad` trông ngon thế nhưng bạn phải biết chút ít về ngôn ngữ lập
+  trình hàm Haskell để điều chỉnh cấu hình;
+* `xfce` có trò đính một cửa sổ vào một màn hình ảo cố định, nhưng thật
+  ra tính năng này gây phiền toái vì các cửa sổ luôn nhảy tới màn hình
+  ảo đang có `focus` khi cửa sổ được kích hoạt bởi chương trình khác
+  _(ví dụ `pidgin` gọi tới `Firefox` thì cửa sổ của `Firefox` sẽ luôn
+  nhảy tới màn hình đang có `pidgin`)_;
+
+### Mình cần gì
+
+Đây là những thứ tác giả cần ;)
+
+* Một `wm` hỗ trợ nhiều màn hình ảo, chuyển đổi qua lại giữa chúng dễ
+  dàng bằng chuột hay phím tắt;
+* Có thể dễ dàng tắt sạch mọi `border` của các cửa sổ: điều này rất có ích
+  nếu bạn chỉ có một hoặc số ít ứng dụng trên một màn hình ảo _(`Firefox`,
+  cửa sổ dòng lệnh `terminal`,...)_
+* Nhẹ nhàng, không cần nhẹ quá, và tất nhiên là không được nặng nề đủ
+  thứ chẳng biết dùng vào việc gì. `Nhẹ nhàng` ở đây bao gồm cả các bài trí,
+  sắp sếp các thành phần _(thử nhìn vào màn hình mặc định của `gnome` mới
+  nhất xem, chả hiểu sẽ phải dùng thế nào)_; Không cần phải sạch trơn
+  như kiểu của nhiều `wm` như `openbox` ;)
+* Dễ dùng, thậm chí bạn bè bất kỳ cũng dùng được. _(Lý do của việc này là
+  mình không cần tự làm khó chính bản thân mình.)_ `Dễ dùng` dẫn tới việc
+  phải có sẵn nhiều `đồ chơi`, đỡ mất công tìm kiếm, cài đặt lôi thôi;
+* **Nhớ** được thiết lập của các cửa sổ, để lần đăng nhập sau thì cách bố
+  trí các cửa sổ, kích cỡ, ... giống hệt như các thiết lập ở phiên làm
+  việc trước _(một số `wm` hỗ trợ `session` làm việc, như `xfce`, nhưng
+  các `session` không bao gồm thông tin về các cửa sổ mà chỉ có thông tin
+  về chương trình sẽ chạy)_
+
+Tạm như vậy. Trong danh sách trên, phần **nhớ** sẽ thú vị, vì không gì
+chán bằng mỗi lần bật máy tính lên lại phải sắp xếp lại các màn hình, cửa sổ.
+Lưu ý rằng **nhớ** khác với hỗ trợ **tiling**; nó gần gần với tính năng
+**group** trong một số `wm`.
+
+Đáp ứng yêu cầu gọn nhẹ và `nhớ` thì có thể nghĩ ngay tới [openbox] []
+Hãy xem cách giải quyết trong `wm` này:
+
+    chain [viewing=8,desktop=8]
+    a:{chain [title="* GIMP"]
+       a:{moveresizeto x:69 y:0 width:1373 height:1005
+         sendkeyevent usetarget:no key:C-j}
+       | lock [locked=no, title="Toolbox - *]}
+
+Đây là đoạn mã để di chuyển cửa sổ `GIMP` vào màn hình ảo số 8, thiết lập
+vị trí, kích thước cửa sổ. Eo ôi, nhìn vào cấu hình thế này thì phát mệt
+luôn. Có cả chương trình đồ họa như [OBApps] [] để khỏi phải
+[tự viết cấu hình cho từng ứng dụng] [openbox-per-app-configure] nhưng nó
+cũng không gồm mọi thứ bạn cần đâu ;) Ví dụ, nếu trong quá trình sử dụng
+bạn muốn cố định cửa sổ ở vị trí mới thì làm sao? Phải tự cấu hình lại từng
+đầu? Sao `wm` không có tính năng nhớ và lưu lại thiết lập cuối cùng?
+
+Còn `gnome`, `kde` quá nặng, nên loại khỏi cuộc chơi. Chưa kể `gnome`
+các phiên bản mới quá lạ lùng, lai căn, không còn sự đơn giản như xưa nữa.
+`xfce` đã bị loại như mô tả trong mục trước đây, khi gặp vấn đề với chuyện
+nhớ vị trí cửa sổ.
+
+Vậy là chỉ còn `e17` ;)
+
+### Lời khuyên
+
+Có rất nhiều `wm`, bạn có thể tìm thấy danh sách không đầy đủ ở [xwinman] [].
+Nếu bạn chưa dùng tới 6 kiểu `wm/dm` khác nhau thì cũng nên thử cái mới,
+biết đâu lại thấy tiếc vì ... không đổi mới sớm ;)
+
+Như một đoạn trong bài hát [All stars] [] của nhóm `Smash Mouth`
+
+> You'll never know if you don't go
+
+## Sử dụng e17: Dành cho gà mờ
+
+`e17` ban đầu rất dễ dùng. Nhưng `e17` cũng có những tính năng cao cấp
+và lạ lẫm cần hướng dẫn hoặc gợi ý.
+
+### Cài đặt
+
+Để dùng `e17`, bạn cần cài các gói thuộc nhóm `e17-svn` như sau
+
+    pacman -S enlightenment17
+
+Trong tập tin `~/.xinitrc` bạn đặt lệnh gọi `e17`
+
+    export LANG=en_US.UTF-8
+    # fetchmail &
+    # source $HOME/.monicarc
+    # ibus-daemon -x -d
+    exec enlightenment_start
+
+Bạn không cần khởi động `ibus` ở đây nếu bạn biết cách cấu hình cho `ibus`
+bên trong `e17` ;)
+
+### Cấu hình bộ gõ tiếng Việt với `ibus`
+
+`ibus` là bộ nhập khá  phổ biến. Sử dụng `ibus-unikey` là cách đơn giản
+và khá ổn định để gõ tiếng Việt trong Linux.
+
+* Sau khi cài các gói `ibus` và `ibus-unikey`
+* Bạn cần thiết lập ngôn ngữ như mô tả trong [lang/locale] []
+* Vào phần cài đặt của `e17`, chọn ngôn ngữ, chọn `input method settings`,
+  chọn phần `Advanced` rồi sau đó chọn `ibus` từ các bộ nhập có sẵn trên
+  hệ thống (ở trang `System`)
+* Để cấu hình cho `ibus` sử dụng bộ gõ tiếng Việt, bạn có thể chọn
+  `Setup Selected Input Method` trong phần cấu hình của `e17` hoặc
+  gõ lệnh `ibus-setup` từ [terminal] []
+* Với các ứng dụng `Qt` bạn cần cấu hình riêng, sử dụng lệnh `qtconfig`
+  chạy từ [terminal] [] rồi chọn `Interface` và cách nhập mặc định
+  _(default input method)_ là `XIM`
+* Cuối cùng, bạn cần thoát ra và đăng nhập trở lại vào `e17`. Bạn sẽ gõ
+  được tiếng Việt trên hầu hết các chương trình: Firefox, Opera, Chromium,
+  OpenOffice, LibreOffice,...
+
+Với một số `wm/dm` khác, bạn cần điều chỉnh các biến môi trường liên quan
+tới bộ nhập. `e17` cung cấp giao diện đồ họa để làm việc này, và hơn nữa,
+đã có sẵn thiết lập vừa đủ cho bạn dùng. Nếu muốn phá phách theo ý bạn,
+thì trong phần `Ngôn ngữ` của `e17` bạn có thể thêm vào bộ nhập riêng
+ở phần `Personal`.
+
+## Nạp các mô-đun
+
+TODO
+
+### Cài đặt phím tắt
+
+TODO
+
+### Ghi nhớ thiết lập của cửa sổ
+
+TODO
+
+### Kết nối mạng với connman
+
+Cho tới ngày 1/10/2012, các trục trặc của `connman` với `e17` đã được
+giải quyết _(bạn có thể xem ở  [forgotten] [] để biết tại sao)_.  Bạn sẽ
+hoàn toàn thoải mái khi dùng `connman` để quản lý kết nối mạng. Các yêu
+cầu như sau:
+
+* Gỡ bỏ các thiết lập mạng bằng tay trong `/etc/rc.conf` hoặc các nơi khác
+  trong `/etc/`
+* Cài đặt gói `connman` và cho phép `connman` chạy nền lúc khởi động
+  _(theo cách cũ, bạn thêm `connmand` vào biến `DAEMONS` trong `/etc/rc.conf`)_
+* Bật mô-đun `Connection Manager` trong `e17` (đây là mô-đun chuẩn của
+  `e17` nên bạn không cần cài các gói gì thêm)
+* Thêm `gadget` `Connetion Manager` vào chỗ nào đó, ví dụ trên thanh
+  `taskbar` trên màn hình
+
+Bạn sẽ điều chỉnh cấu hình mạng bằng con chuột thật đơn giản và tiện lợi.
+
+## Dành cho người dùng có kinh nghiệm
+
+Nếu muốn phá phách một tí, đây là nơi bạn cần ;)
+
+### Biên dịch e17 từ mã nguồn
+
+*Cập nhật ngày 25/12/2012:* `e17` đã có trong hệ thống gói chính thức của
+ArchLinux. Để cài đặt `e17` chỉ cần thêm gói `enlightenment17`; để ý là nếu
+bạn dùng các phiên bản cũ hơn thì khi chuyển qua bản mới cấu hình cũ sẽ
+bị bỏ qua, nghĩa là bạn phải ... cấu hình `e17` từ đầu.
+
+Tiếp tục đọc phần dưới đây nếu bạn thật sự muốn biên dịch `e17` từ mã nguồn.
+Bạn nên cân nhắc dùng hệ thống `ABS`.
+
+Do `e17` đang được phát triển và chưa có phiên bản chính thức trong thời
+gian gần đây, các gói của `e17` có trong kho chính thức của ArchLinux
+là gói dạng `svn`, tức là chúng được đóng từ phiên bản (`snapshot`) từ kho `svn`.
+Khi bài này được viết, phiên bản đang dùng là `75246`, khá cũ.
+
+Để biên dịch `e17` từ mã nguồn, bạn phải biên dịch các gói của nó theo
+đúng thứ tự, cài vào hệ thống rồi mới biên dịch gói khác. Bạn có thể
+dùng [kịch bản có ở đây](/s/icy/e17/build.script). Để dùng kịch bản, bạn cần
+
+* Điều chỉnh cấu hình cho [makepkg] [].
+* Cài gói `subversion`, `sudo`
+* Điều chỉnh `sudo` để có thể dùng lệnh `sudo pacman` để cài gói
+  với quyền của tài khoản bạn đang dùng trên hệ thống
+
+Công việc thì đơn giản như sau
+
+    export _D_WORK=/home/pacman/src/
+    mkdir $_D_WORK && cd $_D_WORK
+    wget http://archlinuxvn.org/s/icy/e17/build.script
+    chmod 700 ./build.script
+    ./build.script
+
+Khi dùng kịch bản `build.script`, nếu đang gặp lỗi khi biên dịch gói nào,
+bạn có thể điều chỉnh lỗi và bắt đầu biên dịch từ gói đó, ví dụ
+
+    _START=elementary ./build.script
+
+Thường thì bạn sẽ thiếu các thư viện, và để khắc phục thì hãy dùng `pacman`
+cài các thư viện vào. Một khi các gói được biên dịch và cài đúng thứ tự,
+bạn sẽ không gặp vấn đề  nào đáng kể `e17`.
+
+### Sao lưu và chuyển cấu hình qua máy khác
+
+Cấu hình của `e17`, thật không may, được lưu ở dạng `binary` không thể
+đọc được bằng các trình soạn thảo thông thường. Để sao lưu hoặc chuyển
+cấu hình của `e17` qua máy khác, bạn lưu hoặc chép nguyên thư mục `~/.e/`
+là xong. Khi chuyển qua máy khác, các thiết lập liên quan tới đường
+dẫn _(ví dụ hình nền)_ cần phải chỉnh lại tí chút; cần lưu ý là phiên bản
+`e17` ở máy mới cần có phiên bản lớn hơn hay bằng so với phiên bản của
+máy chứa cấu hình gốc của `e17`.
+
+[xwinman]: http://xwinman.org/
+[All stars]: http://www.youtube.com/watch?v=L_jWHffIx5E
+[openbox]: http://openbox.org/wiki/Design_Documents:Actions
+[OBapps]: http://obapps.sourceforge.net/
+[openbox-per-app-configure]: http://openbox.org/wiki/Help:Applications
+[makepkg]: /doc/pacman/makepkg/
+[forgotten]: /blog/~icy/forgotten/#e17-v-connman
+[lang/locale]: /doc/lang/locale/
+[terminal]: /doc/terminal/

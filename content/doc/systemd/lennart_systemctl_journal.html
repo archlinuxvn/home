@@ -1,0 +1,70 @@
+---
+title: "xem log của dịch vụ"
+author: Lennart Poettering
+origin: http://0pointer.de/blog/projects/systemctl-journal.html
+date: 2012-may-18
+tags: ['systemd', 'log', 'sysadmin', 'journald']
+translators: tant, z1y
+allow_comments: yes
+license: CC BY-SA
+---
+
+> **Chú ý**: Bản dịch gốc của `tant` rất tốt và sát với bài gốc.
+> `z1y` lược bỏ bớt vài phần không cần thiết và bổ sung thêm các chi
+> tiết để làm rõ hơn ý nghĩa và ý tuởng của `journal`.
+
+Một trong những lệnh hay được dùng trong `systemd` là `systemctl status`
+để biết thông tin chi tiết về các dịch vụ trên hệ thống. Nếu dịch vụ đã
+hoặc đang chạy, bạn còn thấy qua lệnh này các thông điệp mà dịch vụ tạo
+ra trong quá trình hoạt động của nó. Những thông điệp này, hay còn gọi
+là `log`, được `systemd` được lưu trữ trong hệ thống `journal`.
+Đó là hệ thống `log` mới, có chức năng như `rsyslog` hay `syslog(-ng)`
+là ghi lại tất cả các thông điệp trên hệ thống do các dịch vụ tạo ra;
+nhưng `journal` có cấu trúc và thiết kế tốt hơn, dữ liệu được đánh số[^index],
+đáng tin cậy hơn mà vẫn tương thích phần nào với hệ thống `log` cổ điển.
+
+Dưới đây là ví dụ
+
+    $ systemctl status avahi-daemon.service
+
+    avahi-daemon.service - Avahi mDNS/DNS-SD Stack
+     Loaded: loaded (/usr/lib/systemd/system/avahi-daemon.service; enabled)
+     Active: active (running) since Fri, 18 May 2012 12:27:37 +0200; 14s ago
+    Main PID: 8216 (avahi-daemon)
+     Status: "avahi-daemon 0.6.30 starting up."
+     CGroup: name=systemd:/system/avahi-daemon.service
+     ├ 8216 avahi-daemon: running [omega.local]
+     └ 8217 avahi-daemon: chroot helper
+
+    May 18 12:27:37 omega avahi-daemon[8216]: Joining mDNS multicast group on interface eth1.IPv4 with address 172.31.0.52.
+    May 18 12:27:37 omega avahi-daemon[8216]: New relevant interface eth1.IPv4 for mDNS.
+    May 18 12:27:37 omega avahi-daemon[8216]: Network interface enumeration completed.
+    May 18 12:27:37 omega avahi-daemon[8216]: Registering new address record for 192.168.122.1 on virbr0.IPv4.
+    May 18 12:27:37 omega avahi-daemon[8216]: Registering new address record for fd00::e269:95ff:fe87:e282 on eth1.*.
+    May 18 12:27:37 omega avahi-daemon[8216]: Registering new address record for 172.31.0.52 on eth1.IPv4.
+    May 18 12:27:37 omega avahi-daemon[8216]: Registering HINFO record with values 'X86_64'/'LINUX'.
+    May 18 12:27:38 omega avahi-daemon[8216]: Server startup complete. Host name is omega.local. Local service cookie is 3555095952.
+    May 18 12:27:38 omega avahi-daemon[8216]: Service "omega" (/services/ssh.service) successfully established.
+    May 18 12:27:38 omega avahi-daemon[8216]: Service "omega" (/services/sftp-ssh.service) successfully established.
+
+Ngoài thông tin cơ bản về dịch vụ `mDNS/DNS-SD`, còn có thêm các dòng thông
+tin tạo ra khi dịch vụ đó hoạt động. So sánh với cách cổ điển trong hệ
+thống `SysV` hoặc kể cả `upstart`, để xem được các thông điệp của `mDNS/...`
+bạn phải chạy các lệnh riêng _(như `tail`, `dmesg`, ...)_ để xem trong
+tập tin được chỉ định để lưu `log` cho `mDNS/...`.
+
+Đôi khi dịch vụ sinh ra quá nhiều thông điệp. Bạn có thể giới hạn lại số
+dòng muốn xem bằng tham số `--lines=` hoặc `-n`. Ví dụ `--lines=10`.
+
+Lưu ý thông điệp của dịch vụ được lấy từ 3 nguồn: từ bản thân các dịch vụ
+sử dụng bằng cách dùng hàm `syslog()` của thư viện `libc`
+hoặc dùng cách hàm của thư viện `systemd`, từ các thông báo trên `STDOUT`
+_(thiết bị xuất chuẩn)_ và cuối cùng là từ `STDERR` liên kết với dịch vụ.
+
+Việc kết hợp thông tin trạng thái với thông điệp của dịch vụ là một ý tưởng
+đơn giản nhưng tiện lợi và hữu ích cho người quản lý hệ thống, những người
+bây giờ có thể ngạc nhiên *sao mình không có kết hợp này từ 15 năm trước đây?*
+
+## Ghi chú
+
+[^index]: Tương đối khó dịch từ gốc `index`. Trong nhiều sách nước ngoài, `index` hay thường được dịch là `chỉ mục` liệt kê các từ khóa và thuật ngữ chính có trong sách cùng vị trí _(số trang, số dòng)_ chúng xuất hiện trong sách. Mục đích cơ bản của `index` là để liệt kê, thống kê và tìm kiếm chính xác hơn. Trong cách hệ thống tin học, mục đích sau cùng có ý nghĩa hơn cả.

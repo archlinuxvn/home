@@ -1,0 +1,79 @@
+---
+title: Gnome 3.6 và một số thay đổi.
+allow_comment: yes
+tags: ['gnome3', 'startx', 'nautilus']
+---
+
+* ToC
+{:toc}
+
+Gnome 3.6 kèm theo một số thay đổi đẹp đẽ nhưng cũng kèm theo một số rắc rối với người dùng.
+
+Các vấn đề sau là tác giả gặp phải và cách giải quyết của tác giả. Nếu bạn có cách giải quyết tốt hơn, tác giả luôn khuyến khích điều đó.
+
+## Gnome-screensaver không khởi động cùng startx:
+
+Các tiến trình trong Linux chia làm hai loại theo quan điểm của tác giả:
+
++ Tiến trình `background`, là tiến trình chạy ngầm từ lúc được khởi tạo cho đến khi kết thúc phiên làm việc, các loại tiến trình này là các tiến trình dịch vụ cần thiết cho cho các tiến trình khác chạy.
+
++ Tiến trình trong phiên làm việc do người dùng tạo ra. Loại tiến trình này là việc trong một thời gian ngắn, do người dùng chỉ định, người dùng điều khiển tiến trình và ngắt theo tín hiệu họ đặt ra.
+
+`Gnome-screensaver` là tiến trình `background`, được khởi chạy từ lúc bắt đầu phiên làm việc của Gnome. Bạn có thể thiết lập cho nó không chạy cùng Gnome, điều đó tùy thuộc vào bạn.
+
+Để kiểm tra `gnome-screensaver` có chạy cùng gnome hay không bạn dùng lệnh:
+
+    gnome-screensaver
+
+Nếu kết quả chạy ra là:
+
+**WARNING **: screensaver already running in this session**
+
+Thì gnome-screensaver đang chạy trong phiên làm việc của bạn.
+
+Nếu chưa được khởi chạy, bạn hãy thêm vào file `.xinitrc` trước dòng `exec gnome-session`
+
+    gnome-screensaver &
+
+**Lưu ý, nếu bạn đang khởi động chế độ đồ họa bằng lệnh**
+
+    startx -- vt$(fgconsole)
+
+thì hãy xóa những tham số sau `startx`.
+
+## Gnome panel và usermenu:
+
+Gnome panel có mục `usermenu` có các mục như `logout, shutdown, switch user..` Nhưng không phải lúc nào cũng đủ các mục đó.
+
+Switch user chỉ hiện ra khi trong hệ thông có nhiều hơn 1 user ( không tính root) và logout cũng tương tự. Đoạn mã trong file `/usr/share/gnome-shell/js/ui/userMenu.js` dòng 617
+
+    this._loginScreenItem.actor.visible = allowSwitch && * ;
+
+bạn cần bỏ `&& *` đằng sau đi.
+
+Tương tự với dòng 625
+
+    this._logoutItem.actor.visible = allowLogout && * ;
+
+Đến đây `menu user` của bạn đã có đầy đủ các tính năng `logout, switch user` cho bạn. 
+Bạn nhấn `Alt+F2` , nhấn `r` và enter. Các nút sẽ xuất hiện trên `menu user` 
+
+## Firefox và tính năng "open containing folder"
+
+Bình thường khi bạn mở tính năng này, chương trình sẽ gọi `nautilus` để mở thư mục chứa file vừa tải về. Nhưng một số update sẽ gọi `disk analyze`. Điều này không khó khắc phục.
+
+bạn dùng lệnh:
+
+    xdg-mime default nautilus.desktop inode/directory
+
+Sau đó bạn có thể mở tính năng mở thư mục Downlads của `Firefox` bằng `nautilus`.
+
+## Nautilus 3.6 và tính năng tạo file rỗng trong thư mục
+
+Nautilus mới kèm theo một tính năng cực kì khó chịu là không cho tạo file mới trong thư mục.Để tạo file mới trong thư mục, bạn cần phải có một file `new` trống trong thư mục `Template`.Vào terminal, bạn gõ:
+
+    touch ~/Template/new
+
+bây giờ bạn có thể nhấp phải và chọn tạo file mới được rồi.
+
+Chúc các bạn vui cùng `Gnome 3.6`.

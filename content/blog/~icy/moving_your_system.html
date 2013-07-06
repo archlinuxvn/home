@@ -1,0 +1,315 @@
+---
+title: Chuyển hệ thống giữa các máy
+allow_comment: yes
+tags: ['upgrade', 'sysadmin', 'migration']
+---
+
+**Mục lục**
+
+* TOC
+{:toc}
+
+----
+
+Cài một bộ ArchLinux cho bất kỳ máy tính nào cũng là vấn đề dễ chịu. Bởi vì
+có vấn đề chẳng đơn giản tí nào là chuyển hệ thống đang chạy từ máy này
+qua máy khác.
+
+Đây là một bài toán thực tế: Khi đi làm cho công ty A, bạn được cung cấp
+máy tính xách tay (`laptop`); thay vì phải cài mới, cấu hình mọi thứ từ đầu
+cho laptop, bạn chỉ việc bê nguyên các thứ từ PC ở nhà qua laptop.
+Vào ngày đẹp trời khi bạn phải trả máy tính cho công ty, bạn lại bê nguyên
+bộ cài Arch đang dùng qua PC, `format` ổ cứng của laptop trước khi trả nó
+cho công ty với màn hình đen thui...
+
+Và một ngày đẹp trời khác khi bạn vào công ty B, bạn lại có laptop mới,...
+
+## Chú ý quan trọng
+
+
+> Đừng làm theo hướng dẫn này theo cách máy móc.
+> Hãy chỉ làm khi bạn hiểu điều bạn sẽ làm. Hãy liên
+> hệ với các bạn có kinh nghiệm trước khi thực hiện.
+>
+> Các đường dẫn tới ổ cứng như `/dev/sda1`, `/dev/sda2`,
+> là tùy vào hệ thống đang dùng. Tác giả chỉ đưa ra
+> như ví dụ. Gõ nhầm các đường dẫn có thể làm mất thông
+> tin cá nhân trên hệ thống của bạn.
+>
+> Nếu cảm thấy không chắc chắn, hãy ghi lại từng
+> bước mà bạn định làm hoặc đang làm. Nếu chẳng may
+> có trục trặc, bạn có thể dễ dàng mô tả lại vấn đề
+> với người có khả năng giúp đỡ bạn.
+>
+> Không uống rượu, các chất kích thích mạnh hoặc
+> gây ảo giác khi thực hiện theo hướng dẫn này.
+
+
+## Chuẩn bị
+
+Giả sử có hai máy X, Y, và bạn cần chuyển hệ thống Arch từ máy X qua Y.
+Bạn cần điều chỉnh để X, Y cùng nằm trong mạng `LAN`, sử dụng dây cáp để nối
+mạng _(kết nối không dây quá chậm do khối lượng dữ liệu lớn)_. Ngay cả
+khi dùng dây cáp, thì bạn cũng cần nhiều thời gian. Với đường truyền
+`10MB/s` quen thuộc, trung bình bạn mất gần 3 giờ để chuyển xong 100GB dữ liệu.
+
+### USB mồi
+
+Bạn chuẩn bị USB với bộ cài đặt của ArchLinux _(phiên bản cũ càng tốt,
+vì cũ thường dễ xài; nhưng cũng đừng xài đồ cũ quá)_:
+tìm lên trang chủ của ArchLinux tải về tập tin `.iso`,
+hoặc lấy từ các bản đã có trên máy của bạn, rồi dùng lệnh `dd` để chuyển
+dữ liệu ra USB như sau
+
+{:.sh}
+    dd if=/path/to/iso/file of=/dev/my-usb
+
+với `my-usb` có thể là `sdb`, `sdc`,... tùy trường hợp. Bạn phải chọn đúng
+vì lệnh `dd` dù thành công hay dang dở cũng khiến cho bạn mất sạch dữ liệu
+cũ trên đĩa đích (`/dev/my-usb`). Nếu gặp may gõ nhầm `of=/dev/sda`
+thì xin chúc mừng: bạn sẽ cón một màn than vãn không thể kịch hơn.
+
+Để dùng USB này thì bạn cần chỉnh BIOS của máy Y để  máy có thể khởi động
+từ USB. Một số máy chỉ nhận ra  USB khởi động từ một số cổng nên bạn cần
+thử vài lần trước khi tìm cách khác.
+
+### Trên máy X
+
+Bật máy X, có thể vào chế độ đồ họa
+
+* Nhưng tắt tất cả các tiến trình có thể phát sinh các tập tin có thông
+  tin đáng quý _(trình duyệt thư, trình chát, chương trình chạy qua `crontab`,
+  trình sao lưu dữ liệu, ...)_; điều này để đảm bảo bạn không
+  bị mất dữ liệu được sinh ra trong quá trình chuyển hệ thống;
+
+* Bật `sshd` bằng lệnh `/etc/rc.d/sshd start` sau khi điều chỉnh tập tin
+  `/etc/ssh/sshd_config` để dịch vụ `SSH` chấp nhận kiểu đăng nhập bằng
+  chìa khóa (`PasswordAuthentication yes`) và cho phép tài khoản `root`
+  kết nối từ xa (`AllowUsers root`). Việc này chỉ làm tạm thời trong
+  quá trình chuyển đổi, và khá an toàn khi bạn làm ở nhà. Sau khi hoàn
+  tất chuyển đổi, bạn nhớ chỉnh lại thiết lập của dịch vụ `SSH`.
+
+* Cài gói `rsync` (nếu chưa có) để dùng trên máy X. Gói này có thể cài bằng `pacman`.
+
+* Việc này quan trọng: Vào trang [arm] [], chọn ngày tháng cho phù hợp
+  với bộ cài có trong USB, và tải về gói `rsync` nằm trong `extra`. Sau này
+  bạn sẽ hiểu `rsync` để làm gì. Chính xác hơn, bạn phải xác định nhân
+  và thư viện `glibc` đang có trong USB để gói `rsync` tải về  có thể làm
+  việc với chúng. *Cần nhấn mạnh* rằng gói `rsync` này là để dùng trên
+  máy Y, không phải gói `rsync` vừa nói ở bước ở trên.
+
+### Trên máy Y
+
+Với máy Y, khởi động từ USB, gõ `/arch/setup` để bắt đầu cài đặt:
+
+* Bạn tiến hành cài đặt thông thường, nhưng chỉ vài bước đầu. Ví dụ, chọn
+  `mirror`, chọn giờ cài đặt (nhớ chọn cho đúng, chả mất gì nhưng đỡ rắc rối),
+  ... cho tới bước phân vùng ổ cứng. Đây là bước quan trọng nhất. Bạn cần
+  xác định đúng các phân vùng dành cho `/`, `/home/`, ... Mẹo quan trọng
+  là nếu trên máy gốc X có `n` phân vùng thì ở máy Y bạn cũng tạo ra bằng
+  hoặc nhiều hơn `n` phân vùng tương ứng. Mẹo này giúp bạn chuyển đổi
+  dữ liệu dễ dàng hơn khi dùng `rsync`. Cách đơn giản nhất là tương ứng 1-1:
+  ví dụ, nếu trên máy X có phân vùng riêng cho `/boot/`, thì trên máy Y
+  cũng có phân vùng riêng như vậy;
+
+* Sau khi bạn chọn phân vùng và định dạng chúng, bộ cài đặt sẽ thực hiện
+  `mount` những phân vùng này vào thư mục `/mnt`. Bây giờ là lúc bạn thoát
+  trình cài đặt, vào màn hình đen của `console` bắt đầu việc chuyển đổi;
+
+## Chuyển dữ liệu
+
+Để ngắn gọn, dưới đây sẽ dùng `(X)` để chỉ công việc trên máy X, và `(Y)`
+để chỉ công việc trên máy Y.
+
+* `(X)`: Trong tài khoản `root`, tạo ra thư mục `/X/`, bên trong thư mục
+  này có các thư mục con tương ứng với các phân vùng của máy X. Ví dụ,
+  `/X/root` dành cho `/`, `/X/home/` dành cho `/home/`, `/X/boot` dành
+  cho `/boot/` và tương tự như thế. Sau đó, bạn thực hiện `mount` các phân
+  vùng hiện có vào các thư mục này _(Điều này hoàn toàn có thể thực hiện
+  được trong Linux.) Ví dụ, nếu trên máy X phân vùng `/dev/sda1` là `/boot/`,
+  `/dev/sda2` là `/`, thì bạn `mount` phân vùng thứ nhất vào `/X/boot/`,
+  phân vùng thứ hai vào `/X/root`. Mục đích của việc kết nối riêng vào
+  `/X/` này là để hạn chế các nhầm lẫn không đáng có;
+
+* `(Y)`: Tương ứng với các thư mục `/X/` trên máy `/Y/`, bạn cũng tạo ra
+  các thư mục `/Y/` trên máy Y, rồi thực hiện kết nối các phân vùng của máy
+  Y vào các thư mục này. Ví dụ, trên máy Y sẽ có kết nối `/dev/sdb2` vào
+  `/Y/boot/`, kết nối `/dev/sdb4` vào `/Y/home/`;
+
+* `(Y)`: Kiểm tra kết nối tới máy X bằng lệnh `ssh root@ip_of_X`. Ở đây,
+  `ip_of_X` là địa chỉ của máy X mà bạn có thể xem bằng lệnh `(X) ifconfig`.
+  Nếu kết nối thành công (bằng chìa khóa nào đó), thì bạn hãy thoát ra
+  để tiếp tục;
+
+* `(Y)`: Tải về gói `rsync` trên máy X bằng lệnh
+    `scp root@ip_of_X:/path/to/rsync /root/`
+  và cài gói này vào máy Y bằng lệnh `pacman -U /root/rsync-*`. Lưu ý
+  rằng lệnh này sẽ không cài vào đĩa cứng của máy, mà chỉ lưu tạm vào
+  đĩa ảo trên bộ nhớ. Khi cài đặt xong, bạn chạy thử lệnh `rsync` xem
+  có lỗi nào không. Nếu có báo lỗi, chẳng hạn nhầm thư viện `glibc` thì
+  bạn phải chịu khó tải về gói `rsync` khác phù hợp hơn từ [arm] [].
+
+* `(Y)`: Bắt đầu chuyển đổi dữ liệu bằng `rsync` như sau đây. Với thư mục
+  `/X/boot`, bạn gõ vào lệnh
+
+      rsync -rapv --progress \
+        root@ip_of_X:/X/root/ /Y/root/
+
+* _(Lưu ý là trong lệnh trên, cuối mỗi thư mục đều có dấu `/`.)_
+  `(Y)`: Bây giờ, khi lệnh ở trên đang chạy, bạn gõ vào `Alt F2` để chuyển qua
+  màn hình `console` khác và thực hiện `rsync` cho thư mục `/X/boot/`,
+  rồi lại vào `Alt F3` để thực hiện cho `/X/home/`,...  Tốc độ đường
+  truyền cố định nên nếu bạn gõ càng nhiều lệnh `rsync` cùng lúc thì
+  tốc độ của mỗi lệnh sẽ tự nhiên chậm đi _(nên đừng tưởng bở nhé!)_
+
+* `(Y)`: Bạn ước lượng thời gian hoàn tất _(đã nói ở trên)_, rồi đi chơi,
+  uống cà phê hay ngủ một giấc. Nhớ dặn dò người thân của bạn đừng tắt
+  điện, tắt mạng hay rút cáp của hai máy X, Y vì nhiều khi chúng chạy
+  lâu quá, các màn hình console của máy tự tắt mới nhìn qua cứ nghĩ
+  là máy không hoạt động :)
+
+* `(Y)`: Kết thúc việc chuyển đổi dữ liệu này, trên tất cả các `console`
+  có lệnh `rsync` bạn sẽ thấy các thông báo lỗi _(nếu có)_. Hãy cố gắng
+  khắc phục lỗi này trước khi tiếp tục. Nếu không còn dữ liệu nào phải
+  chuyển, bạn có thể (và nên) tắt máy X đi.
+
+* Nếu máy X không có phân vùng `boot` riêng, còn máy mới lại có, thì rõ
+  ràng bây giờ chẳng có gì trong `/Y/boot/`. Bạn chuyển mọi thứ trong
+  `/Y/root/boot/` qua đó là xong, bằng các lệnh sau
+
+  {:.sh}
+      rsync -rapv --delete /Y/root/boot/ /Y/boot/
+      rm -rfv /Y/boot/*
+
+  _(Lệnh sau cùng đảm bảo rằng `/Y/root/boot` sạch sẽ, vì nó sẽ không được
+  dùng nữa.)_
+
+* Kiểm tra sự trùng lặp dữ liệu và loại bỏ: Ví dụ, nếu có `/Y/boot/` thì
+  thư mục `/Y/root/boot` cần trống rỗng. Nếu có `/Y/home/` với các tập
+  tin cần thiết trong đó, thì `/Y/root/home/` cần phải trống rỗng --
+  điều này đạt được bằng cách xóa `rm -rf /Y/root/home/*` (xóa thế này
+  là an toàn vì thực tế dữ liệu của bạn vẫn còn trên máy X.)
+
+## Chuyển cấu hình
+
+Dữ liệu đã chuyển xong. Bây giờ cần phải cấu hình lại để hệ thống cũ
+hoạt động được trên máy X. Nếu bạn đã từng cài Arch rồi, việc này sẽ
+khá dễ. Nhưng do sự khác nhau về các phân vùng, thông tin phần cứng,
+các lưu ý và hướng dẫn sau đây sẽ có ích.
+
+Giả sử rằng cho đến lúc này bạn vẫn còn chưa khởi động lại máy Y,
+tức là bạn vừa xong bước chuyển dữ liệu ở trên. Với máy X thì bạn có
+thể tắt nó được rồi.
+
+### mtab
+
+Trong các bản Arch mới, tập tin `/Y/root/etc/mtab` chỉ là một liên kết
+tới `/proc/self/mounts`. Do đó, bạn cần xóa đi tập tin bằng lệnh
+`rm -f /Y/root/etc/mtab` rồi tạo liên kết bằng lệnh
+  `ln -s /proc/self/mounts /Y/root/etc/mtab`
+(bạn không cần quan tâm là `/proc/self/mounts` có hay chưa; khi khởi động
+hệ thống sẽ tự động tạo ra).
+
+Nhớ rằng gợi ý trên chỉ áp dụng đối với hệ thống mới. Hãy kiểm tra trên
+máy `X` để biết chi tiết, bằng lệnh `ls -la /etc/mtab`.
+
+_Chuyện kể_: vì không để ý bước này mà tác giả bài viết đã mất gần 5
+lần khởi động lại máy Y để kiểm tra, cấu hình, mà vẫn không làm sao cho
+thư mục `/home/` tự động kết nối lúc khởi động.
+
+### fstab
+
+Đây có thể là tập tin có nhiều điều chỉnh nhất, đặc biệt khi bạn thay đổi
+cấu trúc và số lượng phân vùng. Hãy cẩn thận và chỉnh lại cho phù hợp với
+máy `Y` chứ không phải máy `X`. Gợi ý:
+
+* Nếu dùng `/boot` trên phân vùng riêng, bạn nên kết nối nó sau phân vùng
+  `/`, bởi vì `/boot` là một phần con của `/`;
+
+* Để an toàn, bạn chỉ cần cấu hình cho các phân vùng quan trọng nhất, ví dụ
+  `/root/`, `/boot/` (nếu có), `/var` (nếu có), tạm thời bỏ qua phân vùng
+  `/home/`. Dưới đây là mẫu thực tế của một máy dùng phân vùng `/boot/` riêng.
+
+      devpts    /dev/pts devpts defaults                     0 0
+      none      /dev/shm tmpfs  defaults,noexec,nodev,nosuid 0 0
+      /dev/sda2 /        ext3   defaults                     0 1
+      /dev/sda1 /boot    ext3   defaults                     0 1
+      /dev/sda4 /home    ext4   defaults                     1 1
+
+  _(Trong tập tin `/Y/root/etc/fstab` các dòng chỉ chứa khoảng trắng hoặc bắt
+  đầu bằng dấu thăng `#` là dòng chú thích, không có nghĩa gì với hệ thống.)_
+
+### Mô-đun
+
+Mô-đun (hay `driver`) cần được nạp để máy nhận ra các thiết bị trên máy.
+Việc nạp sai mô-đun có thể làm máy không hoạt động hoặc phá hỏng máy!
+
+* Tắt tất cả các mô-đun và driver không cần thiết, hoặc các mô-đun mà bạn
+  không chắc sẽ hoạt động trên máy mới. Các tập tin liên quan là
+    `/Y/root/rc.conf` (dòng `MODULES`)
+  và `/Y/root/modprobe.d/*`.
+
+* Một số mô-đun được nạp thông qua các kịch bản lúc khởi động, ví dụng
+  các mô-đun cho `oss`, `sensors`,... thì bạn tắt đi các dịch vụ bằng cách
+  tìm tới dòng `DAEMONS` trong `/Y/root/rc.conf` để điều chỉnh.
+
+* Nếu máy cũ xài âm thanh `oss` còn máy mới `Y` xài `alsa` thì bạn sẽ phải
+  tắt đi tất cả các dịch vụ liên quan tới `oss`, và sau này, khi khởi động
+  máy vào được `Y`, bạn phải **cài lại nhân Linux** (cài lại nhân cũ lấy từ
+  [arm] []) thì mới có thể gỡ bỏ hoàn toàn `oss` khỏi hệ thống.
+
+* Tìm và cài lại các `driver` cho cạc đồ họa. Nếu không, hãy dùng `driver`
+  mặc định của `X`. Để chắc ăn, thì bạn tắt đi các trình quản lý đăng
+  nhập đồ họa như `kdm`, `gdm`, `slim` trong `/etc/rc.conf`.
+
+### Trình khởi động
+
+Phần này đơn giản, bạn chỉ việc chọn lại cho đúng đĩa chứa `/boot/`
+khi thay đổi `setroot` trong tập tin `/Y/boot/*`, ví dụ là `hd(0,0)`
+khi dùng trong `grub{1,2}` để chỉ  phân vùng đầu tiên của ổ đĩa `sda`.
+Trong khi chỉnh `kernel`, thì lưu ý
+
+* Chỉ ra `root=/dev/???` là phân vùng của thư mục `/` của bạn, tức là
+  phân vùng đang được kết nối vào `/Y/root`;
+
+* Nếu `/boot/` nằm ở phân vùng riêng, bạn bỏ đi `/boot/` khi chỉ ra đường
+  dẫn tới `kernel` và `initrd`. Ví dụ, `kernel /vmlinuz-linux root=/dev/sda2 ro`;
+
+* Nếu `/boot/` nằm chung phân vùng với `/root/`, thì bạn cần thêm vào `/boot/`
+  trong đường dẫn, ví dụ `initrd /boot/initramfs-linux.img`;
+
+* Bây giờ, đoạn quan trọng nhất: `chroot` và cài đặt trình khởi động.
+  Trước tiên, thực hiện kết nối `binding` cho `proc` và `dev` như sau
+  đây, để sau khi `chroot` vào các thông tin về ổ cứng, tiến trình còn
+  có hiệu lực:
+
+      #!bash
+      mkdir /Y/root/dev/  /Y/root/proc
+      mount -o bind /dev  /Y/root/dev
+      mount -o bind /proc /Y/root/proc
+
+* Tiếp theo, nếu `/boot/` dùng phân vùng riêng, thì bạn kết nối tiếp
+
+      mount -o bind /Y/boot/ /Y/root/boot/
+
+* Tiến hành `chroot` vào hệ thống bằng lệnh `chroot /Y/root`. Sau đó,
+  nếu dùng `grub-{1,2}`, bạn thi  hành lệnh `grub-install /dev/sda` để
+  cài đặt trình khởi động vào đĩa cứng thứ nhất của bạn.
+
+## Xong chưa nhỉ
+
+Trên máy Y, gõ lệnh `reboot`. Nếu máy khởi động và gặp trục trặc ở ngay
+các bước đầu tiên của `grub`, thì hãy loay hoay chỉnh từ dấu nhắc của `grub`
+sao cho đúng các thông tin phân vùng chứa `/boot` và chứa `kernel`.
+
+## Bàn giao máy X
+
+Sau khi chuyển hệ thống qua máy Y, bạn có thể bàn giao máy X cho người khác.
+Hãy dùng các chương trình xóa ổ cứng mạnh mẽ và nhanh (ví dụ các phần mềm trên
+Windows) để xóa sạch mọi dấu vết dữ liệu của bạn trên máy X. Nếu không có
+bước này thì bạn có thể mất các thông tin nhạy cảm (của ca sĩ X, Y nào đó
+chẳng hạn), mất chìa khóa, thậm chí mất cả tiền lẫn tình!
+
+Bạn vừa được cảnh báo.
+
+[arm]: http://arm.konnichi.com/

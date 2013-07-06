@@ -1,0 +1,84 @@
+#!/bin/bash
+
+############################################################
+#
+# Purpose: Build e17 from source, for ArchLinux
+# Author : Anh K. Huynh
+# Date   : 2012 Sep 12th
+# License: Fair license
+# Link   : http://enlightenment.org/p.php?p=download&l=en
+#
+# Requirements and  usage
+#
+# - You need a sudo permission to install a package
+#   (`sudo pacman -U foobar` should work)
+#
+# - You need to configure `/etc/makepkg.conf` to store the
+#   newly built package to your filesystem.
+#
+# - Configure the directory `_D_WORK` (see below). You can
+#   change on-the-fly. The path should be *ABSOLUTE*
+#
+#     _D_WORK=/path/to/some/dir/ ./e17.build.sh
+#
+# - To start the build process from a specific package, try
+#
+#     _START=foobar ./e17.build.sh
+#
+# - You can change both settings on-the-fly
+#
+#   _D_WORK=/foo/bar _START=foobar ./e17.build.sh
+#
+############################################################
+
+# The main working directory. This should be an absolute path
+_D_WORK="${_D_WORK:-/home/pacman/srcxxx/}"
+
+########################################
+# Don't change anything from this line #
+########################################
+
+# The order of the packages. Please don't change this
+_ORDER="eina eet eobj evas evas_generic_loaders
+        ecore eio embryo edje efreet
+        e_dbus eeze elementary embryo ethumb e"
+# This module is quite buggy: e-modules-extra
+
+# The package where you want to start. This is useful after a corruption build
+_START="${_START:-eina}"
+
+# Please don't this!!!
+_BUILD="no"
+
+# Build a package and install it to the system
+_build_pkg() {
+  local _pkg="$1-svn"
+  if [[ ! "$_BUILD" == "yes" ]]; then
+    echo ":: Skip package $_pkg"
+    return 0
+  fi
+  cd $_D_WORK || { echo >&2 ":: Can't switch to $_D_WORK"; exit 1; }
+  if [[ ! -d "$_D_WORK/$_pkg" ]]; then
+    echo ":: Checking PKGBUILD for $_pkg"
+    svn co svn://svn.archlinux.org/community/$_pkg \
+    || { echo >&2 ":: Can not checkout the source $_pkg"; exit 1; }
+  fi
+  echo ":: Building package $_pkg"
+  cd $_D_WORK/$_pkg/trunk \
+    && makepkg -f \
+    || { echo >&2 "Can not build package $_pkg"; exit 1; }
+
+  echo y | sudo pacman -U $(ls -tr $_pkg-*.tar.xz| tail -1)
+}
+
+# The main routine
+[[ -d "$_D_WORK" ]] \
+  || { echo >&2 ":: Can't find working directory '$_D_WORK'"; exit 1; }
+
+echo ":: Start to build from $_START. Order = $_ORDER"
+for _pkg in $_ORDER; do
+  if [[ "$_pkg" == "$_START" ]]; then
+    _BUILD="yes"
+  fi
+  _build_pkg $_pkg || exit 1
+done

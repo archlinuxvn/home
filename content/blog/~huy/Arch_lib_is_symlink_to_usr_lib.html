@@ -1,9 +1,8 @@
 ---
 title: /lib is now symbolic link
 allow_comment: yes
+tags: ['archlinux', 'upgrade']
 ---
-
-# Move /lib to /usr/lib
 
 Vừa nhận được mail từ mailing list announcement, mình tiến hành upgrade
 Arch ngay xem thử thay đổi này sẽ diễn ra như thế nào và tất nhiên là gặp rắc rối.
@@ -14,7 +13,7 @@ Arch ngay xem thử thay đổi này sẽ diễn ra như thế nào và tất nh
 ý tưởng tồi nhưng có vẻ nó làm khó nhiều Arch users. Để tiến hành:
 
 <pre>
-sudo pacman -Syu --ignored glibc
+sudo pacman -Syu --ignore glibc
 sudo pacman -Su
 </pre>
 

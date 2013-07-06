@@ -1,0 +1,247 @@
+---
+title: Hướng dẫn nhanh dùng GPG
+tags: ['gpg', 'security', 'encryption']
+origin: http://www.madboa.com/geek/gpg-quickstart/
+license: CC BY-NC-SA
+author: Paul Heinlein <heinlein@madboa.com>
+date: 2004-jul-4, 2011-jul-20
+translators: z1y
+note: chiều ni tông xe bong gân tay đau quá trời ráng gõ cho xong
+---
+
+Bài này hướng nhanh cách dùng `GPG`. Nếu bạn cần mã hóa thông tin
+gửi -- nhận giữa hai **người**, việc dùng `GPG` là cách đơn giản và hiệu quả.
+
+Sử dụng `GPG` là điều bắt buộc đối với các thành viên chính của đội phát triển [Ken Linux](/ken/).
+
+Bài dịch này có phần [mã hóa tập tin lớn](#bigfile) không nằm trong tài
+liệu gốc tiếng Anh. Phần này do `z1y` viết thêm vào.
+
+* TOC
+{:toc}
+
+
+## Chìa khóa của bạn
+
+Điều đầu tiên là bạn cần tạo ra một cặp chìa khóa, trong đó gồm có khóa
+riêng _(riêng tư, chỉ có bạn là người biết)_, và khóa công cộng có thể
+cho người khác biết. Cặp khóa này là trái tim của quá trình mã hóa
+và giải mãi theo bộ `GPG`, và được lưu trong `~/.gnupg/`.
+
+1. Tạo cặp _(chìa)_ khóa
+
+       $ gpg --gen-key
+
+   Bạn cần trả lời vài câu hỏi:
+
+   * Loại và cỡ khóa; bạn chỉ cần chọn theo đề nghị của chương trình là tốt;
+   * Thời gian sử dụng của cặp khóa _(kiểu như hạn sử dụng in trên đáy
+     lon bia)_. Với nhu cầu cá nhân bạn có thể chọn khóa vô thời hạn.
+     Nếu cần khóa để xác nhận với người khác thì nên chọn một vài năm.
+     Thời hạn sử dụng này có thể thay đổi được;
+   * Tên thật và địa chỉ email. Thông tin này giúp bạn nhận ra khóa của bạn
+     nhanh chóng vì sau này bạn sẽ làm việc với rất nhiều khóa của bạn
+     và người khác;
+   * Lời ghi chú hay mô tả cho khóa. Bạn có thể để trống nhưng nếu có
+     nhiều khóa thì thêm lời vào sẽ chỉ có lợi;
+   * Mật mã bảo vệ chìa khóa, hay _chìa khóa bảo vệ cặp khóa_; thông tin
+     này cần thiết, riêng tư và bạn phải cất kỹ: nếu không có, hoặc bạn
+     đánh mất vào tay người khác, hoặc bạn quên, thì coi như xong, việc
+     mã hóa thông tin chả có tác dụng gì, chưa kể bạn bị mất toi dữ liệu.
+
+2. Tạo ra phiên bản `ASCII` của khóa công cộng
+
+       $ gpg --armor --output pubkey.txt \
+             --export 'TÊN_BẠN'
+
+   Khóa công cộng này `pubkey.txt` có thể gửi cho người khác thoải mái.
+   Tất nhiên, đừng bao giờ gửi nhầm khóa riêng tư tạo ra ở bước 1.
+
+3. Bạn có thể đăng ký khóa công cộng với các máy lưu trữ khóa. Những máy
+   lưu trữ khóa giúp người khác có được khóa công cộng của bạn mà không
+   cần thiết phải liên hệ trực tiếp với bạn.
+
+       $ gpg --send-keys 'TÊN_BẠN' \
+             --keyserver hkp://subkeys.pgp.net
+
+   Lưu ý là các máy lưu trữ khóa thường lắng nghe trên cổng `11371` và
+   bạn cần chỉnh tường lửa cho phép kết nối tới cổng này.
+
+## Mã hóa tập tin cho riêng bạn
+
+_Chú ý:_ Với tập tin có kích thước lớn hãy xem [phần kế tiếp](#bigfile).
+
+Nếu cần mã hóa vài tập tin trên máy để tránh cặp mắt tò mò của người khác,
+bạn có thể dùng `gpg`.
+
+1. Để mã hóa tập tin `foo.txt` bạn chỉ ra người nhận tập tin mã hóa nhờ
+   tham số `--recipient`, tiếp theo là **tên mà bạn dùng khi tạo khóa GPG**
+
+       # dùng tham số dạng đầy đủ
+       $ gpg --encrypt --recipient 'TÊN_BẠN' foo.txt
+
+       # hoặc đơn giản hơn
+       $ gpg -e -r 'TÊN_BẠN' foo.txt
+
+2. Chờ một lát một trong hai lệnh trên tạo ra tập tin `foo.txt.gpg`.
+   Nếu muốn tạo ra kết quả khác, bạn có thể dùng `--output tên_xuất`.
+   Lưu ý rằng tập tin gốc `foo.txt` vẫn còn và bạn cần xóa đi sau khi
+   chắc chắn tập tin mã hóa an toàn, đủ tin cậy.
+
+3. Để mở tập tin đã mã hóa theo cách trên, bạn gõ lệnh sau đây và nhập
+   vào mật mã bảo vệ của chìa khóa. Cần chú ý dùng thêm tham số `--output`
+   vì nếu không kết quả mã hóa sẽ in ra màn hình rất khóa theo dõi.
+
+       $ gpg --output foo.txt --decrypt foo.txt.gpg
+
+Một số trình soạn thảo như `vim` có cả `plugin` [gnupg.vim][gnupg.vim] cho
+phép bạn chỉnh sửa tập tin mã hóa nhờ sử dụng bộ đệm của trình soạn thảo,
+và bạn không cần chạy các lệnh ở trên mỗi lần muốn chỉnh sửa.
+
+Một cách khác để mã hóa và giải mã nhiều tập tin là dùng các công cụ hỗ
+trợ tự động hóa như `Make`. Bạn có thể tham khảo trong bài gốc của tài liệu này.
+
+## Mã hóa tập tin để gửi cho người khác
+
+_Chú ý:_ Với tập tin có kích thước lớn hãy xem [phần kế tiếp](#bigfile).
+
+Thật ra ở đây cũng giống như cách ở trên, chỉ khác phần **người nhận**
+ở tham số `--recipient`. Để tham số này có thể làm việc, bạn cần biết
+được khóa công cộng của người nhận, bằng cách dùng lệnh `import`.
+
+1. Bạn có thể liên hệ trực tiếp người nhận hoặc thông qua các máy lưu trữ
+   khóa để lấy khóa công cộng của họ. Khóa lấy về ở dạng `key.asc` được
+   nạp bằng lệnh
+
+       $ gpg --import key.asc
+
+   còn khóa lấy từ các kho nhờ thao tác tìm kiếm
+
+       $ gpg --search-keys 'heinlein@madboa' \
+         --keyserver hkp://subkeys.pgp.net
+       # ...
+       Keys 1-2 of 2 for "heinlein@madboa"
+       (1)     Paul Heinlein <heinlein@madboa.com>
+                 1024 bit DSA key 8F54CA35, created 2000-11-10
+       (2)     Paul Heinlein <heinlein@ohsu.edu>
+                 1024 bit DSA key 8F54CA35, created 2000-11-10
+       Enter number(s), N)ext, or Q)uit > 1
+       gpg: key 8F54CA35: public key "Paul Heinlein <heinlein@madboa.com>"
+       imported
+       gpg: Total number processed: 1
+       gpg:               imported: 1
+
+   Do mỗi nguời có thể có nhiều khóa công cộng, nên bạn hãy chọn đúng
+   hoặc chọn tất cả khi nạp khóa. Ngoài ra cũng lưu ý về cổng lắng nghe
+   của máy lưu trữ khóa như đã nói ở phần trước.
+
+   Lưu ý rằng khi bạn lấy một khóa công cộng từ trên mạng, bạn không
+   thể khẳng định được `100%` khóa đó thuộc về người mà bạn nghĩ. Bởi vậy
+   cách an toàn là trao đổi khóa thông qua các cuộc gặp gỡ mặt đối mặt.
+
+3. Sau khi nạp khóa, bạn mã hóa tập tin với tham số thích hợp
+
+       $ gpg --encrypt \
+             --recipient 'heinlein@madboa' \
+          foo.txt
+
+   Sau lệnh này bạn có tập tin mã hóa `foo.txt.gpg` để gửi cho người
+   nhận `heinlein@madboa`: chỉ người này mới giải mã được tập tin nhờ vào
+   chìa khóa riêng tư của họ, nên bạn không cần lo lắng người khác đọc được.
+
+## Giải mã tập tin từ nguời khác
+
+Khi nhận được tập tin mã hóa bởi `GPG`, hãy hy vọng rằng nó được mã
+hóa bởi khóa công cộng của bạn. Bởi nếu không bạn chẳng thể làm gì để
+đọc tập tin gốc :) Hy vọng của bạn có thể xác nhận bằng lệnh đơn giản sau
+
+    $ gpg --output foo.txt --decrypt foo.txt.gpg
+
+Bước này sẽ cần bạn nhập vào mật mã bảo vệ chìa khóa `GPG`.
+
+## Tạo chữ ký điện tử
+
+Sử dụng `GnuPG` bạn có thể tạo chữ ký điện tử cho các tập tin. `Chữ ký`
+rất cần thiết khi bạn muốn biết chắc rằng tập tin bạn nhận thật sự
+do người gửi chuyển đến, hay chỉ là hàng giả mạo hoặc hỏng hóc _(vì bất kỳ
+lý do nào)_. Chữ ký `GnuPG` thường có đuôi `.asc`, ví dụ `crucial.tgz.asc`.
+
+### Xác nhận
+
+Giả sử bạn nhận được tập tin `crucial.tgz` từ một người `B`, và họ còn
+gửi kèm chữ ký `crucial.tgz.asc`. Bạn có thể kiểm tra tập tin có an toàn
+trong quá trình vận chuyển bằng cách
+
+    $ # nạp khóa công cộng của nggười B
+    $ gpg --verify crucial.tgz.asc crucial.tgz
+
+`gpg` sẽ báo lỗi nếu có bất kỳ trục trặc nào -- khi đó bạn sẽ phải bỏ đi
+các tập tin `crucial.tgz` và yêu cầu `B` gửi lại!
+
+### Tạo chữ ký
+
+Tạo chữ ký cho một tập tin như sau
+
+    $ gpg --armor --detach-sign foobar.zip
+
+Sau lệnh trên sẽ có tập tin `foobar.zip.asc`, và bạn sẽ gửi nó kèm với
+tập tin `foobar.zip` đến người khác để họ có thể kiểm tra theo cách trên.
+
+### Câu hỏi khó
+
+Khi nhận được tập tin cùng chữ ký của nó, người nhận sẽ dùng khóa công
+cộng của người gửi để kiểm tra chữ ký. Câu hỏi là làm thế nào để `GPG`
+có thể biết được chữ ký hợp lệ hay không? Nếu chữ ký bị giả thì sao?
+
+Đố bạn trả lời đấy ;) -- z1y
+
+## Quản lý khóa
+
+Để liệt kê mọi khóa mà máy bạn nhận biết
+
+    $ gpg --list-keys
+
+Đối với các khóa mà bạn không tin tưởng, có thể xóa đi:
+
+    $ gpg --delete-key 'hacker@foobar.com'
+
+Nguyên tắc đơn giản là xóa các khóa mà bạn chả nhớ gì về nó.
+
+## Các tập tin lớn {#bigfile}
+
+Mã hóa các tập tin lớn với `GPG` sẽ tốn nhiều tài nguyên máy tính và tốn
+nhiều thời gian. Bạn có thể thử mã hóa các tập tin `500MB`, `1024MB` để biết
+máy của bạn nóng lên cỡ nào!
+
+Tất nhiên, đó là khi bạn mã hóa nhờ cặp khóa riêng tư -- công cộng, hay
+còn gọi là mã hóa bất đối xứng. `GPG` còn hỗ trợ mã hóa đối xứng với yêu
+cầu tài nguyên khiêm tốn hơn nhiều. Và để mã hóa tập tin lớn thì bạn như
+sau:
+
+1. Sinh ra một mật mã ngẫu nhiên, mạnh, ví dụ có 32 ký tự bất kỳ.
+2. Lưu mật mã trên vào tập tin `symkey.txt`
+3. Mã hóa tập tin theo kiểu đối xứng nhờ mật mã trên
+
+       $ gpg --symmetric big_file
+       # bạn nhập vào mật mã
+       # kết quả là tập tin `big_file.gpg`
+4. Mã hóa bất đối xứng cho tập tin `symkey.txt`
+
+       $ gpg --encrypt \
+             --recipient "NGƯỜI_NHẬN" symkey.txt
+5. Bây giờ bạn có hai tập tin `big_file.gpg` và `symkey.txt.gpg` có thể
+   gửi đi. Người nhận đầu tiên giải mã tập tin `symkey.txt.gpg` bằng
+   khóa riêng tư của họ, để lấy được mật mã có trong `symkey.txt`, rồi
+   dùng mật mã đó để giải mã tập tin `big_file.gpg` qua lẹenh
+
+       $ gpg -d big_file.gpg
+
+   (Người nhận sẽ phải nhập vào mật mã lấy từ `symkey.txt`.)
+6. Để an toàn, bạn cần xóa đi tập tin `symkey.txt` bằng `schred` chằng hạn.
+
+## Đọc thêm
+
+Xem tài liệu chính thức [GnuPG][].
+
+[gnupg.vim]: http://www.vim.org/scripts/script.php?script_id=3645
+[GnuPG]: http://www.gnupg.org/documentation/

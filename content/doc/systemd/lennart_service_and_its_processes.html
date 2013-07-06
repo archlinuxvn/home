@@ -1,0 +1,131 @@
+---
+title: "systemd: tiến trình của dịch vụ"
+author: Lennart Poettering
+origin: http://0pointer.de/blog/projects/systemd-for-admins-2.html
+date: 2010-sep-08
+tags: ['systemd', 'sysadmin', 'boottime', 'process']
+translators: z1y
+license: CC BY-SA
+allow_comments: yes
+---
+
+> Trong bài dịch này, từ `dịch vụ` được dùng cho từ gốc `service`.
+> Ở một số nơi, dùng từ `ứng dụng` sẽ thích hợp hơn. Việc dùng từ
+> `dịch vụ` có thể do tác giả Lennart muốn mô tả kỹ về `systemd` -- z1y
+
+* TOC
+{:toc}
+
+## Vấn đề. Cách giải quyết truyền thống
+
+Trong hầu hết hệ thống Linux, rất khó biết một tiến trình làm gì và thuộc về
+dịch vụ nào. Trường hợp tiêu biểu là khi dịch vụ đặt ra nhiều tiến
+trình ong thợ (`worker procces`) làm cho kết quả xuất của lệnh `ps` rối tung lên,
+rất khó thấy cái nào ở đâu. Hoặc ứng dụng bật lên các tiến trình thứ ba,
+ví dụ khi `cron` thi hành các nhiệm vụ (`job`) của nó, hoặc khi `Apache`
+mở các tiến trình `CGI`.
+
+Để tìm kiếm tiến trình dễ dàng hơn, có thể dùng công cụ như `htop`, `pstree`,
+hoặc lệnh `ps xaf`. Tuy nhiên, cách này không đáng tin cậy trong các trường hợp sau
+
+* khi một tiến trình bị mất cha sẽ có cha mới là tiến trình `PID 1`, dẫn tới thông
+  tin về quan hệ cha - con giữa các tiến trình bị thay đổi;
+* khi tiến trình tự nhân đôi hai lần (`double fork`) làm mất hoàn thông tin
+  về mối quan hệ với tiến trình ban đầu _(đây thực tế là cách làm việc truyền
+  thống của các tiến trình nền trong hệ thống Unix;)_
+* tiến trình thay đổi tên của chúng bằng `PR_SETNAME` hoặc điều chỉnh lại
+  tham số `argv[0]`, làm cho việc tìm kiếm theo tên trở  nên khó khăn,
+  thậm chí buộc người quản lý hệ thống chơi trò trốn - tìm bất đắc dĩ!
+
+## Cách giải quyết trong systemd
+
+Trái lại với các tiếp cận truyền thống, `systemd` đặt mỗi tiến trình vào
+nhóm điều khiển (`control group` hay `cgroup`) riêng có tên trùng với tên dịch vụ.
+Giải thích ngắn gọn, `nhóm điều khiển` là nhóm các tiến trình có quan hệ
+họ hàng với nhau và cùng được đánh dấu riêng, độc lập với các nhóm khác.
+Khi tiến trình trong nhóm phát sinh ra tiến trình mới thì tiến trình mới không
+thoát ra ngoài nhóm điều khiển ban đầu, trừ khi có các chỉ định đặc
+biệt với quyền của tài khoản `root`; nhờ đó, khi một dịch vụ bắt đầu,
+tất cả các tiến trình phát sinh của dịch vụ sẽ luôn được đánh cùng một
+nhãn, bất kể các tiến trình thực hiện nhân đôi, đổi tên,... như thế nào
+đi nữa. Nhờ cách nhóm này mà ta có thể dễ dàng hủy dịch vụ cùng với tất
+cả tiến trình mà nó tạo ra _(tất nhiên, các tiến trình được chỉ định thoát
+khỏi nhóm điều khiển của dịch vụ vẫn có thể còn đâu đó.)_
+
+## Các lệnh trợ giúp
+
+Phần tiếp theo trình bày hai lệnh giúp bạn xem được quan hệ cha - con
+giữa các tiến trình trong hệ thống.
+
+### ps
+
+Đầu tiên là lệnh `ps` phiên bản mới nhất đã hỗ trợ thông tin về nhóm điều
+khiển, như ví dụ sau
+
+    $ ps xawf -eo pid,user,cgroup,args
+      PID USER     CGROUP                              COMMAND
+        2 root     -                                   [kthreadd]
+        3 root     -                                    \_ [ksoftirqd/0]
+    ...
+     4281 root     -                                    \_ [flush-8:0]
+        1 root     name=systemd:/systemd-1             /sbin/init
+      455 root     name=systemd:/systemd-1/sysinit.service /sbin/udevd -d
+    28188 root     name=systemd:/systemd-1/sysinit.service  \_ /sbin/udevd -d
+    ...
+
+_(Kết quả ở trên được cắt bớt để minh họa cho ý tưởng. Bạn nên thử thi hành
+lệnh trên máy tính đang dùng để dễ hình dung hơn.)_
+
+Ở cột thứ ba xuất hiện thông tin về nhóm điều khiển của từn tiến trình.
+Ví dụ, `udev` nằm trong nhóm `name=systemd: / systemd-1 / sysinit.service`,
+là nhóm gồm các tiến trình bật lên bởi dịch vụ `sysinit.service` trong
+quá trình ban đầu của việc khởi động máy.
+
+Bạn có thể đặt lệnh tắt trong `shell` như sau đây, rồi chỉ cần gõ `psc` thay
+cho lệnh dài ở trên
+
+    alias psc='ps xawf -eo pid,user,cgroup,args'
+
+Bạn nhớ đặt dòng trên trong tập tin `~/.bashrc` để khỏi mất công cho lần sau.
+
+### systemd-cgls
+
+Một cách khác đẹp hơn là dùng lệnh `systemd-cgls` có trong gói `systemd`.
+Kết quả lệnh này tương tự như sau
+
+    $ systemd-cgls
+    +    2 [kthreadd]
+    .
+    .
+    + user
+    | \ lennart
+    |   \ 1
+    |     +  1495 pam: gdm-password
+    |     +  1521 gnome-session
+    .
+    .
+    \ systemd-1
+      + 1 /sbin/init
+      + ntpd.service
+      | \ 4112 /usr/sbin/ntpd -n -u ntp:ntp -g
+      .
+      .
+      + dbus.service
+      | +  1096 /bin/dbus-daemon --system ...
+      | ...
+      |
+      + dev-mqueue.mount
+      + dev-hugepages.mount
+      \ sysinit.service
+        +   455 /sbin/udevd -d
+        ...
+
+_(Kết quả ở trên được cắt bớt để minh họa cho ý tưởng. Bạn nên thử thi hành
+lệnh `systemd-cgls` trực tiếp trên máy để  biết chi tiết.)_
+
+Lệnh `systemd-cgls` sắp xếp tiến trình theo nhóm điều khiển _(cũng là theo dịch vụ)_,
+với cấu trúc hình cây rất dễ tìm và phân loại các tiến trình. Nếu nhìn kỹ
+bạn sẽ thấy nhóm điều khiển `user / lennart / 1` bao gồm tất cả các tiến
+trình do người dùng `lennart` bật. Như vậy, `systemd` còn giúp quản lý
+các tiến trình của người dùng bên cạnh việc quản lý các dịch vụ hệ thống.
+Ta sẽ nói kỹ hơn về điều này trong các bài sau.

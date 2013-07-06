@@ -1,9 +1,8 @@
 ---
 title: Qt app and Ibus
 allow_comment: yes
+tags: ['vietnamese', 'ibus', 'keyboard']
 ---
-
-# Qt App and Ibus
 
 Các ứng dụng viết bằng thư viện `Qt` (ví dụ như `Skype`, `Opera`, ...) có
 đặc điểm là không tự động nhận ra bộ gõ `Ibus`.
@@ -34,7 +33,7 @@ export XMODIFIERS=@im=ibus
 export QT_IM_MODULE=ibus
 </pre>
 Hầu hết các ứng dụng `Qt` sẽ chạy với `Ibus` khi export đủ ba biến môi
-trường trên; **tuyệt đối không thêm dòng**: `1ibus-daemon -x -d` vào .bashrc sẽ gây crash `ibus`!
+trường trên; **tuyệt đối không thêm dòng**: `ibus-daemon -x -d` vào .bashrc sẽ gây crash `ibus`!
 
 ## Với Opera hoặc các app không nhận Ibus
 

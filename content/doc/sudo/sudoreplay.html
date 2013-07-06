@@ -1,10 +1,8 @@
 ---
 title: sudo - replay - Diễn lại quá trình làm việc với sudo
 allow_comment: yes
-tags: ['sudo', 'programming']
+tags: ['sudo', 'sysadmin', 'security']
 ---
-
-# Diễn lại quá trình làm việc với lệnh sudo
 
 Khi lệnh trên hệ thống được thi hành thông qua `sudo` _(để thay đổi vai
 trò của người thi hành)_, toàn bộ quá trình xuất, nhập dữ liệu trên màn
@@ -17,6 +15,9 @@ và các ký tự đặc biệt. Ví dụ, `sudo replay` có thể ghi lại vi�
 dùng gõ sai một lệnh và sau đó dùng phím mũi tên lùi để sửa lại những chỗ
 sai trên lệnh trước khi nhấn `Enter` để thi hành lệnh đó.
 
+* TOC
+{:toc}
+
 ## Cài đặt
 
 Bạn cần có phiên bản `sudo` ít nhất là `1.7.2p8`. Nếu chưa có, bạn có thể
@@ -24,9 +25,9 @@ tải và biên dịch `sudo` mới từ [trang chủ sudo] [sudohome].
 
 Cấu hình `/etc/sudoers` bạn cần có dòng
 
-```
+<pre>
 Defaults    log_input,log_output,...
-```
+</pre>
 
 để thiết lập cho mọi người dùng _(ở trên dấu ba chấm (_..._) ở cuối cùng để
 chỉ các tùy chọn khác. Nếu không có thì bỏ di kể từ dấu phẩy nhé)_.

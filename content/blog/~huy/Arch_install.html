@@ -1,0 +1,95 @@
+---
+title: Crazy Arch Installation
+allow_comment: yes
+tags: ['archlinux', 'install']
+---
+
+* ToC
+{:toc}
+
+Hưởng ứng bài viết [Moving System](/blog/~icy/moving_your_system/) của anh Kỳ Anh, sau một đêm hí hoáy cuối cùng mình cũng cài xong Arch theo một cách cực kì crazy.
+
+## Ý tưởng ban đầu
+
+- Phiên bản [Arch 15/7](http://www.archlinux.org/news/install-media-20120715-released/) có nhiều thay đổi, quan trọng nhất là loại bỏ `hệ thống AIF (Arch Installation Framework)`. Điều này có nghĩa là việc cài đặt Arch sẽ giống với `Gentoo` và phải có internet.
+
+-Điều này khá phiền phức cho các bạn mới đến. Vậy tại sao không dùng những gì mà chính file iso đó cung cấp cho ta ?
+
+## Hiện thực ý tưởng
+
+- Sau khi bạn boot vào bằng iso file, sẽ cần thực hiện các bước sau:
+
++ Phân chia lại lãnh thổ cho từng vùng: /, /home, /boot và swap:
+
+      fdisk /dev/sda: nhấn m để xem menu hướng dẫn.
+
+- Tôi thực hiện phân vùng theo thứ tự sau cho dễ nhớ:
+
+      .Boot -> Root -> swap ->Home
+      (sda1 -> sda2 -> sda3 ->sda4)
+      (ext2 -> ext4 -> swap -> ext4)
+
++ `Mount` phân vùng `Root`:
+
+      mount /dev/sda2 /mnt
+
++ Tai đây ta sẽ tiến hành copy toàn bộ image của hệ thống hiện tại vào /mnt:
+
+      cp -R /usr /mnt
+      cp -R /bin /mnt
+      cp -R /sbin /mnt
+      cp -R /etc /mnt
+      cd /mnt
+      mkdir dev mnt proc run srv tmp var media opt root sys home boot
+      ln -s usr/lib lib
+
++ Vấn đề tiếp theo là coppy file `vmlinuz` và tạo `initramfs.img`:
+
+      mount /dev/sda1 /mnt/boot
+
+Tiến hành copy file `vmlinuz` và `initramfs`:
+
+      mount /dev/sdbX /opt
+      cp /opt/arch/boot/i686/vmlinuz /boot
+      cp /opt/arch/boot/i686/archiso.img /boot/initramfs.img
+
+**i686 hoặc x86_64 là do tùy thuộc bạn muốn cài hệ điều hành 32 hay 64 bit.
+X là số của thiết bị usb (nếu bạn cài bằng usb ) hoặc thay sdbX bằng cdrom nếu bạn cài bằng đĩa cd**
+
+
++ `Chroot` vào hệ thống mới:
+
+      mount -t proc none /mnt/proc
+      mount --rbind /dev /mnt/dev
+      mount -t sysfs /sys /mnt/sys
+      chroot /mnt /bin/bash
+      modprobe dm-mod
+      grub-install --target=i386-pc /boot/ --recheck /dev/sda
+      mkdir -p /boot/grub/locale
+      cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
+      sed -i '4 s/"quiet"/""/'  /etc/default/grub
+      sed -i '5 s/""/"init=\/bin\/systemd"/' /etc/default/grub
+      grub-mkconfig -o /boot/grub/grub.cfg 
+      
++ Chỉnh sửa lại file `menu.lst` cho phù hợp với các phân vùng chứa kernel image và phân vùng root của bạn.
+
++ Chỉnh sửa file `/etc/fstab`:
+
+Bạn chỉnh sửa lại `fstab` cho phù hợp với các phân vùng của bạn:
+
+    devpts    /dev/pts   devpts  defaults    0      0
+    shm       /dev/shm   tmpfs   nodev,nosuid    0      0
+    tmpfs     /tmp       tmpfs   nodev,nosuid   0    0
+    /dev/sdax  /Y        Z       defaults      0     1
+
+với x là số của phân vùng Y là `mount point` và Z là `filesystem`.
+
++ Chỉnh sửa file `/etc/inittab` để tránh việc autologin vào root trên `tty1`: xóa đoạn `-a root` trong file `/etc/inittab` dòng
+
+      c1:2345:respawn:/sbin/agetty -8 -s -a root 38400 tty1 linux
+
++ Đặt lại `passwd root`:
+
+      passwd root
+
+`umount` và `reboot`

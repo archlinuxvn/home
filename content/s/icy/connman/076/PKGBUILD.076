@@ -1,0 +1,74 @@
+# Purpose: Build connman 0.76 to get it work with e17-svn (75246)
+# Author : Anh K. Huynh
+# License: Fair license
+# Date   : 2012 Sep {07,08}
+# Facts  :
+#          * The newest connman 1.6 (and some old version 0.8x, 0.7x)
+#            can be built, start and bring up internet connection, but
+#            the e17 module doesn't see the any network interfaces.
+#          * New connman (1.6) drops profile support, has dbus address
+#            for wifi (et.al) changed. Example:
+#            - 0.76: /profile/default/wiki_***_managed_psk/
+#            - 1.6 : /service/wiki_***_managed_psk/
+#          * Connman 1.6 is the first version of Connman that has
+#            an official PKGBUILD in ArchLinux.
+#          * Old PKGBUILD for Connman was removed from AUR (sh!)
+#            You don't know how to get it to build the old one.
+#          * The last version of Connman that works with e17-svn is 0.76
+#          * The old code 0.76:
+#            - openvn supports doesn't work with the latest packages in Arch
+#            - `iptables.c` is out-of-date and it needs to be patched.
+#          * `iptables.c` in 0.79 can be built. It is used in `iptables.diff`
+#          * Connman 0.78 can be built, can be installed and started, and
+#            e17 module can see the interfaces (wifi, ethernet) but these
+#            supports are disabled, and this version of connman can't start
+#            up them. You have no internet connection.
+#          * Rebuild and patch e17 module (connman) is so tedious job
+#            We just need to build and patcch connman :)
+
+pkgname=connman
+pkgver=0.76
+pkgrel=3
+pkgdesc="Wireless LAN network manager"
+url="http://connman.net/"
+arch=('i686' 'x86_64')
+license=('GPL2')
+depends=('dbus-core' 'iptables' 'glib2' 'gnutls')
+conflicts=('openresolv')
+optdepends=('bluez: Support for Bluetooth devices'
+            'wpa_supplicant: For WiFi devices')
+makedepends=('bluez' 'wpa_supplicant')
+options=('!libtool')
+source=('connmand-daemon'
+        "http://www.kernel.org/pub/linux/network/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
+        'allow_group_network.diff'
+        'iptables.diff')
+
+md5sums=('88ece7cbf1d0d289545ce4f8553fdab8'
+         'e68086507b552ca714934ce16c44a59b'
+         'a8d22ee089fb0ed725130d16ad393047'
+         '1ec1fa057cf6e1faf5457cc3aa008d8e')
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  patch -Np1 -i "${srcdir}/allow_group_network.diff"
+  patch -p1 -i "${srcdir}/iptables.diff"
+
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+      --with-systemdunitdir=/usr/lib/systemd/system \
+      --enable-threads \
+      --enable-wifi \
+      --enable-ethernet \
+      --enable-polkit \
+      --enable-client
+
+  make
+}
+
+package(){
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  make DESTDIR="${pkgdir}" install
+  install -Dm755 "$srcdir"/connmand-daemon "$pkgdir"/etc/rc.d/connmand
+}

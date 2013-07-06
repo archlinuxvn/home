@@ -1,0 +1,25 @@
+---
+title: E17 và màn hình chờ
+allow_comment: yes
+tags: ['e17', 'screensaver', 'idle' ]
+---
+
+
+Theo mình hai năm, Arch khoác mỗi màu áo `Gnome3` ngày càng nặng nề, xa rời khỏi tinh thần tự do, mình nghĩ cũng tội nên quyết định thay áo cho vợ.
+
+Việc chuyển qua `E17` một phần do sự dụ dỗ của anh Kỳ Anh, một phần cũng do sự mất tự do của Gnome. Vấn đề duy nhất mình gặp là `E17` muốn có màn hình chờ thì phải cài `xcreensaver` cực kì chuối và xấu.
+
+Suy nghĩ lung tung mình viết một kịch bản nhỏ để làm cái màn hình chờ sử dụng các tài nguyên sẵn có của `E17`, vừa đẹp vừa đỡ nặng.
+
+Đầu tiên ta viết một tập tin bằng `ngôn ngữ C` để đếm thời gian máy ở trạng thái không nhận được sự kiện từ bàn phím và chuột. Mình đã có sẵn trên [github] [].
+
+Lưu ý nếu bạn muốn tăng thời gian chờ lên, bạn có thể chỉnh số ở dòng 
+
+    seconds == 300
+
+thành số bạn muốn (Lưu ý đơn vị này tính bằng giây).
+
+Bạn để kịch bản này chạy khi khởi động `E17`, hãy tìm hiểu điều này. Như vậy bạn đã có một kịch bản chạy màn hình chờ mà không cần cài bất cứ một chương trình hỗ trợ nào rồi. 
+Chúc các bạn vui cùng Arch.
+
+[github]: https://github.com/NgoHuy/My-Project-/blob/master/idle.c

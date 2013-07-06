@@ -1,9 +1,11 @@
 ---
 title: irc - trao đổi thời gian thực
 allow_comment: yes
+tags: ['irc', 'chat', 'archlinuxvn']
 ---
 
-# Trao đổi thời gian thực
+* TOC
+{:toc}
 
 Nếu bạn có thắc mắc, trao đổi mà không muốn phải chờ đợi như khi sử dụng
 email, bạn hãy dùng kênh IRC để nói chuyện với các thành viên khác.
@@ -12,12 +14,14 @@ giao tiếp chạy trong cửa sổ dòng lệnh_ rất thích hợp với nhữ
 
 ## Thông tin về kênh
 
-* Dịch vụ cung cấp bởi <http://irc.freenode.net>
+* Dịch vụ cung cấp bởi <http://freenode.net>
+* Server: **irc.freenode.net**. See also [freenode servers] []
+* Port: 6697 _(SSL)_, 6667 _(non-SSL)_
 * Kênh: __#archlinuxvn__
 * Thời gian: nhiều thành viên có mặt trên kênh trong giờ làm việc
   ở Việt Nam (9h sáng - 5 giờ chiều).
 * Bot: Xem thông tin ở [bot] []
-* Quản lý kênh: **z1y**, **n0b0dy**
+* Quản lý kênh: `z1y`, `n0b0dy`
 * [Giao diện web] [webirc]
 
 ## Giao diện web của kênh
@@ -25,24 +29,61 @@ giao tiếp chạy trong cửa sổ dòng lệnh_ rất thích hợp với nhữ
 Bạn chưa từng sử dụng IRC lần nào, có thể thử [dùng giao diện web] [webirc]
 của kênh. Chỉ việc chọn một `nickname` bất kỳ và [bắt đầu ở liên kết này] [webirc].
 
+**Lưu ý:** Khi dùng giao diện web, bạn cần phải gõ nhiều ký tự kiểm tra (`captcha`).
+Những ký tự này rất khó đọc _(do `freenode` đặt ra để giảm nhiễu hệ thống)_.
+Mẹo là bạn dùng `Reload` để thử  vài cụm khác nhau.
+Tuy nhiên, thử nhiều quá sẽ phản tác dụng (càng thử càng khó đọc!)
+
 ## Quy tắc ứng xử
 
 Bạn cần lưu ý vài điểm sau khi trao đổi trên kênh IRC
 
 * mọi nội dung trao đổi sẽ được các [bot] [] ghi lại và [lưu trữ trên
-  trang chủ] [irclog]. Trang lưu trữ này được bảo vệ bởi chìa khóa,
-  được dùng làm tư liệu trong tương lai _(hiện tại chưa có mục đích cụ thể)_;
-* bạn có thể văng tục, nói bậy, đó là quyền cá nhân của bạn,
+  trang chủ] [irclog]. <s>Trang lưu trữ này được bảo vệ bởi chìa khóa,
+  được dùng làm tư liệu trong tương lai _(hiện tại chưa có mục đích cụ thể)_;</s>
+  Nội dung lưu trữ không được công bố. Tuy nhiên, do tính chất công cộng
+  của kênh IRC, bất kỳ ai cũng có khả năng theo dõi các cuộc nói chuyện
+  đã và đang diễn ra, nên bạn cần chú ý không nên phát ngôn thiếu thận
+  trọng trên kênh IRC;
+* bạn có thể văng tục, nói bậy, đó là quyền cá nhân của bạn
+    _(thực ra việc này chỉ có hại cho bạn, nên bạn muốn làm hại chính bạn
+      bao nhiêu là tùy thích, không ai cấm)_,
   **NHƯNG BẠN PHẢI TÔN TRỌNG THÀNH VIÊN KHÁC**, và
 * tốt nhất đừng nên làm các thành viên khác khó chịu;
 * biết lắng nghe, biết cách đặt câu hỏi và biết chịu khó học hỏi với
   tinh thần cầu tiến;
-* nếu bạn có chìa khóa để xem phần log được lưu trữ, hãy giữ nó cẩn thận,
-  không chia sẻ cho bất kỳ bên thứ ba nào. Các điều hành viên chia sẻ
-  chìa khóa cho bạn vì tin bạn sẽ tuân theo luật chơi này;
+* <s>nếu bạn có chìa khóa để xem phần log được lưu trữ, hãy giữ nó cẩn thận,k
+  không chia sẻ cho bất kỳ bên thứ ba nào. Các điều hành viên chia sẻ chìa
+  khóa cho bạn vì tin bạn sẽ tuân theo luật chơi này;</s>
 * bạn có quyền làm theo ý của bạn, nhưng về lâu dài cộng đồng có thể
   tẩy chay bạn.
 
-[webirc]: http://webchat.freenode.net/?randomnick=1&channels=archlinuxvn&prompt=1&uio=d4
+## Nội dung trao đổi
+
+Bạn được khuyến khích trao đổi các vấn đề liên quan tới `Linux`, `ArchLinux`
+và mã nguồn mở. Thực tế thì trên kênh bàn rất nhiều vấn đề khác nhau,
+không chỉ giới hạn ở chủ đề nào. Một số thành viên khác có thể thấy không hợp
+lý và nhắc nhở, khi đó nếu bạn đang nói lạc đề thì hãy nhanh chóng dừng lại.
+
+Các đoạn mã, `log`,... các đoạn trao đổi dài không nên ghi trực tiếp trên
+kênh, mà thông qua dịch vụ như [pastie.org] []. Để gửi hình ảnh, bạn đừng
+nên dùng `ImageHack.us` do dịch vụ này bị chặn ở nhiều nơi. Bạn có thể dùng
+chẳng hạn [PostImage.org] [].
+
+## Điều hành kênh
+
+`n0b0dy` là người đã đăng ký kênh ở `freenode`, mặc dù kênh đã hoạt động
+từ trước đó. Hai thành viên có quyền quản lý kênh là `n0b0dy` và `z1y`.
+
+`Quản lý` ở đây được hiểu là nhằm xử lý các vấn đề kỹ thuật của kênh:
+các sự cố , cài đặt và điều chỉnh các `bot`, ... Không có bất kỳ sự quản
+lý nào về `nội dung`; tuy  nhiên, người điều hành có thể giúp kênh từ
+chối hoặc nhắc nhở các thành viên sau khi có sự hội ý và thống nhất
+với các thành viên khác trên kênh.
+
+[webirc]: https://webchat.freenode.net/?randomnick=1&channels=archlinuxvn&prompt=1&uio=d4
 [bot]: /vn/bot/
 [irclog]: /irclogs/
+[freenode servers]: http://freenode.net/irc_servers.shtml
+[pastie.org]: http://pastie.org/
+[PostImage.org]: http://PostImage.org

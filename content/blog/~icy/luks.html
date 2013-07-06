@@ -1,0 +1,30 @@
+---
+title: Mã hóa ổ cứng
+tags: ['encryption', 'luks', 'security']
+---
+
+Vài mẹo xài `LUKS` để mã hóa phân vùng hay ổ cứng. Đừng làm theo các chỉ
+dẫn trong bài này một cách máy móc, trừ khi bạn muốn phá sạch dữ liệu
+trên máy tính của bạn _(và rồi khóc than mà chẳng biết kêu ai giúp)_.
+
+* TOC
+{:toc}
+
+## Mã hóa phân vùng
+
+Ví dụ cần mã hóa phân vùng `/dev/sda2`
+
+    $ shred --verbose /dev/sda2
+    $ cryptsetup -c aes-xts-plain -y -s 512 luksFormat /dev/sda2
+    $ cryptsetup luksOpen /dev/sda2 f00b3r
+    $ mkfs.ext4 /dev/mapper/f00b3r
+    $ echo "/dev/mapper/f00b3r /mnt/f00b3r ext4 defaults 0 1" >> /etc/fstab
+    $ echo "f00b3r /dev/sda2 none" >> /etc/crypttab
+    $ mount /mnt/f00b3r
+
+Dòng đầu tiên sẽ **xóa sạch** dữ liệu sẵn có trên `/dev/sda2`, và xóa theo
+kiểu an toàn để người khác không thể dùng các công cụ `đọc lại` thông tin
+đã bị xóa. Hai dòng tiếp theo sẽ tạo ra phân vùng `/dev/mappper/f00b3r`
+được mã hóa theo tiêu chuẩn của `LUKS`, sử dụng chìa khóa do bạn nhập vào.
+Phân vùng này được định dạng `ext4` nhờ lệnh `mkfs.ext4`.
+Các lệnh cuối tạo ra thông tin kết nối để dùng cho lần sau.

@@ -1,0 +1,77 @@
+---
+title: makepkg - Đóng gói mới trong ArchLinux
+allow_comment: yes
+tags: ['pacman', 'makepkg', 'aur']
+---
+
+Vài mẹo hữu ích khi đóng gói cho ArchLinux.
+
+**Mục lục**
+
+* TOC
+{:toc}
+
+## makepkg.conf
+
+Trước khi biên dịch và đóng gói mới cho ArchLinux, bạn cần chỉnh tập
+tin cấu hình `/etc/makepkg.conf`. Hầu hết thông tin đều có sẵn, mặc định,
+bạn không nhất thiết phải thay đổi trừ khi bạn thật sự am hiểu.
+
+Tuy nhiên, bạn hãy tìm đến phần `PACKAGE OUTPUT` và thay đổi các thông
+tin cơ bản nhất, như sau đây
+
+    # Gói đóng xong sẽ lưu vào đây
+    PKGDEST=/home/pacman/packages
+
+    # Nơi lưu tạm thời mã nguồn của gói
+    SRCDEST=/home/pacman/sources
+
+    # Nơi lưu thông tin về cách đóng gói
+    SRCPKGDEST=/home/pacman/srcpackages
+
+    # Tên và email của người đóng gói (là bạn đấy)
+    PACKAGER="icy <icy@viettug.org>"
+
+Tất nhiên, bạn có thể đổi các đường dẫn cho phù hợp. Ngoài ra, thay vì
+thay đổi tập tin `/etc/makepkg.conf`, bạn có thể đặt các cấu hình vào
+tập tin `~/.makepkg.conf`
+
+## yaourtrc
+
+Một số gói bạn phải cài từ [yaourt] []. Theo mặc định, các gói mà `yaourt`
+đóng được lưu trong thư mục `/tmp/` và sẽ bị xóa đi sau khi máy khởi động
+lại. Nếu muốn lưu các gói của `yaourt` tạo ra thì hãy chỉnh trong tập tin
+`/etc/yaourtrc` hoặc `~/.yaourtrc`
+
+    EXPORT=1
+    EXPORTSRC=1
+    # EXPORTDIR=""    # Có thể bỏ qua thiết lập này
+
+Thiết lập này sẽ lưu các gói và thông tin về cách đóng gói vào thư mục
+`PKGDEST` hoặc `EXPORTDIR` _(chỉ khi bạn chỉ ra thư mục này)_
+
+## bacman
+
+Nếu trên máy của bạn đang dùng gói `xyz` thì bạn có thể tìm lại gói này
+trong thư mục `/var/cache/pacman/pkg`. Nếu chẳng may không tìm thấy
+_(ví dụ sau khi bạn chạy lệnh `pacman -Scc`)_, thì bạn có thể tạo lại
+gói này bằng `bacman`
+
+    pacman -S pacman-contrib # để có thể dùng bacman
+    bacman xyz
+
+Ngược với `pacman`, lệnh `bacman xyz` sẽ tìm các tập tin liên quan tới gói
+`xyz` đang cài trên hệ thống, đóng lại theo định dạng có thể dùng với `pacman`.
+Kết quả lưu trong thư mục `PKGDEST` _(xem phần `makepkg.conf`)_, có thể
+dùng để cài trên máy khác, miễn là hai máy có cùng kiến trúc 32 hoặc 64 bít.
+
+    bacman xyz
+    # copy $PKGDEST/xyz-* qua máy khác
+    pacman -U xyz-*  # cài gói xyz trên máy mới
+
+**Lưu ý quan trọng**: Nếu bạn đóng gói `bacman filesystem`, thì các thông
+tin về tài khoản, chìa khóa trên hệ thống cũng sẽ được lưu trong kết quả.
+Điều này sẽ làm lộ các thông tin cần được bảo mật trong `/etc/`. Vì thế,
+hãy cân nhắc khi sử dụng `bacman`.
+
+[yaourt]: https://wiki.archlinux.org/index.php/Yaourt

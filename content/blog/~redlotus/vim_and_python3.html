@@ -1,0 +1,253 @@
+﻿---
+title: Vim và Python3
+allow_comment: yes
+tags: ['programming', 'vim', 'python']
+---
+
+**Mục lục**
+
+* TOC
+{:toc}
+
+----
+
+Bài này chỉ ra vài mẹo để lập trình python3 với vim.
+
+## Build lại vim để hỗ trợ python 3
+
+Mặc định gói cài đặt `vim` trên ArchLinux được biên dịch không hỗ trợ cả `Python 2` và `Python 3`. Để kiểm tra điều này bạn hãy chạy lệnh `vim --version` sẽ thấy `-python -python3`, có nghĩa là không hỗ trợ. Vì xảy ra một vài xung đột giữa việc hỗ trợ python 2 và 3 trên vim.
+
+Ví dụ cơ bản là bạn code hoàn toàn trên `python 3` (giống tôi) nhưng nếu để đuôi tệp tin là `.py` thì nó lại nhận là `python 2`, khá khó chịu (cá nhân ghét phải đặt đuôi tệp tin `python` là `.py3`).
+
+`Maintainer` của gói vim đã quyết định biên dịch `vim` không hỗ trợ cả Python 2 và 3. Đưa quyền quyết định cho người dùng. Và bạn sẽ gặp vấn đề là không thể dùng `auto-completion` (tự hoàn thiện) với code (mã) `python` trên vim. Trong khi đó là một trong những tính năng hữu dụng nhất của một `editor` (trình chỉnh sửa văn bản). Muốn dùng vim, muốn lập trình python 3. Còn chờ gì nữa, đi biên dịch lại `vim` thôi. Đọc thêm về `python` trong phần giúp đỡ trong `vim` (dùng `:help python`)
+
+Tải mã nguồn về biên dịch? Ồ không, tại sao phải cực khổ thế chứ, và làm thế thì pacman sẽ không quản lí gói vim được, `archlinux` có hệ thống `abs (Arch Build System)`, tại sao bạn lại không dùng?
+
+Để có thể dùng abs bạn phải cài đặt gói cùng tên: `abs`
+
+    sudo pacman -S abs
+    sudo abs
+
+Giờ bạn đã tệp tin `PKGBUILD` của tất cả các gói cài đặt trên `ArchLinux`, chúng nằm trong thư mục `/var/abs`. Tìm hiểu thêm về [abs] [] và [PKGBUILD] [].
+
+Tìm đến `PKGBUILD` của gói vim thôi. Nó nằm trong `/var/abs/extra/vim`. Chép nó sang thư mục người dùng để việc build thuận tiện hơn
+
+    cp -r /var/abs/extra/vim ~/
+    cd ~/vim
+
+Chỉnh sửa file `PKGBUILD` cho phù hợp nào. Mở nó lên bằng `vim` (chắc chắn rồi :)), còn cái nào vào đây nữa), tìm đến những dòng này
+
+    # fix python name
+    sed -i -e 's|vi_cv_path_python, python|vi_cv_path_python, python2|' \
+      vim-build/src/configure.in
+
+và sửa lại thành thế này
+
+    #fix python name
+    # sed -i -e 's|vi_cv_path_python, python|vi_cv_path_python, python2|' \
+    #  vim-build/src/configure.in
+
+Cách nhanh nhất là `:72,73s/^/#` (đừng hỏi cái này để làm gì)
+
+Tiếp đến là tìm dòng này (nó có trong cả phần `vim-build` và `gvim-build`
+<pre>
+--disable-python3interp
+</pre>
+sửa thành
+<pre>
+--enable-python3interp
+</pre>
+
+Vẫn là thêm cách nhanh hơn `:%s/--disable-python3interp/--enable-python3interp`.
+
+Mọi thứ đã ổn, build và cài đặt thôi, với lệnh `makepkg -i`.
+
+## Để việc lập trình dễ dàng hơn
+
+Dưới đây là vài mẹo để  việc lập trình trong Vim dễ dàng hơn ;)
+
+### Những thành phần hỗ trợ dành cho vim (Vim plugins)
+
+Bạn đã dùng vim thì không thể không biết đến những thành phần hỗ trợ vim (`vim plugins`). Chúng sẽ giúp việc lập trình trở nên `đơn giản` và `vui vẻ` hơn. Cài đặt và sử dụng chúng thôi. Ở bài này sẽ đề cập đến những plugin cần thiết cho việc lập trình python.
+
+Đầu tiên, luôn khuyên bạn nên sử dụng một trình quản lí thành phần hỗ trợ (`plugins manager`) để giúp việc cài đặt và sử dụng `plugin` dễ dàng hơn. Ở đây tôi dùng `Pathogen`, có một `plugin` tương tự là `Vundle`, bạn có thể tìm hiểu thêm. Và bạn  nên làm mới thư mục .vim của mình đi. Xóa tất cả mọi thứ trong đó đi (cân nhắc trước khi làm việc này). Xong làm theo các bước sau để cài đặt `Pathogen`
+
+    mkdir -p ~/.vim/autoload ~/.vim/bundle
+    curl -so ~/.vim/autoload/pathogen.vim \
+      https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+
+thêm dòng này vào `~/.vim.rc` để `pathogen` tự động nhận các plugin.
+
+    call pathogen#infect()
+
+Giờ hãy cài đặt `plugin` vào `~/.vim/bundle` sử dụng chính các thư mục của `plugin` không phải copy này nọ vào `ftplugin` blah blah này nọ nữa.
+
+Giờ là cài đặt danh sách các plugin `tôi dùng`. Sử dụng `git` để có thể dễ dàng trong việc cập nhật, sao lưu (nếu cần) (sử dụng `git` thế nào thì bạn tự tìm hiểu)
+
+    #!sh
+    cd ~/.vim/
+    git init
+
+    git submodule add https://github.com/scrooloose/nerdtree.git bundle/nerdtree
+    git submodule add https://github.com/fs111/pydoc.vim.git bundle/pydoc
+    git submodule add https://github.com/ervandew/supertab.git bundle/supertab
+    git submodule add https://github.com/vim-scripts/taglist.vim.git bundle/taglist
+    git submodule add https://github.com/vim-scripts/pythoncomplete.git bundle/pythoncomplete
+    git submodule add https://github.com/vim-scripts/TaskList.vim.git bundle/tasklist [optional]
+    git submodule add https://github.com/fholgado/minibufexpl.vim.git bundle/minibufexpl
+    git submodule add https://github.com/bartekd/better-snipmate-snippets.git bundle/snipmate-snippets
+    git submodule add https://github.com/alfredodeza/pytest.vim.git bundle/pytest
+    git submodule add https://github.com/nvie/vim-flake8.git bundle/flake8
+
+    git submodule init
+    git submodule update
+    git submodule foreach git submodule init
+    git submodule foreach git submodule update
+
+Và dưới đây là giải thích phần nào về lợi ích của việc xài các plugin ở trên
+
+### Gập mã (Code Folding)
+
+Việc này giúp chúng ta xem code dễ dàng hơn, các code không cần thiết sẽ được nhóm lại, hệt như các `IDE` vẫn làm, tuy nhiên đây là một editor nên mọi việc hơi khó khăn tí.
+thêm những dòng này vào `~/.vim.rc`
+
+    set foldmethod=indent
+    set foldlevel=99
+
+Sử dụng? Dùng `za` để đóng và mở code dựa theo chỗ thụt vào (indent).
+
+### Chia cửa sổ
+
+Đôi lúc bạn cần so sánh code hay thao tác trên nhiều tệp tin liên quan với nhau thì chia cửa sỗ ra nhiều vùng sẽ rất có ích. Trong vim bạn có thể dễ dàng làm điều này.
+
+    Chia theo chiều dọc: <C-w>v hoặc `:vsplit`
+    Chia theo chiều ngang: <C-w>s hoặc `:split`
+    Đóng: <C-w>q hoặc :quit (:q)
+
+Để di chuyển giữa các cửa sổ đó thì bạn phải dùng tổ hợp `<C-w><phím di chuyển>`. Để dễ dàng hơn tại sao ta không dùng `<C-phím di chuyển>`. Thêm vào `~/.vimrc`
+
+    map <C-j> <C-w>j
+    map <C-k> <C-w>k
+    map <C-l> <C-w>l
+    map <C-h> <C-w>h
+
+Giờ mọi việc đã dễ dàng hơn rất nhiều và thao tác cũng nhanh hơn.
+
+### Snippets
+
+Cho phép ta định nghĩa những cấu trúc có sẵn khi code. Ví dụ: khi gõ vào `def<tab>` thì nội dung sẽ xuất hiện kết quả cuối cùng `def name(data):`
+
+Bạn có thể sửa, thêm mới trong `~/.vim/bundle/snipmate-snippets/snippets/python`. Xem các tệp tin có sẵn để xem cấu trúc.
+
+Tùy chọn: Tạo `snippet` cho `pdb` (`python debugger`) _(TODO: chưa thử)_. Tạo tệp tin `pdb.snippet`
+
+    import pdb; pdb.set_trace()
+
+Xem thêm về [pdb] [].
+
+**Chú ý:** Để có thể debug chương trình python có thể dùng gói [pydb](http://bashdb.sourceforge.net/pydb/) có sẵn trên repo của archlinux (cái này giống với gcc)
+
+### TaskList (Danh sách tác vụ)
+
+Khi bạn lập trình nhiều, cú pháp `TODO` và `FIXME` rất hữu ích, vì bạn không thể nhớ hết mọi thứ được. Nó giúp bạn biết những gì cần phải bổ sung (`TODO`) hay chỉnh sửa (`FIXME`).
+Thành phần hỗ trợ (plugin) `TaskList.vim` sẽ giúp bạn liệt kê và chỉ ra chính xác nơi nào bạn đặt các cú pháp `TODO` hay `FIXME`. VIệc này vô cùng hữu ích vì bạn không phải dò mã (code) của mình một cách khổ sở để biết chúng ở đâu.
+
+Dùng lệnh `:TaskList` để liệt kê và duyệt chúng.
+
+## Syntax Highlight và Validation (Kiểm tra)
+
+Bật `syntax, filetype, indent` lên nào. Cái này xài vim là phải bật rồi. Thôi kệ vẫn cứ quăng vào đây. Sửa `~/.vim.rc`
+
+
+    syntax on
+    filetype on
+    filetype plugin indent on
+
+[flake8](http://pypi.python.org/pypi/flake8/) là tổ hợp của [PEP8](http://pypi.python.org/pypi/pep8) (kiểm tra kiểu mã (code style)), [pyflakes](http://pypi.python.org/pypi/pyflakes) (kiểm tra cú pháp) và [Ned's MacCabe script](https://en.wikipedia.org/wiki/Cyclomatic_complexity) (kiểm tra độ phức tạp của mã). Cách nhanh nhất để cài đặt và quản lí nó là dùng [python-pip](http://pypi.python.org/pypi/pip).
+	
+	sudo pacman -S python-pip
+	sudo pip flake8
+
+Bạn có thể dùng flake8 như một chương trình riêng biệt để kiểm tra code. Tuy nhiên tích hợp nó vào vim sẽ giúp cho việc kiểm tra và sửa mã dễ dàng hơn rất nhiều. Ở đây tôi dùng [vim-flake8](https://github.com/nvie/vim-flake8). Phím tắt mặc định của nó là `<F7>`. Lỗi sẽ hiện ở cửa sổ `quickfix`, bạn sẽ dễ dàng nhảy đến vị trí lỗi bằng cách nhấn `<CR>`. Để thuận tiện hơn ta nên sửa lại phím tắt để gọi nó. Cá nhân tôi thích `<leader>8`.
+
+	autocmd FileType python map <buffer> <leader>8 :call Flake8()<CR>
+
+<b>Mẹo:</b> Để `vim-flake8` kiểm tra mỗi lần bạn ghi vào tệp tin python, thêm những dòng này vào tệp tin `.vimrc`
+
+	autocmd BufWritePost *.py call Flake8()
+
+<b>Chú ý:</b> Bạn nên sử dụng `flake8` và đọc thêm về `PEP8` để giúp việc trình bày mã của bạn trở nên chuyên nghiệp hơn. Người đọc mã của bạn sẽ rất cám ơn bạn nếu bạn làm điều này.
+
+### Tab completion
+
+Phần trông đợi nhất, việc lập trình dễ dàng hay không phần nhiều là ở đây, chúng ta đã cài đặt plugin `supertab` giờ đây `<tab> <S-tab>` có thể thay thế cho cả `<C-p>`, `<C-n>`, `<C-x><C-u>`
+Bật chế độ completion lên thôi. Thêm vào `.vim.rc`
+
+    autocmd FileType python set omnifunc=pythoncomplete#Complete
+    let g:SuperTabDefaultCompletionType = "context"
+    set completeopt=menuone,longest
+
+Tùy chọn `preview` ở `completeopt` sẽ hiện thông tin về completion ở cửa sổ phía trên. Cá nhân mình nghĩ nó không cần thiết.
+
+**Ví dụ**
+
+    shoplist.<tab> --> append
+    Cửa sổ phía trên sẽ hiện
+    L.append(object) -- append object to end
+
+Vậy `pydoc` để làm gì? Di chuyển con trỏ đến một `module` và `<leader>pw` thử xem nào :big_smile: Nó sẽ hiện thông tin cho bạn về module đó trên một cửa sổ khác. Việc này giúp tra cứu nhanh hơn, nhất là khi `đọc mã (code)`. Tuy nhiên bạn vẫn có thể làm việc này với lệnh `help()` sau khi chạy `python` trên `terminal` hoặc dùng `idle`.
+
+### Những tính năng bổ sung cần thiết
+
+Vài thứ linh tinh nhưng rất có ích
+
+* `Buffers`:
+  Mọi thứ được quăng vào buffer (bộ đệm), dễ dàng hơn trong thao tác với nhiều tệp tin cùng lúc. Di chuyển giữa các buffer: `:b<số thứ tự>`. Đóng buffer: `:bw`
+* `NERDTree`:
+  Duyệt tệp tin ngay trong vim (`NERDTree`). Có thể dùng lệnh `:NERDTreeToggle` hoặc gán tổ hợp phím bạn thích bằng `nmap <F3> :NERDTreeToggle<CR>`
+* `Taglist`:
+  Duyệt qua các tag (tên module, biến, class...). 
+  Dùng lệnh `:TlistToggle` 
+  hoặc gán tổ hợp phím bạn thích bằng `nmap <F2> :TlistToggle<CR>`
+
+## Linh tinh
+
+* Nên đọc kĩ bài viết ở blog mình đưa và tìm hiểu thêm về
+  * `pytest plugin`
+  * tích hợp git vào vim
+  * `gundo plugin` để xem xét các thay đổi gần đây, cấu trúc như `git commit` vậy
+  * tìm kiếm thông minh (`fuzzy search`) _(Với mình grep là đủ rồi)_
+  * `Django` (Đang tìm hiểu)
+* Sử dụng `:help <something>` với những vấn đề bạn cần tìm hiểu mà mình không thể nêu hết ở trên
+* Nếu bạn gặp vấn đề ở phần `syntax highlight` với `pythoncomplete` thì làm theo dưới đây
+
+      curl -so ~/.vim/autoload/python3complete.vim \
+        http://lilydjwg.is-programmer.com/user_files/lilydjwg/File/python3complete.vim
+
+      # Sửa lại trong .vimrc
+      autocmd FileType python set omnifunc=pythoncomplete#Complete
+
+      # thành (chú ý python và python3)
+      autocmd FileType python set omnifunc=python3complete#Complete
+
+* `<leader>` là phím `\`
+
+## Ghi chú của tác giả
+
+* Bài viết hoàn toàn là dựa trên quan điểm cá nhân, chỉ mang tính chất tham khảo. Đừng thụ động, hãy tùy biến mọi thứ theo cách của riêng mình.
+* Mặc định trước khi đọc và làm theo bài này bạn đã có thể tùy chỉnh vim một cách cơ bản và thuận tiện với mình.
+* Bạn sử dụng vim với `python3`, không phải `python2`. Đừng đặt câu hỏi liên quan đến `python2`, hãy tự tìm hiểu thêm dựa trên bài này.
+* Bạn không muốn tốn nhiều công sức như vậy, lời khuyên của mình là bạn hãy chọn tổ hợp `EClipse IDE`, `Vrapper` và `Pydev`. Bạn sẽ có những thứ để lập trình `python` thuận tiện nhất với `key binding` cơ bản của vim. Có một dự án là `Eclim` (`Eclipse` + `Vim`), bạn có thể tìm hiểu. _[Bổ sung]_ `Sublime Text 2` cũng là một trình chỉnh sửa văn bản (text editor) rất mạnh (và nó cũng có rất nhiều thành phần bổ sung hữu ích có thể cài đặt thêm)  mà bạn nên thử.
+* Mọi ý kiến đóng góp, câu hỏi được hoan nghênh. Hãy nhớ *đặt câu hỏi một cách thông minh*.
+
+## Tài liệu tham khảo
+
+Các tài liệu tham khảo có ích
+
+* [Vim-python](http://blog.sontek.net/blog/detail/turning-vim-into-a-modern-python-ide)
+    _(bài viết của mình gần như là bản dịch rút gọn từ bài này ra)_
+* [Vim Tips Wiki](http://vim.wikia.com/wiki/Vim_Tips_Wiki) _(một trang vô cùng có ích)_
+
+[abs]: https://wiki.archlinux.org/index.php/Arch_Build_System
+[PKGBUILD]: https://wiki.archlinux.org/index.php/PKGBUILD
+[pdb]: http://docs.python.org/py3k/library/pdb.html

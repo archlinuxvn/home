@@ -1,0 +1,86 @@
+---
+title: Oxford Advanced Learners' dictionary and Arch
+tags: ['oxford', 'dictionary', 'flashplayer']
+---
+
+
+* ToC
+{:toc}
+
+
+Nghe thiên hạ đồn, `Oxford Advanced learners's Dictionary` tốt, tác giả cũng cố gắng dùng. Nhưng cũng không ít khó khăn khi cài bộ từ điển này, nhất là `flash`.
+
+ 
+
+## Bài toán về phiên bản của Flashplayer
+
+- Có hay không cho 1 hệ thống chạy 2 phiên bản flashplayer ?
+
+Câu trả lời là có. `Oxford Dictionary` dùng `Mozilla rumtime environment` để khởi chạy, việc chỉ định dùng thư viện phiên bản nào là có thể làm được.
+
+## Bài toán thư viện và giải quyết
+
+Sau khi cài đặt `Oxford dictionary` trong lần khởi chạy đầu tiên bạn sẽ bị cảnh báo thiếu thư viện như:
+
+    LoadPlugin: failed to initialize shared library /home/dragon/oald8/plugins/libflashplayer.so [libplc4.so.0d: cannot open shared object file: No such file or directory]
+
+ 
+
+=>> Bạn cần làm vài thao tác sau:
+
+    ln -s libplds4.so libplds4.so.0d
+    ln -s libnspr4.so libnspr4.so.0d
+    ln -s libplc4.so libplc4.so.0d
+    ln -s /usr/lib/libnssutil3.so /usr/lib/libnssutil3.so.1d
+
+Ok, đến đây chỉ là nửa đường thôi, nếu bạn nóng vội chạy ngay file `oald8` thì sẽ gặp lỗi:
+
+    ./run-oald8.sh: line 131:  1502 Segmentation fault      (core dumped) "$prog" ${1+"$@"}
+
+Khi tác giả debug thì nhận ra rằng do `flashplayer của OALD8` và `flashplayer của hệ thống` **xung đột**. Đó là lý do xuất hiện câu hỏi ở trên.
+
++ Giải pháp
+
+Việc tìm kiếm thư viện trong hệ thống Linux dựa vào biến môi trường, và mozilla rumtime environment cũng vậy.
+
+Việc chỉ định thư viện cho các plugin của Mozilla dựa theo biến môi trường:
+
+    MOZ_PLUGIN_PATH=
+
+Vậy vấn đề là cần chỉ định nó cho OALD8 là xong, còn flash của hệ thống thì kệ nó.
+
++ File thực thi OALD8:
+
+Bạn cần viết một bash file với nội dung như sau :
+
+    #!/bin/sh
+    export MOZ_PLUGIN_PATH=/path/oald8/plugins
+    padsp /home/dragon/oald8/oald8 
+
+Vì không có âm thanh nên cần một thiết bị áp vào, đó là lệnh `padsp`
+
+Done ! bây giờ bạn chạy file bash trên là OALD8 sẽ chạy tốt mà không cần làm gì với flashplayer của hệ thống.
+
+## Trình duyệt mặc định và mở file pdf của resources
+
++ Trình duyệt mặc định:
+
+`OALD8`  mặc định sử dụng chuỗi sau
+
+    opera->konqueror->galeon->mozilla-> netscape
+
+nếu bạn không dừng một trong các trình duyệt trên thì bạn sẽ không mở được 2 link ở oaldonline. Một vài gợi ý đề nghị, bạn có thể tạo `symlink` tới tên trình duyệt của bạn là 1 trong các ứng dụng trên.
+
+    sudo ln -s /usr/bin/your_browser /usr/bin/[opera/mozilla/...]
+
++ Mở pdf file phần resources
+
+Do OALD8 dùng `Xulrunner hàm .launch()`. Hàm này không chạy trên `unix/linux` nên bạn cần thay dòng 31 trong file `chrome/oald8/content/js/resources.js`
+
+    L_File.launch(); -> pdf_program L_File;
+
+Chân thành cảm ơn `n0bawk` đã giúp đỡ `debug` phần này.
+
+Kind regards,
+
+Severus

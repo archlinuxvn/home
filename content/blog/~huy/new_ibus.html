@@ -1,0 +1,69 @@
+---
+title: Ibus mới và những điều phiền phức
+allow_comment: yes
+tags: ['ibus', 'ibusbogo', 'gtk']
+---
+
+* ToC
+{:toc}
+
+
+
+Ibus kể từ bản 1.4.99 đã thay đổi API, các nhà phát triển của Ibus quyết định tính năng  `"Share the same input method"` là mặc định đối với ibus. Điều này gây khó khăn cho người dùng trong việc lập trình, sử dụng đa ngôn ngữ và nhiều kiểu gõ.
+
+ 
+
+## Không cho ibus chạy với một ứng dụng nào đó
+
+Ibus khởi  động sẽ tạo ra các biến môi trường: `GTK_IM_MODULE, XMODIFIERS và QT_IM_MODULE` ghi đè lên thiết lập của `gtk modules` và `QT modules`
+
+Nếu các biến trên không được thiết lập, GTK sẽ tìm đến một danh sách được lưu trong tập tin `/etc/gtk-2.0/gtk.immodules`  và chọn một modules.
+
+Chính vì sự chọn lựa tùy thuộc vào GTK nên rõ ràng khi dùng lệnh unset sẽ không hiệu quả để ngăn ibus không tiếp cận một wungs dụng nào đó.
+
++ Cách giải quyết :
+
+Bạn tạo một file `no-ibus.sh` với nội dung sau :
+
+    export GTK_IM_MODULE=gtk-im-context-simple
+
+    export QT_IM_MODULE=simple
+
+    export XMODIFIERS=simple
+
+    export QT4_IM_MODULE=simple
+
+    exec $@
+
+ 
+
+Sau đó, bạn sửa file của ứng dụng muốn không cho ibus chạy kèm trong `/usr/share/applications/apps.desktop` dòng `exec` như sau:
+
+    /home/username/no-ibus.sh command
+
+Như vậy, mỗi lần bạn bật ứng dụng từ biểu tượng sẽ không chạy ibus kèm nữa. Điều thú vị là file no-ibus.sh chỉ áp dụng biến môi trường cho ứng dụng đó mà thôi không ảnh hưởng ứng dụng khác.
+
++ Riêng đối với terminal, bạn nên xóa các dòng `export` của ibus từ tập tin `.bashrc` sang `.bash_profile` để đảm bảo sau khi terminal khởi động không bị ghi đè biến môi trường trong tập tin `.bashrc` lên tập tin `no-ibus.sh`.
+
+**Lưu ý**: với tất cả các ứng dụng bạn khởi động từ terminal sẽ nhận biến môi trường từ terminal luôn, nên bạn cũng sẽ không gõ được tiếng Việt ở các ứng dụng đó.
+
+## Ibus-bogo và vấn đề hiện mật khẩu
+
+Nếu bạn đang dùng `ibus-unikey`, bạn sẽ gặp phiền phúc với tính năng `"share the same input"` mặc định của ibus.
+
+Do tất cả cửa sổ sẽ nhận chung một input method, do đó khi bạn gõ mật khẩu, chức năng `preedit` của ibus sẽ chạy, mật khẩu cuả bạn sẽ hiện lên trước khi bạn nhấn enter. Điều này cực kì khó chịu và nhất là nơi công cộng.
+
+
+Nhóm Không gian cộng đồng đã viết một engine mới, bỏ chức năng preedit đi và khắc phục tình trạng này.
+
+Sau một thời gian duy trì và sử dụng gói, hiện tại ibus-bogo đã khá ổn định.
+
+Các bạn có thể tải AUR của tác giả về để cài đặt theo đưòng dẫn sau:
+
+    https://aur.archlinux.org/packages/ibus-bogo/
+
+Để bật tính năng kiểm tra chính tả, bạn mở `dconf` lên
+
+    org/kgcd/ibus-bogo chọn spellchecking
+
+Hiện tại, tác giả đang dùng hai cách trên và cảm thấy hài lòng với ibus, không còn khó chịu với tính năng `"share the same input method"` trên những ứng dụng không muốn gõ Tiếng Việt nữa.

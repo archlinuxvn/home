@@ -1,0 +1,20 @@
+---
+title: Cài đặt ngôn ngữ
+tags: ['lang', 'ibus', 'vietnamese']
+---
+
+Tập tin `/etc/locale.conf` chứa các thiết lập ngôn ngữ cho tất cả các
+chương trình trong hệ thống. Thiếu tập tin này cũng không sao, nhưng
+một số chương trình sẽ không hoạt động như người dùng mong đợi: bộ gõ
+tiếng Việt `ibus` không chạy đúng, `Ruby` không nhận biết các tập tin
+bảng mã `UTF-8`.
+
+Vì thế, việc đầu tiên sau khi bạn cài máy hoặc khi gặp trục trặc với
+bộ gõ tiếng Việt là hãy đảm bảo rằng tập tin `/etc/locale.conf` chứa
+ít nhất một dòng sau
+
+    LANG=en_US.UTF-8
+    # LC_MESSAGES=C
+
+Lưu ý rằng một số giao diện đồ họa `wm/dm` cho phép điều chỉnh biến `LANG`
+từ tiện ích của chúng, nhưng cách điều chỉnh chung như trên vẫn nên làm.

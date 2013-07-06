@@ -1,0 +1,271 @@
+---
+title: "systemd: đổi gốc (chroot)"
+author: Lennart Poettering
+origin: http://0pointer.de/blog/projects/changing-roots.html
+date: 2011-apr-08
+tags: ['systemd', 'sysadmin', 'boottime', 'chroot']
+translators: z1y
+license: CC BY-SA
+allow_comments: yes
+---
+
+> Trong bài viết này, `kết nối mù` được dùng để chỉ cho `bind mount`.
+> Nếu bạn có cách dịch khác tốt hơn, hãy đề nghị nhé -- z1y
+
+> Đây là một bài tương đối khó dịch và chính vấn đề kỹ thuật `chroot`
+> cũng không phải đơn giản. Nếu bạn chưa bao giờ nghe qua và triển khai
+> kỹ thuật đổi gốc, bạn nên dừng lại, không tiếp tục đọc bài này -- z1y
+
+Làm việc với hệ thống Linux với tư cách là người quản trị hay lập trình viên
+thì trước sau gì bạn cũng tiếp xúc với môi trường `chroot(1)`, mà trong bài
+này ta gọi là `đổi gốc`. Ở mức sâu bên dưới hệ thống, lệnh gọi `chroot(1)`
+làm cho ứng dụng và các tiến trình con của nó bị `mờ mắt`, thấy một thư
+mục con `/foobar/` trên hệ thống tập tin thật sự như là thư mục gốc `/`.
+
+* TOC
+{:toc}
+
+## Mục đích của việc đổi gốc
+
+Môi trường `chroot(1)` chủ yếu được dùng vào hai mục đích:
+
+1. *Mục đích an toàn:* Do ứng dụng bị `mờ mắt`, nó chỉ có thể truy cập vào
+  các tập tin bên trong thư mục `/foobar/` nào đó được chỉ định làm thư mục
+  gốc của môi trường `chroot(1)`. Nếu `hacker` kiểm soát được tiến trình này
+  thì hắn ta cũng không thể thoát ra được nhà tù `/foobar/` để tìm kiếm
+  thông tin hoặc phá hoại.
+2. *Chạy hệ thống (`khách`) bên trong hệ thống (`chủ`):*
+  Để kiểm tra, tìm kiếm lỗi, cài đặt, xây dựng, khôi phục,... một hệ thống.
+  Ví dụ khi bạn cần biên dịch các phần mềm để tạo ra một phiên bản Linux.
+  Nhưng thường gặp nhất là khi máy của bạn không khởi động được,
+  bạn phải dùng `livecd` hoặc `usb` để khởi động
+  máy rồi chuyển gốc vào hệ thống bị lỗi:
+    * sau khi khởi động máy bằng `usb`hoặc `livecd`, bạn kết nối phân
+      vùng gốc[^root-partition] của máy bị lỗi lên thư mục bất kỳ `/foobar/`,
+    * rồi dùng lệnh `chroot(1)` để bắt đầu một `shell` đổi gốc; `shell` này
+      `mờ mắt` và mặc dù nó cũng thấy được thư mục, ví dụ `/abc/`, nhưng
+      thực tế đó là `/foobar/abc/` trên hệ thống tập tin thật sự.
+      Sử dụng `shell` mới này bạn có thể làm nhiều việc để chỉnh sử hệ thống
+      bị hỏng; gần như là bạn chạy hệ thống cũ bên trong hệ thống
+      bắt đầu bằng `livecd`.
+
+Trong hệ thống `SysV`, việc đổi gốc có thể thực hiện được dễ dàng,
+như đã nêu ví dụ ở phần 2. Khi người dùng yêu cầu bật một dịch vụ
+thì nó sẽ chia sẻ nhiều thông tin thuộc về môi trường của người dùng;
+các thông tin đó có thể là giới hạn về tài nguyên _(số tập tin tối đa được mở,
+giới hạn bộ nhớ được dùng,...)_, các biến môi trường, ... Đây có thể xem
+là một điểm không hay. Trong bài này vài nơi cũng đề cập đến các vấn đề khi
+dùng cách đổi gốc quen thuộc trong hệ thống `SysV`.
+
+## Đổi gốc trong systemd
+
+Khi dùng `systemd` thì chuyện đổi gốc khác đi, khó khăn hơn.
+Với `systemd`, tiến trình được bắt đầu trong một môi trường sạch sẽ, đơn
+giản nhất và độc lập với môi trường của người yêu cầu bắt đầu tiến trình[^context-systemd]:
+khi người dùng muốn bật một dịch vụ, người dùng sẽ _yêu cầu tiến trình
+`init` (`PID 1`) thực hiện giúp_. Khi có yêu cầu, tiến trình `PID 1` sẽ
+tạo ra mới không liên quan gì tới môi truờng của người dùng, và sau đó
+bắt đầu dịch vụ trong môi trường này.
+
+Nghe có vẻ hay, nhưng cách này khác xa cách tiếp cận truyền thống để bắt
+đầu một dịch vụ bên trong môi trường đổi gốc:
+ở `systemd`, môi trường cho dịch vụ tạo ra bởi `PID 1`, nên mặc
+kệ người dùng yêu cầu dịch vụ có đang ở môi truờng đổi gốc hay không thì
+cũng không ảnh hưởng gì tới dịch vụ mới.
+Một vấn đề khác là `systemd` cho phép giao tiếp giữa các dịch vụ thông qua
+các kênh `socket` nằm trong `/run/systemd`, nên bên trong môi trường đổi
+gốc _(ở đó, thư mục `/run/systemd/` có thể không còn truy cập được)_,
+tiến trình không thể giao tiếp với tiến trình `PID 1`
+_(mặc dù vậy bạn có thể chữa cháy bằng cách dùng kết nối mù hay `bind mount`.)_
+
+Câu hỏi đặt ra là làm thế nào để đổi gốc đúng đắn khi dùng `systemd`.
+Thật may mắn là câu trả lời lại đơn giản như sau đây.
+
+### Mục đích an toàn
+
+Ta xem xét cách đổi gốc với `systemd` để đạt mục đích đầu tiên về an toàn,
+đó là đảm bảo một tiến trình nằm hoàn toàn bên trong môi trường đổi gốc
+không chia sẻ các biến môi trường với môi trường ngoài.
+
+Lưu ý đầu tiên phải nói tới, rằng việc đổi gốc với lệnh gọi hệ thống `chroot(1)`
+tuy hướng tới mục đích an toàn, nhưng đạt sự an toàn không phải là điều dễ dàng.
+Bởi vì có nhiều cách, thậm chí đơn giản, để thoát khỏi môi trường đổi gốc,
+như trong tài liệu chính thức của `chroot(1)` đề cập. Chỉ khi nào bạn triển
+khai việc đổi gốc cùng với một số kỹ thuật khác thì bạn mới có thể _an toàn_
+được. Thường thì kỹ thuật hiệu quả nhất là điều chỉnh ngay từ úng dụng
+_(điều này có nghĩa là mã nguồn ứng dụng phải thay đổi)_; và việc này đòi
+hỏi sự am hiểu sâu sắc về bản thân ứng dụng: ví dụ cần biết ứng dụng cần
+kết nối mù nào để việc giao tiếp với các tiến trình khác hiệu quả, biết
+danh sách _(tối thiểu)_ các tập tin hay thư mục nào sẽ được dùng trong
+môi trường đổi gốc, v.v...
+Chính người lập trình viên biết hoặc nên biết những thứ này.
+
+Hiện nay nhiều ứng dụng đã được điều chỉnh mã nguồn để có thể làm việc trong
+môi trường đổi gốc. Nhưng trong các cài đặt mặc định thì chúng lại không
+chuyển gốc khi chạy. Lấy ví dụ trong `Fedora` _(cài đặt mặc định)_ chỉ có
+hai ứng dụng là `Avahi` và `ReadtimeKit` chạy trong môi trường đổi gốc.
+Trên máy của bạn, có thể gõ lệnh sau để biết; có thể bạn thấy một danh
+sách rất dài ứng dụng có thể truy cập trực tiếp vào thư mục gốc `/` thực tế:
+
+    ls -l /proc/*/root
+    # đừng đặt dấu / vào cuối lệnh trên nhé
+
+Vấn đề đặt ra là `systemd` có hỗ trợ gì cho việc đổi gốc cho các dịch vụ
+_(bất kỳ; không nhất ứng dụng phải được điều chỉnh mã nguồn để có thể
+tự bắt đầu môi trường đổi gốc của nó)_.
+Có cách! Chỉ cần chỉ ra `RootDirectory` khi cấu hình dịch vụ. Ví dụ
+
+    [Unit]
+    Description=A chroot(1)ed Service
+
+    [Service]
+    RootDirectory=/srv/chroot/foobar
+    ExecStartPre=/usr/local/bin/setup-foobar-chroot.sh
+    ExecStart=/usr/bin/foobard
+    RootDirectoryStartOnly=yes
+
+Ở đây, `RootDirectory=` chỉ ra thư mục gốc của dịch vụ, là thư mục mà ứng
+dụng sẽ thấy như là `/` kể từ khi nó bắt đầu _(bởi lệnh cho trong `ExecStart`)_.
+Do ứng dụng mờ mắt khi nhìn thư mục gốc _ngay từ khi bắt đầu_, nên bạn phải
+chú ý rằng đường dẫn `/usr/bin/foobard` ở đây thật sự là tập tin
+`/srv/chroot/foobar/usr/bin/foobard` ở hệ thống ban đầu.
+
+Cấu hình cũng cho thấy kịch bản `setup-foobar-chroot.sh` được thi hành
+**ngay trước**  khi việc đổi gốc và bật ứng dụng diễn ra. Kịch bản phụ
+này đóng vai trò mồi, ví dụ thực hiện kết nối mù, kết nối `/proc/`
+vào `/srv/chroot/foobar/proc` hoặc kết nối `/dev/` vào `/srv/chroot/foobar/dev`
+_(ví dụ sau là để giúp dịch vụ có được thông tin về các thiết bị trên máy),...
+Lưu ý rằng nhờ thiết lập `RootDirectoryStartOnly=yes` mà kịch bản mồi có
+thể truy cập vào vào thư mục gốc thật sự của hệ thống; đó là vì việc đổi
+gốc được chỉ định chỉ xảy ra với lệnh `foobard`. Nếu thiết lập ngược lại,
+kịch bản mồi sẽ bắt đầu bên trong môi trường đổi gốc, và khi đó bạn
+sẽ không thể thực hiện kết nối mù khi cần thiết.
+
+Để sử dụng cấu hình ở trên, bạn lưu nó vào tập tin `/etc/systemd/systemd/foobar.service`
+và sử dụng `systemctl start foobar` để bật dịch vụ: ứng dụng của bạn sẽ
+chắc chắn nằm bên trong môi trường đổi gốc. Nhưng cách bạn điều khiển ứng
+dụng này, như bật, tắt, ... chẳng có gì khác so với những dịch vụ thường.
+Chính đây là ý khác biệt với các dịch vụ đổigốc trong hệ thống `SysV`
+
+**Nếu dùng các nhân Linux mới**, bạn có cách khác nhờ vào hỗ trợ không gian
+tên trong hệ thống tập tin _(`file system namespace`)_. Hỗ trợ này tương
+tự `chroot(1)`, nhưng mạnh mẽ hơn nhiều và không gặp phải vấn đề  an toàn
+như của `chroot(1)`. Bạn sẽ thấy cách này trong ví dụ sau đây, và sẽ thấy
+nó có thể thay thế hoàn toàn cho cho việc đổi gốc thông thường.
+Ý tưởng là `systemd` cho phép bạn liệt kê những đường dẫn mà ứng dụng có thể
+truy cập được hoặc không, bằng các cài đặt `ReadOnlyDirectories`
+và `InaccessibleDirectories`. Lưu ý là `systemd` bắt đầu ứng dụng với
+toàn bộ không gian tên của hệ thống, và bạn sẽ cần thiết lập để hạn chế
+các truy cập:
+
+    [Unit]
+    Description=A Service With No Access to /home
+
+    [Service]
+    ExecStart=/usr/bin/foobard
+    InaccessibleDirectories=/home/
+    ReadOnlyDirectories=/etc/
+
+Thật rõ ràng và dễ hiểu: ứng dụng `foobard` đọc được `/etc/` nhưng không
+thể ghi vào đấy; nó cũng không có bất kỳ quyền đọc, ghi nào vào `/home/`.
+
+Sử dụng không gian tên là cách đơn giản và hiệu quả  hơn nhiều so với cài
+đặt đổi gốc `truyền thống`. Thậm chí, hai ứng dụng `Avahi` và `RealtimeKit`
+đã đề cập ở trên có thể nên được viết lại để có thể dùng hỗ trợ này.
+
+### Chạy hệ thống bên trong hệ thống
+
+Trong cách truyền thống, lệnh gọi `chroot(1)` chỉ `ảo hóa` các đường dẫn tập
+tin. Các tiến trình có thể không truy cập được vào hệ thống tập tin thật,
+nhưng vẫn có thể thực hiện các lệnh gọi hệ thống _(như lệnh gọi để hủy
+tiến trình khác)_ và chia sẻ mọi thứ khác ngoài đường dẫn tập tin với
+hệ thống chủ, ví dụ như bộ nhớ, các `socket`, các lệnh gọi `IPC` để trao
+đổi thông tin giữa các tiến trình với nhau.
+Cách tiếp cận này làm cho việc chạy một phần hay toàn bộ hệ thống khách
+trở nên nguy hiểm. Ví dụ, khi hệ thống khách được nâng cấp, một số gói có
+thể gửi tín hiệu `SIGTERM` tới tiến trình `PID 1` để hoàn tất việc cài đặt;
+vì tiến trình `PID 1` lại nằm trên hệ thống chủ, gói đó có thể làm hỏng
+hệ thống này. Trong một số trường hợp khác, ta chỉ làm những việc giản.
+Tuy nhiên, đề phòng truờng hợp lỗi ngoài dự kiến xảy ra trong hệ thống khách,
+ta cần cơ chế tối thiểu để chia tách sự giao tiếp giữa hai hệ thống chủ -- khách.
+
+Bây giờ ta bàn tới cách `systemd` đổi gốc để chạy hệ thống khách bên trong
+hệ thống hiện tại _(hệ thống chủ)_.
+
+**Khi hệ thống khách dùng `systemd`**, lệnh `systemctl` của nó tự xác định được
+nó có đang ở bên trông môi trường đổi gốc hay không. Nếu có, hầu hết các
+khả năng của nó bị vô hiệu, trừ `systemctl enable` và `systemctl disable`
+dùng để thêm bớt dịch vụ trong máy khách. Lệnh `systemctl restart` để khởi
+động lại dịch vụ sẽ không có tác dụng. Một số lệnh khác được điều chỉnh
+để `giả lập` chức năng, ví dụ khi gọi tới lệnh tắt máy bên trong hệ thống
+khách, lệnh thực sự được gọi sẽ là `exit()` chứ không phải `reboot()`
+như trên các máy thật.
+
+**Đối với hệ thống chủ dùng `systemd`**, có thể dùng `systemd-spawn`
+thay cho `chroot(1)` truyền thống. Khả năng của `systemd-spawn` không dừng
+lại ở việc `ảo hóa` hệ thống đường dẫn tập tin, mà còn `ảo hóa` cả
+hệ thống `PID` của các tiến trình, và nhờ đó có thể khởi động nguyên một
+máy khách _(dùng `systemd` hay `SysV`)_, và máy khách thậm chí vẫn có được
+tiến trình `PID 1` của riêng nó. Cách chia tách của `systemd-spawn` an
+toàn hơn và hoàn thiện hơn so với việc dùng `chroot(1)` quen thuộc.
+Ngoài ra, nó tự động kết nối `/proc/`, `/sys/` bạn không phải làm bằng
+tay việc kết nối này.
+
+Trong ví dụ dưới đây ta sẽ chạy một máy Debian bên trong một máy Fedora
+
+    # yum install debootstrap
+    # debootstrap --arch=amd64 unstable debian-tree/
+    # systemd-nspawn -D debian-tree/
+
+Lệnh cuối cùng sẽ bật một `shell` và bạn sẽ tương tác trực tiếp ngay với
+hệ thống khác. Nếu muốn khởi động nguyên hệ thống Debian giống như bạn
+đang bật một máy thật, bạn cần chỉ định tiến trình `/sbin/init` ra
+
+    # systemd-nspawn -D debian-tree/ /sbin/init
+
+Chờ một chút bạn sẽ thấy dấu nhắc `shell` của hệ thống khách. Đăng nhập
+vào hệ thống này bạn sẽ không thấy bất kỳ tiến trình _bên ngoài_ nào của
+hệ thống chủ. Hệ thống khách chia sẻ cấu hình mạng, nhưng `chỉ đọc` chứ
+không thay đổi cấu hình đó được. Các thư mục `/sys/` và `/proc/sys`
+cũng đặt ở  chế độ `chỉ đọc`. Tuy nhiên, đây chỉ là cách bảo vệ tối thiểu,
+vì máy khách có thể  kết nối lại những thư mục này ở chế độ ghi và thực hiện
+các thay đổi có thể nguy hiểm tới hệ thống chủ.
+
+Sự tiện lợi của `systemd-spawn` được tóm tắt như sau
+
+  1. Dễ dùng. Không cần phải kết nối `/proc`, `/sys` bằng tay. Các thư mục
+     này cũng được gỡ bỏ tự động khi máy khách hết nhiệm vụ.
+  2. Máy khách và chủ được phân tách rạch ròi hơn, giảm bớt khả năng máy
+     chủ bị phá hoại do các sai sót ngoài dự kiến trên máy khác.
+  3. Có thể giúp khởi động nguyên một hệ thống khách chứ không chỉ là vài
+     tiến trình nhỏ lẻ.
+  4. Nhỏ gọn và đi kèm với `systemd`, không cần thêm cài đặt nào khác.
+
+Bạn cần chú ý rằng `systemd-spawn` không `ảo hóa` các cấu hình mạng, nên
+dùng `systemd-spawn` không phải là giải pháp `ảo hóa` toàn diện. Nếu cần
+`ảo hóa` mạng, bạn có thể dùng `LXC`. Cả `LXC` và `systemd-spawn`
+đều có cùng cơ sở kỹ thuật giống nhau, nhưng mục đích ban đầu của
+`systemd-spawn` là để kiểm tra, gỡ rối, cài đặt, khôi phục hệ thống;
+và nếu chỉ dừng lại ở đó thì nó tốt hơn nhiều so với `chroot(1)`.
+
+## Tóm tắt
+
+Bài này khá dài và có nhiều vấn đề  kỹ thuật khó. Các ý chính dưới đây
+bạn cần nắm khi đọc bài này:
+
+  1. Muốn môi trường đổi gốc với `chroot(1)` an toàn thì cách tối ưu
+     là thay đổi mã nguồn ứng dụng của bạn
+  2. Khi bật dịch vụ trong `systemd` các tham số `ReadOnlyDirectories=`,
+     `InaccessibleDirectories=`, `RootDirectory=`
+     có thể thay thế cho việc dùng `chroot(1)`
+  3. `systemd-spawn` đơn giản và dễ dùng hơn `chroot(1)` để chạy
+     hệ thống khách bên trong hệ thống chủ.
+  4. `chroot(1)` chỉ `ảo hóa` hệ thống đường dẫn tập tin, không phải là
+     cách tuyệt đối an toàn khi hệ thống khách vẫn chia sẻ nhiều thứ
+     với hệ thống chủ.
+
+## Ghi chú
+
+[^root-partition]: phân vùng gốc là phân vùng được kết nối vào `/` trên máy.
+
+[^context-systemd]: nếu bạn đang ở Sài Gòn, thực hiện cú gọi cho người bạn ở Đà Nẵng yêu cầu bật giúp một máy tính, thì rõ ràng môi trường của bạn _(Sài Gòn)_ khác với môi trường của người bạn _(Đà Nẵng)_

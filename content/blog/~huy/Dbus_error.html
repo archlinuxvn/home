@@ -1,0 +1,106 @@
+---
+title: Dbus Permission Error
+allow_comment: yes
+tags: ['dbus']
+---
+
+Sau khi nâng cấp [Dbus](https://wiki.archlinux.org/index.php/D-Bus),
+mình gặp một vấn đề là không thể start X bởi lệnh `startx`.
+Log file ghi lại một dòng lệnh "lạ"
+
+<pre>
+Failed to execute program
+  /usr/lib/dbus-1.0/dbus-daemon-launch-helper: Success
+</pre>
+
+Vấn đề được khắc phục với lệnh sau
+
+<pre>
+sudo chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+</pre>
+
+Nhưng, nếu chỉ dừng lại tại đó thì sau mỗi lần nâng cấp `Dbus` lại phải
+làm lại lệnh trên và nguyên nhân vì sao hai bản dbus liên tiếp lại
+lỗi như vậy sẽ không có lí do.
+
+## Tiến hành kiểm tra quyền truy xuất tập tin:
+
+Rồi, mình bắt đầu quá trình kiểm tra các dữ kiện để kết luận:
+
+* Trước tiên, mình sẽ kiểm tra có [SETUID] [] hay không ?
+
+<pre>
++ ls -la /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+-rwsr-x--- 1 root lp
+</pre>
+
+Như bạn thấy kí tự s đại diện cho `setuid`. Điều thú vị là ở đây.
+
+-Khi bạn thay đổi `permission` hay `nhóm` cho file trên setuid sẽ mất,
+file trở về bình thường và bạn nhận một thông báo: **Wrong setuid, permission denied**.
+Tệ hại hơn là trong trường hợp này, bạn dùng lệnh `Chomd o+x` vẫn sẽ không có hiệu quả !
+
+
+
+### Giải thích cho trường hợp trên
+
+-Khi thay đổi `permission` của group, thay đổi đó sẽ ghi đè lên `permission` cũ và mất `setuid`.
+
+<pre>
+ls -la /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+-rwxr-x--- 1 root lp
+</pre>
+
+* Setuid có vai trò gì khi khởi động X ?
+
+`Setuid` chịu trách nhiệm chạy `console-kit` với vai trò của `root`
+và khỏi động `Dbus` với vai trò của Dbus user. và một số chương trình khác
+khi khởi động. Rõ ráng bạn chạy `startx` với vai trò là user,
+làm sao có thể khởi động X với user được ?
+
+<pre>
+-rwxr-x--- 1 root lp
+</pre>
+
+=>> một điểm lạ là group ở đây là lp, group của máy in ! Đây là tập tin
+`dbus`, nó hoặc chỉ thuộc nhóm `root` hoặc nhóm `dbus` =>> Nó phải thuộc nhóm `dbus`.
+Sau khi kiểm tra trên hai máy cả `x86` và `x64`, mình khẳng định là nó thuộc nhóm `dbus`.
+
+
+
+### Tiến hành khắc phục lỗi:
+
+* Thay đổi group:
+<pre>
+sudo chgrp dbus /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+</pre>
+
+* Sau khi thay đổi group cũng mất setuid. Thiết lập lại setuid:
+<pre>
+sudo chmod 4750 /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+</pre>
+
+Khi `ls -la` đường dẫn tuyệt đối tới file sẽ được bao quanh màu đỏ.
+
+#### Kết luận
+
+
+
+* Trong quá trình nâng cấp, xảy ra lỗi nào đó đã thay đổi nhóm của tập tin trên !
+
+* Khi kiểm tra group để khởi động `dbus`, nhóm bị sai nên không startx được.
+Other được thêm vào để tiến hành tìm kiếm một nhóm hoặc user nào đó thực
+thi lệnh này, đó là nhóm `dbus`và user `dbus`!
+=>> điều này hơi mơ hồ, bởi lẽ dễ bị bắt bẻ là đã thực thi với quyền user
+`dbus` tại sao còn thêm nhóm làm gì ? Bởi vì dbus thuộc nhóm hệ thống,
+chịu trách nhiệm quản lí, thực thi thư mục `/var/run/dbus/`.
+
+* Lí do không thể thay đổi từ lp sang dbus là gì ?
+Do Dbus và lp có cùng số id trong file /etc/group nên nó tham chiếu
+theo group id và gán cho lp thay vì dbus !
+
+Mọi việc đã giải quyết xong !
+
+**Have fun with Linux**
+
+[SETUID]: http://uns.vn/forum/index.php?/topic/494-setuid-va-setgid/page__pid__3513#entry3513

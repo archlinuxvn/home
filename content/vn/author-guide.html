@@ -1,9 +1,8 @@
 ---
 title: Viết bài cho ArchLinuxVn
 allow_comment: yes
+tags: ['archlinuxvn', 'blog']
 ---
-
-# Viết bài cho ArchLinuxVn
 
 ArchLinuxVn sử dụng [nanoc] [] để tạo trang
 các trang tĩnh từ mã nguồn được quản lý bằng `git`. Tất cả các tác giả
@@ -14,11 +13,20 @@ Tác giả viết bài cần nắm các bước kỹ thuật, cách sử dụng 
 viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết bài
 được chia thành các nhóm như sau đây.
 
-## Nhóm A: Chỉ thực hiện một lần
+----
+
+**Chú ý**: Nếu bạn dùng `Github`, hãy xem trước [hướng dẫn dành riêng](#github).
+
+----
+
+1. ToC
+{:toc}
+
+## Nhóm A: Yêu cầu bắt buộc
 
 1. Tài khoản để sửa bài. Đây là tài khoản để truy cập vào mã nguồn (git)
    của trang chủ. Mã nguồn để trên máy phục vụ <http://viettug.org>.
-   Bạn cần liên hệ với [Kỳ Anh](/blog/~icy) để có được tài khoản này.
+   Bạn cần liên hệ với [Kỳ Anh](/~icy) để có được tài khoản này.
 
    * Trước khi xin một tài khoản, bạn cần chuẩn bị một cặp `SSH key`; nếu
      chưa có, sử dụng lệnh `ssh-keygen -t dsa`. Nếu có rồi, hãy gửi cho
@@ -28,16 +36,26 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
    * Sau khi nhận được thông tin qua email riêng, bạn cần đảm bảo thông
      tin bạn có **không được chia sẻ cho bất kỳ bên thứ ba nào**.
 
-2. Cài đặt Ruby trên hệ thống của bạn, bằng lệnh `pacman -S ruby`.
-   Sau khi cài đặt Ruby, bạn cần cài đặt các thành phần sau
+2. Cài đặt Ruby 1.9 trên hệ thống của bạn, bằng lệnh `pacman -S ruby`.
+   Sau khi cài đặt Ruby, bạn cần cài đặt các thành phần sau.
 
    * Ruby Gems _(trình quản lý gói cho Ruby; trình này đã có sẵn khi bạn
-     cài Ruby 1.9 trên ArchLinux.)_
+     cài Ruby 1.9 trên ArchLinux)_
 
-   * Cài đặt gems bằng lệnh: `gem install nanoc adsf kramdown`
+   * Thư viện `xslt` để dùng với `nokogiri`. Trên ArchLinux, thư viện này
+     được cài bằng lệnh `pacman -S libxslt`
+
+   * Cài đặt gems bằng lệnh:
+
+         gem install nanoc adsf \
+            kramdown fssm coderay nokogiri
 
 3. Tạo một nhân bản của mã nguồn trang chủ bằng lệnh
-    `git clone git@viettug.org:archlinuxvn`
+
+       git clone git@ssh.viettug.org:archlinuxvn
+
+   Nếu dùng `Github`, bạn xem qua tài liệu của `Github` về `forking`,
+   và [xem vài lưu ý ở đây](#github)
 
 4. Chỉnh sửa tập tin `~/.gitconfig` theo hướng dẫn ở [gitconfig] [].
 
@@ -51,16 +69,19 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
 
 ## Nhóm C: Thực hiện nhiều lần (mỗi khi viết bài)
 
-5. Sau khi soạn bài, bạn có thể sử dụng `nanoc` để tạo ra các trang tĩnh.
+5. Sau khi soạn bài, bạn có thể sử dụng `nanoc` để (biên dịch ) tạo ra các trang tĩnh.
    Bạn dùng lệnh `nanoc view` để tạo một máy phục vụ <http://localhost:3000>
    có thể truy cập được bằng trình duyệt trên máy tính của bạn.
+   _(Nhiều bạn gặp lỗi `File not found` khi vào địa chỉ này. Hãy nhớ là
+   bạn phải biên dịch mã nguồn trang chủ trước khi có thể xem chúng!)_
 
 6. Sau khi kiểm tra và vừa ý, bạn có thể xác nhận thay đổi bằng lệnh
    `git commit` và sau đó gửi thay đổi trên máy phục vụ bằng lệnh
    `git push`.
 
-   * Nếu xảy ra xung đột, bạn dùng lệnh `git pull` trước khi thử `git push`
-   thêm lần nữa. Nếu vẫn có lỗi, hãy liên lạc với bạn khác để được giúp đỡ.
+   * Nếu xảy ra xung đột, bạn dùng lệnh `git pull --rebase` trước khi
+   thử `git push` thêm lần nữa. Nếu vẫn có lỗi, hãy liên lạc với bạn khác
+   để được giúp đỡ.
 
    * **Lưu ý:** Thư mục _output_ là nơi chứa các trang được sinh ra. Do đó,
    không bao giờ thêm thư mục này vào khi bạn dùng `git commit`.
@@ -69,41 +90,134 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
    lệnh `git push` vì lệnh này sẽ có ảnh hưởng trực tiếp tới máy phục vụ
    cùng với trang chủ của nhóm.
 
-## Nhóm E: Các quy tắc cần nhớ
+7. Để tránh gõ `nanoc` hoặc `nanoc compile` sau mỗi lúc soạn bài, bạn có
+   thể dùng `nanoc watch`: tiện ích này sẽ theo dõi và tự động biên dịch
+   mã nguồn sau mỗi khi có sự thay đổi.
+
+## Nhóm D: Quá trình xuất bản. Nhánh core
+
+7. Sau khi bạn thực hiện thành công `git push`, máy phục vụ của `VietTUG`
+   sẽ tự động biên dịch và cập nhật thay đổi ở trang chủ của `ArchLinux Vn`.
+   Bạn có thể đọc mã nguồn của kịch bản `bin/post-receive` để biết thêm chi
+   tiết. Một cách ngắn gọn, kịch bản này làm các việc sau:
+
+   * Cập nhật mã nguồn từ kho
+   * Xóa bỏ các thông tin thừa và có thể gây nguy hiểm
+   * Tải về các thư viện, quy tắc biên dịch từ nhánh `core`
+   * Chạy lệnh `nanoc compile` để biên dịch mã nguồn
+   * Tải kết quả lên trang chủ của nhóm <http://archlinuxvn.tuxfamily.org>
+   * Không quá 3 phút sau, thay đổi sẽ xuất hiện ở trang <http://archlinuxvn.org>
+
+5. Bạn không được thay đổi các tập tin `*.rb` và tập tin `layout/*`. Những
+   tập tin này chỉ được thay đổi bởi người quản lý cấp cao nhất, bởi chúng
+   nằm riêng ở nhánh `core`.
+
+8. Nếu bạn cần thay đổi, bổ sung một số quy tắc biên dịch hoặc thư viện,
+   bạn cần quyền ghi vào nhánh `core` _(các thay đổi của những tập tin như
+   `Rules`, `libs/*` trên nhánh `master` sẽ bị bỏ qua trong quá trình
+   biên dịch)_. Cách đơn giản nhất là liên hệ với người quản lý nhánh
+   `core` để xác nhận các thay đổi của bạn. **Lưu ý** rằng việc này là cần
+   thiết để đảm bảo an toàn cho máy phục vụ.
+
+9. Vì `core` là một nhánh đặc biệt, bạn `KHÔNG ĐƯỢC` trộn nhánh này vào
+   nhánh `master`. Hãy thảo luận với các thành viên khác trước khi mọi
+   việc rối tung cả lên.
+
+7. Vì các thành viên đều có quyền truy cập như nhau đến mọi trang của nhóm,
+   bạn được khuyến cáo hãy **cẩn thận khi chỉnh sửa, thay đổi các bài viết
+   đã có**. Tốt nhất, nếu có điều gì phân vân, hãy hội ý với các bạn khác
+   trước khi quyết định!
+
+8. _(Nếu bạn có tài khoản ở Github)_ Các thay đổi trên nhánh `master` sẽ
+   được gửi lên [mirror] []. Nhờ đó các thay
+   đổi có thể theo dõi được nhờ giao diện web của Github, như [example1] [].
+   Nếu bạn có tài khoản ở Github, bạn có thể yêu cầu quyền ghi vào kho
+   của trang chủ ở github, rồi sau đó từ dòng lệnh thêm vào `remote` mới
+
+       $ cd /path/to/your/archlinux/clone/
+       $ git remote add github git@github.com:archlinuxvn/home.git
+       $ # git fetch github        # có thể bỏ qua bước này
+       $ # git push github master  # tạo mirror trên github
+
+   Lưu ý là hiện tại, phần sau của trang [thay đổi](/changes/) sử dụng
+   các liên kết tới trang Github, nên nếu có liên kết nào trả về lỗi 404
+   bạn chỉ việc gõ lệnh cuối cùng ở trên là ổn.
+
+## Nhóm E: Quy tắc cần nhớ
+
+Nếu không có kỷ luật, mọi thứ sẽ ngày càng rắc rối! Vì thế, bạn cố gắng
+tuân theo các chỉ dẫn để  giúp mọi người có thể theo dõi và phát triển các
+bài viết của bạn.
+
+### Viết cái gì
+
+1. Viết cái gì là tùy bạn. Nghĩa là bạn có thể viết về bất kỳ chủ đề nào
+   bạn thấy có ích cho bản thân hoặc người khác.
+
+2. Để `viết tốt` bạn cần quá trình phấn đấu và tập luyện lâu dài. Nên
+   bắt đầu từ những bài nhỏ rồi sẽ đến các bài lớn và thật sự có ích.
+   Nếu không bắt đầu viết, bạn sẽ chẳng biết viết thế nào. Vì thế không
+   câu trả lời nào dành cho bạn, khi bạn hỏi `viết cái gì`.
+
+### Đặt tên tập tin
 
 1. Đặt tên tập tin chỉ gồm chữ thường, dấu gạch chân và con số. Không dùng
    khoảng trắng, ký tự đặc biệt, tiếng Việt có dấu khi đặt tên tập tin.
-
-2. Để cho phép người dùng gửi bình luận cho bài viết của bạn, sau khi
-   đặt tựa đề, bạn đặt `allow_comment: yes` trong phần `metadata` của
-   bài viết. Một ví dụ có trong mã nguồn của bài `vn/author-guide.html`.
-   Hệ thống bình luận do Disqus cung cấp.
-
-3. Để tạo liên kết tới các bài viết khác, có thể dùng theo định dạng của
-   Kramdown, hoặc dùng dạng wiki mà mô tả có trong thư viện
-    `/lib/filters/wiki_filter.rb`.
-   Bạn có thể đọc hướng dẫn và theo dõi ví dụ có trong mã nguồn này.
+   Đặc biệt, không được đặt tên tập tin có nhiều hơn một chấm (`.`)
+   _(một dấu chấm đã dùng cho phần mở rộng)_, và không được dùng phần
+   mở rộng là `.sh` _(vì `tuxfamily` sẽ sinh ra lỗi `500` khi gặp các tập
+   tin này. Bộ biên dịch sẽ xóa mọi tập tin có đuôi `.sh`.)_
 
 4. Nên chọn tên tập tin ngắn gọn, dễ nhớ. Không nên đổi tên tập tin vì
-   hệ thống bình luận Disqus sẽ không biết để chuyển các bình luận (nếu
-   có) từ bài với tập tin cũ qua bài với tập tin mới.
+   hệ thống bình luận Disqus sẽ không biết để chuyển các bình luận _(nếu
+   có)_ từ bài với tập tin cũ qua bài với tập tin mới.
 
-5. Không được thay đổi các tập tin `*.rb` và tập tin `layout/*`. Những
-   tập tin này chỉ được thay đổi bởi người quản lý cấp cao nhất. Xem
-   thêm nhóm D.
+### Tiếng Anh. Tiếng Việt
 
-6. Trong phần `metadata` của mỗi bài viết, bạn có thể đặt các thông tin
-   tùy ý để tiện tìm kiếm sau này. Ví dụ `tags: [abc, xyz]`, hoặc
-   `created_at: 2012 July 25th`,... để tiện tìm kiếm. Một vài thông tin
-   sẽ được dùng trong tương lai để hỗ trợ `blog` và `tìm kiếm`.
+1. Đối tượng phục vụ chủ yếu của ArchLinuxVn là người sử dụng tiếng Việt.
+   Đã có các tài liệu tiếng Anh khắp nơi rồi, do đó, bạn không nhất thiết
+   phải... phát minh lại các bánh xe.
 
 7. Hạn chế sử dụng tiếng Anh. Nên tìm cách dịch những từ đơn giản, phổ
    biến qua tiếng Việt. Nếu bạn không chắc với cách dịch, có thể ghi
-   kèm từ gốc tiếng Anh. Ví dụ, _cập nhật (`update`)_.
+   kèm từ gốc tiếng Anh. Ví dụ, _cập nhật (`update`)_. Một số từ luôn có
+   thể dịch như: `code`, `copy`, `download`, `browser`,...
 
 8. Đánh dấu các thuật ngữ và các từ ngữ tiếng Anh bằng cặp dấu nháy ngược
-   (giống như để tô màu cho đoạn mã nguồn ngắn.) Việc này làm bài viết
+   _(giống như để tô màu cho đoạn mã nguồn ngắn.)_ Việc này làm bài viết
    dễ đọc hơn, tập trung hơn.
+
+### Dùng git cho tốt {#git}
+
+1. `Pull` trước khi `push`. Điều này có nghĩa là, nếu bạn không có xác nhận
+   vào kho `git` của trang chủ trong một thời gian tương đối dài _(một ngày chẳng hạn)_,
+   bạn nên chạy `git pull --rebase` để lấy về các thay đổi mới nhất từ kho trước khi
+   bạn bắt đầu soạn hay chỉnh bài. Lý do cho việc này rất đơn giản: Vì kho
+   do nhiều người tham gia chỉnh sửa, nên có khi điều bạn muốn thay đổi
+   đã có người khác làm rồi, và bạn không cần gây thêm rắc rối :big_smile:
+
+2. Nếu bạn có địa chỉ hai kho khác nhau, ví dụ khi bạn có tài khoản Github
+   thì thường bạn sẽ cần ít nhất hai kho: [một kho chính] [mirror] và
+   kho là nhân bản do bạn tạo ra, ví dụ <https://github.com/***/home>
+   _(ở đây các dấu sao đại diện cho `nickname` của bạn ở `Github`)_. Trường
+   hợp này bạn cần `rebase` theo kiểu riêng, ví
+
+       $ git remote add main \
+            git@github.com:archlinuxvn/home.git
+       $ git co master
+       $ git rebase main/master master
+
+   Bạn cần xem `git rebase --help` để biết thêm chi tiết. Nếu bạn đã đọc
+   tới đây mà chưa hiểu được ý tưởng của `rebase` thì hãy đọc thêm các
+   tài liệu về `Git` hoặc tham khảo hướng dẫn của những người khác.
+
+   Nhớ rằng, `pull` và `rebase` cần thường xuyên thực hiện để đảm bảo
+   rằng bạn không lệch pha so với người khác.
+
+5. Nếu bạn có ghi vào kho [github] [], bạn hãy thực hiện gửi xác nhận
+   tới kho này, để các liên kết trong phần [liệt kê các thay đổi](/changes/)
+   được cập nhật đúng. Bạn cần biết dùng `remote` với `git`. _(Hãy hỏi
+  các bạn khác nếu bạn chưa biết nhé.)_
 
 9. Khi xác nhận thay đổi với `git commit`, bạn cần có chú thích tương đối
    ngắn gọn, nhưng *không nên quá ngắn gọn* (trừ trường hợp các thay đổi
@@ -116,32 +230,131 @@ viết bài bằng cú pháp `markdown`. Thông tin bổ ích cho việc viết 
    * Nếu phải chú thích trên nhiều dòng, thì dòng đầu tiên là tóm tắt,
      sau đó là một dòng trắng, và sau đó là các chú thích khác. Ví dụ
 
-<pre>
-git commit -m'This is a subject or short message
+         git commit -m'Short message
 
-This is a long description. The above line is a blank link.'
-</pre>
+         Long message goes here
 
-   Lưu ý rằng đây là những quy ước phổ biến khi làm việc với `git`.
+         * description 1
+         * description 2'
 
-## Nhóm D: Thông tin khác. Mẹo
+     Lưu ý rằng đây là những quy ước phổ biến khi làm việc với `git`.
 
-7. Sau khi bạn thực hiện thành công `git push`, máy phục vụ của VietTUG
-   sẽ tự động biên dịch và cập nhật thay đổi ở trang chủ của ArchLinuxVn.
-   Vì các thành viên đều có quyền truy cập như nhau đến mọi trang của nhóm,
-   bạn được khuyến cáo hãy **cẩn thận khi chỉnh sửa, thay đổi các bài viết
-   đã có**. Tốt nhất, nếu có điều gì phân vân, hãy hội ý với các bạn khác
-   trước khi quyết định!
+10. Hãy xác nhận từng tập tin, từng thay đổi thay vì xác nhận nhóm các thay đổi.
+    Ví dụ, nếu bạn thực hiện thay đổi cho ba bài viết `A`, `B`, `C`, thì
+    đừng nên dùng lệnh `git commit -a ...` mà nên xác nhận cho từng bài viết
+    `git A -m'...'`, `git B -m'...'`. Điều này đặc biệt có ích khi các bài
+    viết `A`, `B`, `C` ít liên quan với nhau. Lợi ích của việc xác nhận
+    từng phần là việc trộn (`merging`) và tách (`git cherry-pick`) sẽ
+    đơn giản và ít lỗi hơn rất nhiều.
 
-8. Nếu bạn cần thay đổi, bổ sung một số quy tắc biên dịch hoặc thư viện,
-   bạn cần quyền ghi vào nhánh `core` _(các thay đổi của những tập tin như
-   `Rules`, `libs/*` trên nhánh `master` sẽ bị bỏ qua trong quá trình
-   biên dịch)_. Cách đơn giản nhất là liên hệ với người quản lý nhánh
-   `core` để xác nhận các thay đổi của bạn. **Lưu ý** rằng việc này là cần
-   thiết để đảm bảo an toàn cho máy phục vụ.
+### Thông tin `meta` của bài viết
+
+2. Trong phần `metadata` của mỗi bài viết, bạn có thể đặt các thông tin
+   tùy ý để tiện tìm kiếm sau này. Ví dụ `tags: [abc, xyz]`, hoặc
+   `created_at: 2012 July 25th`,... để tiện tìm kiếm. Một vài thông tin
+   sẽ được dùng trong tương lai để hỗ trợ `blog` và `tìm kiếm`.
+
+1. Để cho phép người dùng gửi bình luận cho bài viết của bạn, sau khi
+   đặt tựa đề, bạn đặt `allow_comment: yes` trong phần `metadata` của
+   bài viết. Một ví dụ có trong mã nguồn của bài `vn/author-guide.html`.
+   Hệ thống bình luận do Disqus cung cấp.
+
+1. Để tạo liên kết tới các bài viết khác, có thể dùng theo định dạng của
+   Kramdown, hoặc dùng dạng wiki mà mô tả có trong thư viện
+    `/lib/filters/wiki_filter.rb`.
+   Bạn có thể đọc hướng dẫn và theo dõi ví dụ có trong mã nguồn này.
+
+4. Cuối mỗi bài viết thường có thông tin về tác giả, ngày cập nhật cuối
+   cùng. Để bỏ qua thông tin này, chỉ việc đặt `virtual: true` trong phần
+   `metadata` của bài viết. _(Thực tế thì thiết lập này để dùng để phân
+   biệt những trang tĩnh có nội dung đặt trên tập tin cụ thể, với các
+   trang động được sinh ra nhờ các lọc đặc biệt, ví dụ, nhưng các trang
+   `/tags/*`.)_
+
+3. Để đánh dấu thẻ (`tag`) cho bài viết, trong phần `metadata` bạn có thể
+   chỉ ra danh sách các thẻ như ví dụ sau đây. Mỗi thẻ chỉ gồm các chữ cái
+   (hoa thường như nhau) và con số (các cách đặt thẻ sai quy ước này sẽ
+   bị bỏ qua). _(Nếu bạn biết `Ruby`, hãy lưu ý rằng không thể thay thế
+   việc dùng `[]` bởi `%w{}`. Ngoài ra, cách kiểm tra thẻ của `nanoc`
+   thông qua `Nanoc::Helpers::Tagging` rất yếu.)_
+
+       ---
+       title: Tựa đề bài viết
+       tags: ['git', 'programming']
+       ---
+
+4. Các bài viết mặc định được công bố với giấy phép `CC BY-NC-ND`. Để chỉ
+   ra giấy phép cụ thể, bạn dùng `license: foobar`. Một số giấy phép mà
+   thư viện `core` nhận biết thì sẽ có hiện ra thông tin tương đối hoàn
+   chỉnh, còn không thì chỉ hiện tên giấy phép mà bạn chỉ ra.
+
+### Trình bày mã nguồn
+
+7. Nên hạn chế dùng các thẻ `HTML` trong bài viết. Ví dụ, `<pre>`, `<b>`,
+   các thẻ tô màu sắc, bởi chúng làm cho mã nguồn bài viết rất khó đọc
+
+8. Dùng khoảng trắng thay cho `tab`. Bạn có thể dùng `tab` khi soạn thảo
+   nhưng nhớ thay thế (`expand`) mỗi `tab` bằng 4 khoảng trắng. Đây là
+   quy ước chung. Nếu cần trao đổi thêm bạn hãy liên hệ với các bạn khác
+   qua nhóm thư hoặc kênh IRC.
+
+9. Tuy mỗi `tab` được thay bởi 4 khoảng trắng nhưng
+   khi canh dòng trong mã nguồn hãy dùng 2 khoảng trắng.
+
+9. Để trình bày mã nguồn, để đoạn mã nguồn ngắn trong cặp dấu nháy ngược (\`),
+   Đối với các đoạn mã dài, hãy đặt chúng trong `<pre> ... </pre>`,
+   hoặc dùng cách thụt đầu dòng 4 khoảng trắng cho mỗi dòng của đoạn mã
+   _(4 khoảng trắng so với `indent` hiện tại, không phải so với cột đầu tiên;
+   ví dụ, nếu đoạn văn hiện tại đang thụt đầu dòng 2 khoảng trắng, thì
+   bạn sẽ cần 6 khoảng trắng so với cột đầu tiên để trình bày mã)_;
+   cách sau cùng là tốt nhất, ít gây lỗi nhất.
+
+### Xóa bài viết
+
+1. Xóa bài viết là điều nên hạn chế. Ngay sau khi bạn công bố bài viết,
+   có thể rất nhiều người đã có liên kết và sử dụng chúng có ích _(hoặc không)_.
+   Nếu bài viết bị xóa, liên kết không còn, sẽ khá bất lịch sự khi người
+  dùng không hiểu tại sao.
+
+3. Việc đổi tên tập tin cũng có *hậu quả* tương tự. Nên hạn chế.
+
+2. Nếu bài viết có nội dung không tốt, không còn thích hợp, có sai sót,...
+   bạn nên thêm các cảnh báo vào phần đầu của bài viết: bằng cách thừa
+   nhận và thông tin, bạn sẽ thấy mọi việc đơn giản hơn là xóa bài viết.
+
+## Nhóm F: Dành cho người dùng Github {#github}
+
+Người dùng `github` có thể không tuân theo một số quy định ở trên. Ví dụ,
+cách cấu hình tài khoản `git` sẽ khác đi tí chút. Nhưng hầu hết các nội
+dung trong bài đều cần bạn xem qua.
+
+Ngoài ra, cần phải nhân bản (`fork`) từ [mirror ở Github] [mirror].
+Sau khi điều chỉnh trên nhân bản này, bạn cần tạo yêu cầu ghi ngược vào
+kho chính (`pull request`). Hãy xêm thêm phần [hướng dẫn dùng Git](#git)
+để biết thêm chi tiết.
+
+## Những ví dụ
+
+Học bằng ví dụ. Có rất nhiều quy tắc, mẹo vặt. Nhưng cách đơn giản
+là đọc qua **mã nguồn** của những bài viết khác để xem các bạn khác đã
+làm gì và bạn có thể bắt chước theo hay không. Bạn có thể tìm thấy
+mã nguồn của các bài viết tại [github] [].
+
+* Dùng mặt cười:
+   xem các bài của `n0b0dy`. Ví dụ [bài viết về cài đặt ArchLinux] [n0b0dy_arch_install].
+   Danh sách các mặt cười có ở [smilies] [].
+* Trình bày mã nguồn trong bài viết:
+   [Vim-Python3] []
+* Mục lục, danh sách, thẻ, đề mục,..: Chính bài viết này
 
 [kramdown]: http://kramdown.rubyforge.org/quickref.html
 [nanoc]: http://nanoc.stoneship.org/docs/
 [git]: http://git-scm.com/
 [gitref]: http://gitref.dragula.org
 [gitconfig]: /doc/git/gitconfig
+[github]: https://github.com/archlinuxvn/home
+[n0b0dy_arch_install]: /blog/~n0b0dy/install_archlinux_newbie/
+[Vim-Python3]: /blog/~redlotus/vim_and_python3/
+[smilies]: /i/sm/
+[mirror]: https://github.com/archlinuxvn/home/
+[example1]: https://github.com/archlinuxvn/home/commit/025daa7/

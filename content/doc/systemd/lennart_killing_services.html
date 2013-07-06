@@ -1,0 +1,52 @@
+---
+title: "systemd: gửi tín hiệu tới tiến trình"
+author: Lennart Poettering
+origin: http://0pointer.de/blog/projects/systemd-for-admins-4.html
+date: 2010-nov-19
+tags: ['systemd', 'sysadmin', 'boottime', 'kill']
+translators: redlotus
+license: CC BY-SA
+allow_comments: yes
+---
+
+> Bài này và bài về [các kiểu ngưng dịch vụ](/doc/systemd/lennart_off_levels) đều
+> đề cập đến cách ngưng các dịch vụ bật lên bởi `systemd`.
+> Sự khác nhau giữa hai bài là ở chỗ: bài này thực tế bàn về cách gửi các
+> tín hiệu điều khiển tới các tiến trình, trong khi bài kia bàn chỉ quan tâm
+> tới mục đích cuối cùng là `ngưng` dịch vụ. Lưu ý là có nhiều kiểu tín hiệu
+> khác nhau, ví dụ `SIGHUP`, `SIGTERM`,... và có thể nói trong nhiều trường
+> hợp việc ngưng một dịch vụ tương đương với việc gửi tín hiệu `SIGTERM`;
+> tuy nhiên, trường hợp tổng quá việc ngưng dịch vụ còn đi kèm các việc
+> dọn dẹp, sao lưu, .... và khi đó việc gửi tín hiệu `SIGTERM` là chưa đủ.
+> -- z1y
+
+> Trong bài này, việc `hủy` dịch vụ được hiểu là `gửi tín hiệu tới tiến trình`.
+> Đây chỉ là cách dịch sát của từ `kill`. -- z1y
+
+Việc hủy một dịch vụ ngầm (`daemon`) hệ thống có dễ không?
+
+Dịch vụ chạy ngầm tồn tại chỉ như một tiến trình đơn nên việc hủy dịch vụ có thể nói là dễ dàng. Bạn chỉ cần gõ `killall rsyslogd` thì `syslog` sẽ bị hủy. Tuy nhiên việc đó là không nên khi mà nó sẽ hủy tất cả các tiến trình được gọi theo cách đó, gồm cả việc nhầm lẫn không mong muốn của người dùng. Chính xác hơn một chút, ta có thể đọc tệp tin `.pid`, như `kill $(cat /var/run/syslog.pid)`. Chúng ta đã làm việc đúng đắn hơn, nhưng đó có phải cái chúng ta cần thật sự?
+
+Không may như thế là không đủ. Các dịch vụ như `apache`, `crond`, hay `atd` thường xuyên kéo theo các dịch vụ con. Kể cả là tiến trình con đã được cấu hình của người dùng, như là `cron`, kịch bản `CGI`, hay là cả các máy phục vụ ứng dụng (`application servers`). Dù cho bạn hủy tiến trình chính `apache`, `crond`, `atd` thì vẫn không chắc chắn rằng các tiến trình con của nó bị hủy theo, và nó quyết định xem chúng có thể tiếp tục hay không. Theo cách dễ hiểu là việc hủy `Apache` có thể làm cho các kịch bản (script) `CGI` vẫn tồn tại và trở thành tiến trình con của `init`. Khi đó, ta khó có thể mà theo dõi được.
+
+`systemd` giúp ta việc đó dễ dàng: `systemctl kill` gửi tín hiệu (`signal`) đến tất cả các tiến trình của dịch vụ. Ví dụ:
+
+    # systemctl kill crond.service
+
+Câu lệnh này thực thi sẽ gửi `SIGTERM` (tín hiệu dừng) đến tất cả tiến trình của dịch vụ `crond`, không chỉ riêng tiến trình chính. Tất nhiên, bạn cũng có thể gửi những tín hiệu khác nếu bạn muốn. Ví dụ như là điên một tí bạn muốn gửi `SIGKILL` (tín hiệu hủy) đến `crond`:
+
+    # systemctl kill -s SIGKILL crond.service
+
+Và thế là tiến trình đã bị hủy một cách tàn nhẫn, mặc cho nó đã được rẽ nhánh (`fork`) bao nhiêu lần, hay nó đã cố thoát khỏi sự kiểm soát bằng việc rẽ nhánh nhân đôi (`double forking`) hay bom rẽ nhánh (`forking bombing`).
+
+Đôi khi tất cả những gì bạn muốn là gửi một tín hiệu cụ thể đến tiến trình chính của dịch vụ, có thể do bạn muốn nạp lại tiến trình thông qua `SIGHUP`. Thay vì phải thông qua tệp tin `PID`, có cách dễ dàng hơn để làm việc đó:
+
+    # systemctl kill -s HUP --kill-who=main crond.service
+
+Vậy có gì mới và khác trong việc hủy một dịch vụ với `systemd`? Đó là ngay lần đầu tiếp xúc với Linux ta cũng có thể làm được một cách dễ dàng. Những phương án trước thường xuyên phải dựa trên dịch vụ ngầm để kết nối và hủy tất cả các dịch vụ con phụ thuộc. Tuy nhiên, thường thì khi bạn sử dụng `SIGTERM` hay `SIGKILL`, bạn phải làm việc đó vì chúng thật sự không kết nối với nhau.
+
+`systemctl stop` và `systemctl kill` có liên quan với nhau không? `kill` gửi trực tiếp tín hiệu đến mỗi tiến trình trong nhóm, trong khi đó `stop` đi theo cách chính thống hơn để có thể hủy một dịch vụ, như là gọi lệnh dừng với `ExecStop=` trong tệp tin dịch vụ. Bình thường thì sử dụng `stop` là đủ. `kill` là phiên bản mạnh hơn, trong trường hợp bạn không muốn hủy một dịch vụ theo cách chính thống hay dịch vụ bị rối trong một số trường hợp.
+
+Ghi chú: tên của tín hiệu có thể bắt đầu hoặc không bắt đầu bằng tiền tố `SIG` ở tùy chọn `-s`.
+
+Một chút ngạc nhiên khi giờ đây `systemd` đã cho phép ta có thể hủy tiến trình một cách phù hợp, điều mà trước đây chúng ta không thể làm được.

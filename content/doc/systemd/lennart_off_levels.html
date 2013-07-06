@@ -1,0 +1,107 @@
+---
+title: "systemd: ba kiểu tắt dịch vụ"
+author: Lennart Poettering
+origin: http://0pointer.de/blog/projects/three-levels-of-off
+date: 2011-mar-02
+tags: ['systemd', 'sysadmin', 'boottime', 'kill']
+translators: z1y
+license: CC BY-SA
+allow_comments: yes
+---
+
+> Trong bài này, `bằng tay` hay `thủ công` được dùng như nhau. Trong
+> hệ thống `Linux`, nhiều dịch vụ tự động bật lên khi máy khởi động.
+> Nếu bạn phải đăng nhập vào `shell`, gõ lệnh nào đó để bật dịch vụ,
+> thì cách này gọi là `thủ công` hay `bằng tay`.
+
+Có ba kiểu để tắt các dịch vụ _(hay `unit`)_ trong `systemd`.
+
+* TOC
+{:toc}
+
+## Tạm ngưng (stop)
+
+Khi dịch vụ đang chạy bạn có thể tạm ngừng nó bằng `systemctl stop`.
+`Tạm ngưng` có nghĩa là sau đó dịch vụ có thể  tiếp tục chạy lại do bạn
+bật lên bằng `systemctl start`, hoặc do các sự kiện trên hệ thống
+_(ví dụ khi có các thiết bị gắn thêm vào máy)_, hoặc chỉ đơn giản là do
+máy khởi động lại. Ví dụ
+
+    $ systemctl stop ntpd.service
+
+Việc dùng tên dài `ntpd.service` là theo quy ước của `systemd` để phân
+biệt các loại dịch vụ, `unit`. Bạn có thể dùng dạng ngắn như trong `SysV`:
+
+    $ service ntpd stop
+
+hoặc trên ArchLinux _(cũ)_ thì đó là `/etc/rc.d/ntpd stop`.
+
+## Ngưng chạy tự động (disable)
+
+Khi bạn tạm ngưng dịch vụ với `systemctl stop`, dịch vụ đó vẫn có thể tiếp
+tục chạy khi máy khởi động lại, hoặc do các sự kiện trên hệ thống kích hoạt.
+Để ngăn điều này xảy ra, tức là để dịch vụ không chạy tự động ngay cả khi
+hệ thống khởi động lại, bạn dùng `systemctl disable`.
+
+    $ systemctl disable ntpd.service
+
+Đúng như tên gọi, lệnh trên chỉ `ngưng chạy tự động`, chứ không có tác dụng
+ngưng dịch vụ đang chạy. Nghĩa là khi thi hành lệnh trên, nếu dịch vụ `ntpd`
+đang chạy thì nó vẫn tiếp tục chạy. _(Nếu bạn từng biết lệnh `chkconfig`
+trên nhiều hệ thống thì `systemctl disable` có tác dụng như là_
+
+    $ chkconfig ntpd off
+
+_.)_ Vì vậy, muốn một dịch vụ ngưng, và sẽ chỉ có thể bật lên bằng tay thì
+bạn kết hợp hai chức năng `stop` và `disable`:
+
+    $ systemctl disable ntpd.service
+    $ systemctl stop    ntpd.service
+
+Có thể bạn chưa biết rằng tổ hợp trên dùng để gỡ bỏ các gói ra khỏi hệ thống:
+khi một gói được gỡ, trước hết nó cần được `ngưng`, rồi sau đó `vô hiệu`
+để khi hệ thống khởi động lại các dịch vụ liên quan sẽ không tự động bật.
+
+Một chú ý nhỏ là trừ khi gói `ntpd` bị gỡ khỏi hệ thống, thì sau khi dùng
+`disable` như trên, bạn luôn có thể bật lại dịch vụ `ntpd` bằng `systemctl start`.
+Xem thêm mục tiếp theo.
+
+## Ngưng hoàn toàn (mask)
+
+Với hai cách `stop` và `disable` như trên thì bạn luôn có thể bật một
+dịch vụ đã ngưng với `systemctl start` _(tất nhiên, trừ khi gói cung cấp
+dịch vụ đó đã bị gỡ khỏi hệ thống)_. Điều này có thể có ích, nhưng trong
+một số trường hợp, có thể gây rối loạn hệ thống hoặc gây nhầm lẫn _(ví dụ,
+trong hệ thống nhiều người quản lý, nếu `A` tắt dịch vụ `ntpd` để bảo trì,
+nâng cấp mà `B` không biết, bật lên thì sẽ gây rắc rối)_. Vấn đề đặt ra là
+làm thế nào để ngưng hoàn toàn một dịch vụ, không thể bật dịch vụ đó lên
+một cách thủ công. Ngoài cách gỡ các gói cung cấp dịch vụ, có thể làm như sau
+
+    $ ln -s /dev/null /etc/systemd/system/ntpd.service
+    $ systemctl daemon-reload
+
+Để ý rằng nếu chưa thay đổi gì sau khi cài gói `ntpd` thì chưa có tập tin
+
+    /etc/systemd/system/ntpd.service                # (1)
+
+và `systemd` sẽ đọc các thông tin khởi động dịch vụ từ
+
+    /usr/lib/systemd/system/ntpd.service            # (2)
+
+Bằng cách chỉ ra `/dev/null` bằng liên kết tượng trưng như ở trên, `systemd`
+sẽ bỏ qua thông tin trong `(2)` mà chỉ sử dụng `(1)`, và vì `/dev/null`
+chả có thông tin gì bổ ích, `systemd` hoàn toàn bỏ qua dịch vụ `ntpd`,
+bạn không thể bật dịch vụ này bằng `systemctl start ntpd`. Tất nhiên,
+anh chàng táy máy nào đó có thể chạy trực tiếp lệnh `ntpd` để bật dịch vụ;
+nhưng đó là câu chuyện khác.
+
+Để so sánh xin nhắc lại ở đây cách trong `SysV`: không có cách chính quy
+nào, mà cách `hack` đơn giản nhất là chỉnh lại kịch bản khởi động dịch vụ
+_(đó là các kịch bản `Bourne shell`)_. Cách này thường gây nhầm lẫn cho
+cho trình quản lý gói sau này.
+
+## Phần cuối
+
+Trong ba phần trên bạn biết cách ngưng dịch vụ theo các mục đích khác nhau.
+Để làm ngược lại, bạn có thể dùng `systemctl start`, `systemctl disable`,
+và ở truờng hợp cuối thì gỡ bỏ đi liên kết `(1)`.

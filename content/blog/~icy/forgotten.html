@@ -1,0 +1,183 @@
+---
+title: Viết để quên
+tags: ['e17', 'connman', 'wm', 'pacman']
+---
+
+Viết để quên, mấy cái mẹo lặt vặt vài hôm sẽ không còn dùng.
+
+* TOC
+{:toc}
+
+
+## Reduce video file size with Avidemux {#avidemux}
+
+Step by step :) The [original post is here][avidemux.tips]
+
+* Load the first file in Avidemux
+* Append the rest, file by file
+* Set videostream to MPEG-4 AVC
+* Config its settings, the only important option you need to alter is
+  encoding method. Set it to CRF (constant rate factor - for a constant
+  video quality) and play with its value. I use 26 for stuff I want to
+  play on my tv. If I upload something to YouTube I use 20. That creates
+  a much larger file with of course much better quality and I only do
+  that because YT re-compresses any uploaded video which means the quality
+  of video and audio will suffer a second time (or even a third time if
+  you don't record your Frapsvideos lossless).
+  I think BluRay quality would be around 18.
+* Set audiostream to AAC (Faac).
+* Config its settings. 128 kb/s is enough. I think it's even its standard
+  setting, so you can actually skip this step and not bother with the configuration.
+* Set container to MP4, save and you're done.
+
+Để cho nhỏ gọn thì dùng con số kiểm soát chất lượng cao tí, ví dụ 30.
+
+## ABS checkout
+
+Thay vì dùng lệnh `abs` để lấy thông tin về các `PKGBUILD`, có thể dùng
+`svn` để lấy về phiên bản mới nhất. Cách này hay hơn vì ta có thể theo
+dõi và sử dụng các phiên bản khác nhau cho gói. Lưu ý cách dùng tham số
+`--depth` rất hay bên dưới đây: Điều này là cần thiết vì một lệnh
+`checkout` trực tiếp sẽ khiến máy chủ của `ArchLinux` chặn bạn ngay!
+
+    # core extra testing
+    svn checkout --depth=empty svn://svn.archlinux.org/packages
+    # community
+    svn checkout --depth=empty svn://svn.archlinux.org/community
+
+Sau đó để lấy thông tin từ gói nào về thì chỉ việc dùng `svn update <pkgname>`.
+
+## Tốc độ ổ đĩa RAID0
+
+Tốc độ ghi vào ổ đĩa RAID0 được tính thế nào? Còn tùy!
+
+Có ba ổ đĩa như sau đây
+
+* Đĩa `120GB`, tốc độ ghi `32 MB/s`. Đây là đĩa cứng `IDE`
+* Đĩa `320GB`, tốc độ ghi `74 MB/s`. Đây là đĩa cứng `SATA`
+* Đĩa `250GB`, tốc độ ghi `97 MB/s`. Đây là đĩa cứng `SATA`
+
+Các tổ hợp `RAID0` khác nhau của những ổ đĩa này cho tốc độ ghi khác nhau
+
+* `120 + 250`: tốc độ ghi `64 MB/s` _(xấp xỉ trung bình cộng)_
+* `250 + 320`: tốc độ ghi `152 MB/s` _(cao hơn hai đĩa thành phần)_
+
+Tốc độ ghi thấp của ổ `120` đã làm chậm tốc độ của cả dãy `RAID0`. Không rõ
+tốc độ đọc thế nào.
+
+Thông tin ở trên được lấy trong quá trình xây dựng máy biên dịch `phant1m`
+cho `TheSLinux`.
+
+## Cài đặt SML/NJ
+
+Cần cài đặt phiên bản `110.75` nhưng hiện tại chỉ có `110.72`. Làm sao đây?
+Nếu tải về tập tin `PKGBUILD` thì phải mất công ngồi gõ lại `checksum` rất
+vất vả. Rất may là `makepkg` cho phép bỏ qua kiểm tra `checksum`. Liều tí vậy
+
+    $ wget https://aur.archlinux.org/packages/sm/smlnj/smlnj.tar.gz
+    $ tar xfvz smlnj.tar.gz && cd smlnj
+    $ sed -i -e "s#110.72#110.75#g" PKGBUILD
+    $ makepkg --skipchecksums
+
+Bỏ qua việc kiểm tra `checksum` là khá nguy hiểm. Nhưng trong trường hợp
+này là chấp nhận được, vì ngay cả mã nguồn ở trang chủ `SML/NJ` cũng để
+phơi nắng phơi sương ra vậy.
+
+## Cài Virtualbox
+
+Nếu không dùng nhân mặc định `linux` hoặc `linux-lts`, thì khi cài `virtualbox`
+chương trình cài đặt vẫn máy móc tải về nhân mặc định `linux`. Lui cui đi
+biên dịch `virtualbox` từ mã nguồn mãi không được _(thật ra là được, nhưng dẫu
+có sửa tập tin `PKGBUILD` thì lúc cài `pacman` vẫn đòi hỏi nhân tươi `linux`)_
+
+Cuối cùng cũng mò ra
+
+    $ pacman -S virtualbox-host-dkms
+    $ dmks install  vboxhost/4.2.6
+    $ pacman -S virtualbox
+
+Như vậy là chỉ việc cài và tạo ra các mô-đun cho `virtualbox` trước. Trình cài
+sẽ đủ thông minh để bỏ qua việc cài đặt nhân tươi từ gói `linux`.
+
+## Console-Kit
+
+Chả hiểu anh chàng này là gì. Ngó qua tài liệu thì thấy dùng để xử lý các
+vấn đề liên quan tới `user`, ví dụ, giúp `user` kết nối ổ đĩa với quyền
+`root` _(giống như chức năng của `pmount`)_. Đại khái thế.
+
+Bực cái là trên nhiều máy ảo `Ubuntu` trên `Amazon AWS` có sẵn chàng này.
+Cứ mỗi khi đăng ký máy ảo mới lại phải đi lọ dọ tắt đi, hơi mất công.
+Mà trên máy của mình cũng có chàng này mới chết. Nếu dùng `htop` để xem
+thì thấy nó phun ra cả đống _(`thread`)_.
+
+Mấy bạn trên kênh `irc` bảo nó dùng bởi các chương trình quản lý đăng nhập
+đồ họa _(`kdm`, `gdm`,...)_ Mình dùng [startx] [] thì thôi xóa đi vậy
+
+    pacman -Rs consolekit
+
+Trên các máy ảo `Amazon` cũng nên làm như thế. Không dùng thì xóa đi,
+để làm gì ngứa mắt :D
+
+**Cập nhật**: Nhiều bạn dùng `kde`, `gnome` thì không gỡ được gói
+`consolekit` đâu nhé. Mình dùng [e17] [] đó, đừng nghe theo mà mệt :D
+
+## E17 và Connman
+
+Đang bàn tới `e-svn` phiên bản `75246` _(ngày 7/9/2012)_.
+Những ý tưởng trong phần này không còn hiệu lực kể từ ngày 17/9/2012,
+bởi phiên bản mới nhất của `e-svn` đã được nạp vào kho chính thức
+của ArchLinux và bạn sẽ không có trục trặc gì khi dùng với `connman`
+phiên bản `1.x`.
+
+### Bài toán
+
+`connman` tích hợp rất tốt trong `e17`. Điều đáng buồn là bản mới nhất
+của `connman` thay đổi hoàn toàn cấu trúc gói tin `dbus` nên mô-đun cũ
+của `e17` không nhận ra các thông tin từ tiến trình `connman`. Đây chỉ
+là vấn đề của e17, vì mạng vẫn vào được với những thông tin đã có từ
+phiên bản cũ của `connman`. Tuy nhiên, để biên dịch lại và `vá` e17 là
+công việc chẳng đơn giản tí nào cả.
+
+Cách đơn giản là ... sử dụng lại phiên bản `connman-0.76`. Phiên bản này
+hỗ trợ `profile` _(sau này bị bỏ đi)_, là phiên bản cuối cùng được khẳng
+định làm việc tốt với `e-svn` phiên bản `75246`. Chú ý là hỗ trợ cho
+`openvn` sẽ không làm việc do `connman-0.76` sử dụng `API` cũ thư viện.
+
+### Biên dịch và cài Connman 0.76
+
+Bạn tải về  tất cả các tập tin từ địa chỉ [connman 0.76] [] về chung một thư
+mục trên máy, ví dụ `my-stupid-connman` rồi gõ lệnh `makepkg` là xong
+
+    mkdir my-stupid-connman && cd my-stupid-connman
+    _ROOT_URL=http://archlinuxvn.org/s/icy/connman/076/
+    _FILES="allow_group_network.diff iptables.diff PKGBUILD.076"
+    for _file in $_FILES; do wget $_ROOT_URL/$_file; done
+    makepkg -p PKGBUILD.076
+    sudo pacman -U connman-0.76-3-*.pkg.tar.xz
+
+Mất gần 4 tiếng đồng hồ để lựa chọn và biên dịch cho được gói này nên nếu
+bạn dùng theo mẹo trên thì nhớ gửi tác giả ít đồng uống cà phê ($2). Muốn
+thêm chi tiết thì hãy xem trong mã nguồn của tập tin `PKGBUILD.076`.
+
+### Thông tin khác
+
+Báo cáo lỗi ở trang phát triển của e17: [xem ở đây ] [e17-bug-report].
+Lỗi đã được chỉnh trong bản mới nhất của `e17`. Tuy nhiên, phiên bản này
+chưa được biên dịch cho ArchLinux.
+
+Một điều thú vị là một số lập trình viên của `e17` dùng ArchLinux cho công
+việc của họ. Điều này còn thể hiện ở các hướng dẫn cho gói [Entrance] []
+
+    edit rc.conf using your favorite text editor
+      vim /etc/rc.conf
+    Remove the startx daemon, and add the entranced daemon.
+    For example, extract of my rc.conf:
+      DAEMONS=(syslog-ng network netfs crond sshd alsa entranced fam)
+
+[ARM]: http://arm.konnichi.com/search/
+[connman 0.76]: /s/icy/connman/076/
+[e17-bug-report]: http://trac.enlightenment.org/e/ticket/1458
+[Entrance]: http://trac.enlightenment.org/e/wiki/Entrance
+[startx]: /doc/security/startx/
+[e17]: /blog/~icy/e17/
+[avidemux.tips]: http://frapsforum.com/threads/compressing-with-avidemux.1197/
