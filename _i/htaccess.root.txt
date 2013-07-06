@@ -1,0 +1,2 @@
+RemoveType    .php
+RemoveHandler .php

@@ -73,7 +73,6 @@ EOF
       else nil
     end
 
-    # FIXME: Why do we need a check `File.file?` here?
     op and file_name and command and File.file?(file_name) \
       ? %x{#{command}}.strip.gsub("\n", "") \
       : "Couldn't fetch information for item '#{path}'"
@@ -165,17 +164,22 @@ EOF
 
     ret = ["<ol>"]
     all_items.each do |p|
+      # User blog. We will use top-level link for user by remove `/blog/`
       if gs = p.identifier.match(%r{^/blog/([^/]+)/.+})
-        ret << "<li>%s - %s</li>" % [gs[1], link_to(p[:title], p.identifier)]
-      elsif gs = p.identifier.match(%r{^/faq/.+})
-        ret << "<li>faq - %s</li>" % [link_to(p[:title], p.identifier)]
+        ret << "<li>%s - %s</li>" % [gs[1], link_to(p[:title], p.identifier.sub(%r{/blog/},'/'))]
+      # Any subpage under /vn/
       elsif gs = p.identifier.match(%r{^/vn/([^/]+)/})
         page = gs[1]
         if %w{author-guide members bot irc lists news}.include?(page)
-          ret << "<li>home - %s</li>" % [link_to(p[:title], p.identifier)]
+          ret << "<li>vn - %s</li>" % [link_to(p[:title], p.identifier)]
         end
-      elsif gs = p.identifier.match(%r{^/doc/.+/})
-        ret << "<li>doc - %s</li>" % [link_to(p[:title], p.identifier)]
+      else
+        # Some special pages need a prefix
+        %w{faq ken doc}.each do |t|
+          if gs = p.identifier.match(%r{^/#{t}/.+})
+            ret << "<li>#{t} - %s</li>" % [link_to(p[:title], p.identifier)]
+          end
+        end
       end
     end
     ret << ["</ol>"]
@@ -186,42 +190,32 @@ EOF
   # @purpose: print license text
   # @author : Anh K. Huynh
   # @date   : 2013 Feb 05
-  def license_text(name = "CC BY-ND")
+  def license_text(name = "CC BY-SA")
     texts = case name
-      when "CC BY-SA"
-        ["This page is published under the license <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC BY-SA 2.0</a>.",
+      when nil, "CC BY-SA"
+        ["Trang này là một phần của <b>TheSLInux</b>,",
+         " và được phân phối với giấy phép <a href=\"http://creativecommons.org/licenses/by-sa/3.0/vn\">CC BY-SA 3.0</a>.",
          "",
-         "You are free:",
+         "Bạn được <b>Sao chép</b>, <b>Chia sẻ</b>, <b>Phân phối</b> trang này dưới điều kiện sau:",
          "",
-         "  (1) to Share — to copy, distribute and transmit the work,",
-         "  (2) to Remix — to adapt the work,",
-         "  (3) sto make commercial use of the work",
-         "",
-         "under the following conditions:",
-         "",
-         "  (1) Attribution — You must attribute the work in the manner",
-         "      specified by the author or licensor <em>(but not in any way",
-         "      that suggests that they endorse you or your use of the work)</em>",
-         "  (2) Share Alike — If you alter, transform, or build upon this work,",
-         "      you may distribute the resulting work only under the same",
-         "      or similar license to this one."
+         "(1) Bạn phải ghi tên tác giả <b>TheSLinux</b> và giấy phép; tuy nhiên <b>không</b>",
+         "    được hàm ý tác giả  trao trang này hay quyền sử dụng trang này cho bạn;",
+         "(2) Nếu bạn sử dụng, chuyển đổi, hoặc xây dựng dự án từ nội dung được chia sẻ này,",
+         "    bạn phải áp dụng giấy phép này hoặc giấy phép khác có các điều khoản tương tự",
+         "    như giấy phép này cho dự án của bạn."
         ]
       when false
         []
-      when nil # "CC BY-ND 3.0"
-        ["This page is published under the license <a href=\"http://creativecommons.org/licenses/by-nc-nd/3.0/\">CC BY-NC-ND 3.0</a>.",
+      when "CC BY-ND 3.0"
+        ["Trang này là một phần của <b>TheSLinux</b>,",
+         "  và được phân phối với giấy phép <a href=\"http://creativecommons.org/licenses/by-nc-nd/3.0/\">CC BY-NC-ND 3.0</a>.",
          "",
-         "You are free to",
+         "Bạn được <b>Sao chép</b>, <b>Chia sẻ</b>, <b>Phân phối</b> trang này dưới điều kiện sau:",
          "",
-         "  Share — to copy, distribute and transmit the work",
-         "",
-         "under the following conditions:",
-         "",
-         "  (1) Attribution — You must attribute the work in the manner",
-         "      specified by the author or licensor <em>(but not in any way",
-         "      that suggests that they endorse you or your use of the work)</em>",
-         "  (2) Noncommercial — You may not use this work for commercial purposes;",
-         "  (3) No Derivative Works — You may not alter, transform, or build upon this work."
+         "(1) Bạn phải ghi tên tác giả <b>TheSLinux</b> và giấy phép; tuy nhiên <b>không</b>",
+         "    được hàm ý tác giả  trao trang này hay quyền sử dụng trang này cho bạn;",
+         "(2) Bạn <b>không</b> dùng trang này vào mục đích thương mại;",
+         "(3) Bạn <b>không</b> thay đổi, điều chỉnh hay tạo ra sản phẩm từ trang này.",
         ]
       else
         ["This page is published under the license <strong>#{name}</strong>"]
