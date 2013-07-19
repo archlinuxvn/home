@@ -137,7 +137,7 @@ _create_archive() {
 
 _sync() {
   msg "Updating home page archlinuxvn.tuxfamily.org"
-  ssh -o ConnectTimeout=3 $_S_TUXFAMILY
+  ssh -o ConnectTimeout=3 "$_S_TUXFAMILY" "tuxfamily_archlinuxvn"
   if [[ $? -ge 1 ]]; then
     msg "=============================================="
     msg "Error happened when updating pages on tuxfamily."
