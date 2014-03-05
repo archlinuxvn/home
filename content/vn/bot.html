@@ -4,11 +4,23 @@ allow_comment: yes
 tags: ['irc', 'chat', 'archlinuxvn']
 ---
 
-Ở [kênh IRC nhóm] [irc], có một vài nick hoạt động để thực hiện lưu trữ log cho
-kênh (ví dụ: *bot_ka*, *kar*), và nick **bot** chính thức là **archl0n0xvn**.
+## Danh sách các bot
 
-Mục đích của bot là cung cấp vài gợi ý, ghi nhớ và giúp đỡ. Bot cũng cảnh
-báo một số lời lẽ không thích hợp trên kênh.
+Ở [kênh IRC nhóm] [irc], có các `bot` sau đây
+
+* `l00s3r-bot`: [Mã nguồn] [botsrc]
+* `l00s3rloggger`: Chạy trên máy `l00s3r`. [Mã nguồn] [botlogger]
+* `l00s5rloggger`: Như `l00s3rlogger`, chạy trên máy `l00s5r`
+* `l00s7rloggger`: Như `l00s3rlogger`, chạy trene máy `l00s7r`
+
+_(Riêng `l00s5rlogger` chỉ nhằm mục đích theo dõi máy `l00s5r`,
+không lưu trữ `log` của kênh)_
+
+Mục đích của bot là cung cấp vài gợi ý, ghi nhớ và giúp đỡ, cảnh báo một
+số từ không thích hợp trên kênh, để lưu trữ `log`, và là một cách đơn giản
+để theo dõi tình trạng hoạt động của các máy phục vụ.
+
+## Bot nhiều chuyện `l00s3r-bot`
 
 Bot có nhiều plugin khác nhau. Để biết thêm chi tiết, bạn gõ vào lệnh
 `!help` hoặc `!help <plugin_name>` khi đang ở trong kênh `#archlinuxvn`.
@@ -30,6 +42,7 @@ Vài plugin cơ bản của bot
 Thông tin về các `hạt dẻ` có thể xem trong [thông báo đầu tiên][nutshell].
 
 [irc]: /vn/irc/
-[botsrc]: https://github.com/archlinuxvn/irclog/
+[botsrc]: https://github.com/archlinuxvn/irclog/tree/master/log-reader
 [bot]: /vn/bot/
 [nutshell]: https://groups.google.com/group/archlinuxvn/browse_thread/thread/93b2b29c4fbe74e1
+[botlogger]: https://github.com/archlinuxvn/irclog/tree/master/log-reader
