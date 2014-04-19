@@ -12,6 +12,7 @@ tags: ['irc', 'chat', 'archlinuxvn']
 * `l00s9rloggger`: Chạy trên máy `l00s9r`. [Mã nguồn] [botlogger]
 * `l00s5rloggger`: Như `l00s9rlogger`, chạy trên máy `l00s5r`
 * `l00s7rloggger`: Như `l00s9rlogger`, chạy trên máy `l00s7r`
+* `SuperLuserv2` : [Mã nguồn] [williesrc]
 
 _(Riêng `l00s5rlogger` chỉ nhằm mục đích theo dõi máy `l00s5r`,
 không lưu trữ `log` của kênh)_
@@ -42,9 +43,41 @@ Vài plugin cơ bản của bot
 
 Thông tin về các `hạt dẻ` có thể xem trong [thông báo đầu tiên][nutshell].
 
+## Bot hỗ trợ xử lí thông tin `SuperLuserv2`
+
+Bot này được cung cấp bởi thành viên `_Tux_`. Bot có nhiều chức năng 
+khác nhau. Để biết thêm chi tiết, bạn gõ vào lệnh `.commands` khi đang 
+ở trong kênh `#archlinuxvn`, bot sẽ gửi thông tin cho bạn
+dưới dạng private message.
+Bạn có thể tham khảo với [mã nguồn của bot willie tại github] [williesrc].
+
+Những chức năng chính của bot
+
+* Tự động đưa ra Title của trang web khi bạn gửi đường dẫn website vào kênh.
+* **.g/.google:** Tìm kiếm thông tin thông qua  Google Search
+  vả trả về kết quả đầu tiên.
+* **.yt/.youtube:** Tìm kiếm thông tin trên Youtube
+* **.w/.wik/.wiki:** Tìm kiếm thông tin trên Wikipedia và trả về những
+  nội dung đầu tiên kèm với đường dẫn đến trang Wiki với nội dung tìm kiếm
+* **.findissue/.findbug:** Tìm kiếm issue, bug trên trang GitHub
+* **.movie/.imdb:** Trả về một số thông tin về bộ phim như Tên, Năm,
+  Xếp hạng, Thể loại và đường dẫn đến trang IMDB.
+* **.seen:** Thông báo thông tin thành viên lần cuối được nhìn thấy
+  lúc nào và ở trên kênh nào.
+* **tell:** Nhờ bot gửi lời nhắn đến 1 thành viên, chức năng này hữu dụng
+  khi bạn cần gửi lời nhắn đến 1 thành viên khi thành viên đó hiện tại
+  không ở trên kênh.
+* **.weather:** Đưa ra dự báo thời tiết.
+* **.ip/.iplookup** Tìm thông tin dựa trên địa chỉ IP.
+
+Nhưng thông tin khác về `commands` của bot `SuperLuserv2` có thể xem
+trên [trang chủ của bot willie ở GitHub] [williecommands]
+
 [irc]: /vn/irc/
 [botsrc]: https://github.com/archlinuxvn/irclog/tree/master/bot
 [bot]: /vn/bot/
 [nutshell]: https://groups.google.com/group/archlinuxvn/browse_thread/thread/93b2b29c4fbe74e1
 [botlogger]: https://github.com/archlinuxvn/irclog/tree/master/log-reader
 [bot.mail]: https://groups.google.com/forum/#!topic/archlinuxvn/gfoLOuTaTUo
+[williesrc]: https://github.com/embolalia/willie
+[williecommands]: https://github.com/embolalia/willie/wiki/Commands
