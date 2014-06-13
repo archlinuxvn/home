@@ -194,12 +194,12 @@ EOF
   def license_text(name = "CC BY-SA")
     texts = case name
       when nil, "CC BY-SA"
-        ["Trang này là một phần của <b>TheSLInux</b>,",
+        ["Trang này là một phần của <b>ArchLinuxVn</b>,",
          " và được phân phối với giấy phép <a href=\"http://creativecommons.org/licenses/by-sa/3.0/vn\">CC BY-SA 3.0</a>.",
          "",
          "Bạn được <b>Sao chép</b>, <b>Chia sẻ</b>, <b>Phân phối</b> trang này dưới điều kiện sau:",
          "",
-         "(1) Bạn phải ghi tên tác giả <b>TheSLinux</b> và giấy phép; tuy nhiên <b>không</b>",
+         "(1) Bạn phải ghi tên tác giả <b>ArchLinuxVn</b> và giấy phép; tuy nhiên <b>không</b>",
          "    được hàm ý tác giả  trao trang này hay quyền sử dụng trang này cho bạn;",
          "(2) Nếu bạn sử dụng, chuyển đổi, hoặc xây dựng dự án từ nội dung được chia sẻ này,",
          "    bạn phải áp dụng giấy phép này hoặc giấy phép khác có các điều khoản tương tự",
@@ -208,12 +208,12 @@ EOF
       when false
         []
       when "CC BY-ND 3.0"
-        ["Trang này là một phần của <b>TheSLinux</b>,",
+        ["Trang này là một phần của <b>ArchLinuxVn</b>,",
          "  và được phân phối với giấy phép <a href=\"http://creativecommons.org/licenses/by-nc-nd/3.0/\">CC BY-NC-ND 3.0</a>.",
          "",
          "Bạn được <b>Sao chép</b>, <b>Chia sẻ</b>, <b>Phân phối</b> trang này dưới điều kiện sau:",
          "",
-         "(1) Bạn phải ghi tên tác giả <b>TheSLinux</b> và giấy phép; tuy nhiên <b>không</b>",
+         "(1) Bạn phải ghi tên tác giả <b>ArchLinuxVn</b> và giấy phép; tuy nhiên <b>không</b>",
          "    được hàm ý tác giả  trao trang này hay quyền sử dụng trang này cho bạn;",
          "(2) Bạn <b>không</b> dùng trang này vào mục đích thương mại;",
          "(3) Bạn <b>không</b> thay đổi, điều chỉnh hay tạo ra sản phẩm từ trang này.",
