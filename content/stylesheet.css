@@ -151,10 +151,11 @@ pre code {
 }
 
 pre.license {
-  color: gray;
+  color: navy;
   background-color: transparent;
   font-size: 11px;
   font-family: normal;
+  border-top: 1px solid #ccc;
 }
 
 blockquote {
