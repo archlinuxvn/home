@@ -6,6 +6,44 @@
     <link rel="stylesheet" type="text/css" href="/style.css" media="screen">
   </head>
   <body>
+    <div id="cssmenu">
+      <ul class="pureCssMenu pureCssMenum">
+        <li class="pureCssMenui"><a class="pureCssMenui" href="/index.html">Trang đầu</a></li>
+        <li class="pureCssMenui"><a class="pureCssMenui" href="#"><span>Người dùng</span><![if gt IE 6]></a><![endif]><!--[if lte IE 6]><table><tr><td><![endif]-->
+        <ul class="pureCssMenum">
+          <li class="pureCssMenui"><a class="pureCssMenui" href="/vn/news/">Tin tức</a></li>
+          <li class="pureCssMenui"><a class="pureCssMenui" href="/vn/members/">Thành viên</a></li>
+          <li class="pureCssMenui"><a class="pureCssMenui" href="/doc/">Tài liệu</a></li>
+          <li class="pureCssMenui"><a class="pureCssMenui" href="/faq/">FAQ</a></li>
+        </ul>
+        <!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
+        <li class="pureCssMenui"><a class="pureCssMenui" href="#"><span>Kết nối</span><![if gt IE 6]></a><![endif]><!--[if lte IE 6]><table><tr><td><![endif]-->
+        <ul class="pureCssMenum">
+          <li class="pureCssMenui"><a class="pureCssMenui" href="/vn/lists/">Nhóm thư</a></li>
+          <li class="pureCssMenui"><a class="pureCssMenui" href="/vn/irc/">Kênh IRC</a></li>
+          <li class="pureCssMenui"><a class="pureCssMenui" href="/vn/skype/">Nhóm Skype</a></li>
+          <li class="pureCssMenui"><a class="pureCssMenui" href="https://twitter.com/archlinuxvn">Twitter</a></li>
+          <li class="pureCssMenui"><a class="pureCssMenui" href="https://facebook.com/archlinuxvn/">Facebook</a></li>
+        </ul>
+        <!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
+        <li class="pureCssMenui"><a class="pureCssMenui" href="/security/">Security</a></li>
+        <!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
+        <li class="pureCssMenui"><a class="pureCssMenui" href="#"><span>Tiện ích</span><![if gt IE 6]></a><![endif]><!--[if lte IE 6]><table><tr><td><![endif]-->
+        <ul class="pureCssMenum">
+          <li class="pureCssMenui"><a class="pureCssMenui" href="/tags/">Thẻ</a></li>
+          <li class="pureCssMenui"><a class="pureCssMenui" href="/changes/">Thay đổi</a></li>
+          <li class="pureCssMenui"><a class="pureCssMenui" href="http://github.com/archlinuxvn/">Mã nguồn</a></li>
+        </ul>
+        <!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
+        <li class="pureCssMenui"><a class="pureCssMenui" href="#"><span>Mirror</span><![if gt IE 6]></a><![endif]><!--[if lte IE 6]><table><tr><td><![endif]-->
+        <ul class="pureCssMenum">
+          <li class="pureCssMenui"><a class="pureCssMenui" href="http://archlinuxvn.tuxfamily.org<%= @item.identifier %>">Pháp</a></li>
+          <li class="pureCssMenui"><a class="pureCssMenui" href="http://theslinux.org<%= @item.identifier %>">Singpore</a></li>
+        </ul>
+        <!--[if lte IE 6]></td></tr></table></a><![endif]--></li>
+      </ul>
+    </div>
+
     <div id="main">
       <% if @item[:title] %>
       <h1><%= @item[:title] %></h1>
@@ -42,48 +80,6 @@
       <% end %>
       <pre class="license"><%= license_text(@item[:license]) %></pre>
       <%= @item[:allow_comment] ? disqus_show : "" %>
-    </div>
-    <div id="sidebar">
-      <h2><a href="/">ArchLinux @Vietnam</a></h2>
-      <ul>
-        <li><a href="/vn/news/">tin tức</a>
-              <%= item_news?("vn/news/", 14) ? " (mới)" : "" %>
-          </li>
-        <li><a href="/vn/members/">thành viên</a></li>
-        <li><a href="/changes/">thay đổi gần đây</a></li>
-        <li></li>
-        <li><a href="/security/">!! Security !!</a></li>
-      </ul>
-      <h2><a href="/blog/">Blog</a></h2>
-      <ul>
-        <li><a href="/~redlotus/">redlotus</a>,
-            <a href="/~n0b0dy/">n0b0dy</a>
-        </li>
-        <li><a href="/~huy/">huy</a>,
-            <a href="/~icy/">icy</a>
-        </li>
-      </ul>
-      <h2><a href="/doc/">Tài liệu</a></h2>
-      <ul>
-        <li><a href="/faq/">FAQ</a></li>
-        <li><a href="/doc/newbie/">cơ bản</a>,
-          <a href="/doc/oldbie/">trung bình</a></li>
-      </ul>
-      <h2>Liên kết. Liên hệ</h2>
-      <ul>
-        <li><a href="/vn/irc/">irc</a> (<a href="/vn/bot/">bot</a>),
-            <a href="/vn/skype/">skype</a></li>
-        <li><a href="/vn/lists/">nhóm thư</a>,
-            <a href="http://github.com/archlinuxvn/">mã nguồn</a></li>
-        <li><a href="https://facebook.com/archlinuxvn/">Facebook</a>,
-            <a href="https://twitter.com/archlinuxvn/">Twitter</a></li>
-        <li>email: <strong>info</strong> @ <strong>thisdomain</strong></li>
-      </ul>
-      <h2>Linh tinh</h2>
-      <ul>
-        <li><a href="/tags/">thẻ đánh dấu bài viết</a></li>
-        <li><a href="http://www.google.com.vn/?q=site:archlinuxvn.org+&nbsp;">tìm với Google</a></li>
-      </ul>
     </div>
   </body>
 </html>
