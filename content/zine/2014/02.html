@@ -1,0 +1,75 @@
+---
+title: Bản tin số 1 (2014-09-21)
+allow_comment: yes
+tags: ['archlinuxvn', 'zine']
+---
+
+Bản tin này có thêm phần điểm tin thế giới.
+
+* ToC
+{:toc}
+
+## Chủ đề nóng
+
+* [Trao đổi về việc chia sẻ các gói ở dạng nhị phân][aur-vn]:
+  Có nên tạo một kho để chia sẻ các gói ở dạng nhị phân với cộng đồng?
+  Làm thế nào để xây dựng cơ chế an toàn trong việc chia sẻ này?
+
+## Tin thế giới
+
+* [lwn.apt][]:
+    Chương trình quản lý gói `apt` trên Debian bị lỗi, có thể dẫn tới
+    kiểm tra không đúng gói tải về. **Bạn cần cập nhật cho hệ thống Debian
+    để tránh lỗi này**.
+
+* [lwn.luneOS]:
+    LuneOS có phiên bản đầu tiên ngày 1/9 để tiếp tục phát triển WebOS
+    _(Palm)_ là hệ điều hành dành cho điện thoại di động.
+
+* [lwn.wayland]:
+    Wayland có phiên bản mới 1.6.
+
+* [lwn.udev]:
+    Câu chuyện thú vị giải thích vì sao một miếng vá cho `linux` kernel
+    vào tháng 11/2013 lại xung đột với thiết kế của `systemd`, khiến cho
+    một số hệ thống không thể khởi động được.
+
+    Ý tưởng của miếng vá là để cho các luồng nhân có thể thoát khi nhận
+    tín hiệu `SIGKILL`. Tuy nhiên, khi hệ lưu trữ cần hơn 30 giây
+    để nạp hẳn vào hệ thống, `systemd (dev)` sẽ gửi tín hiệu để hủy tiến
+    trình dò tìm hệ lưu trữ, làm hệ thống ngưng lại.
+
+    Hiện chưa có cách giải hoàn chỉnh, mà chỉ có biện pháp chữa cháy cho
+    trường hợp trên :)
+
+## Cần bạn giúp đỡ
+
+* [Xài giấy phép gì][poll.licenses]: Bạn đang sử dụng giấy phép gì,
+  bạn thích giấy phép nào nhất? Hãy chia sẻ với mọi người để có cái
+  nhìn tương đối chính xác quan niệm về giấy phép của cộng đồng.
+
+* Chọn ra hình đẹp nhất đại diện cho nhóm trong 1 tuần từ các hình
+  mà [các thành viên góp nhân SFD 2014][fbg.photos.sfd2014].
+
+* Cập nhật kho [lưu trữ của nhóm thư][list.archive]: đồng bộ nội dung
+  kho lưu trữ này với nội dung ở Google Group. Chuyển tất cả các thư
+  _(mbox)_ vào kho lưu trữ ở [Mail-Archive][].
+
+* [Tìm hiểu về chính sách mới của OpenSSL][lwn.openssl]
+
+## Sự kiện đã qua
+
+* 20/9:
+  Các thành viên đã góp khoảng 40 hình chụp màn hình để hưởng ứng SFD 2014.
+  Nếu bạn có tham gia thì hay chia sẻ các ý tưởng, hình ảnh của sự kiện nhé.
+
+[fbg.photos.sfd2014]: https://www.facebook.com/media/set/?set=oa.268269473366782
+[list.archive]: http://l.archlinuxvn.org/archlinuxvn/
+[Mail-Archive]: http://www.mail-archive.com/archlinuxvn@googlegroups.com/
+[aur-vn]: https://www.facebook.com/groups/archlinuxvn/permalink/269850469875349/
+[poll.licenses]: https://www.facebook.com/groups/archlinuxvn/permalink/269490453244684/
+[lwn.apt]: http://lwn.net/Articles/612563/
+[lwn.luneOS]: http://lwn.net/Articles/610408/
+[lwn.wayland]: http://lwn.net/Articles/612598/
+[lwn.openssl]: https://lwn.net/Articles/611155/
+[lwn.udev]: https://lwn.net/Articles/611226/
