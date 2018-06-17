@@ -1,0 +1,5 @@
+source "https://rubygems.org"
+gem "nanoc", "<3.7"
+gem "kramdown"
+gem "coderay"
+gem "adsf"
